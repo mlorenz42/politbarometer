@@ -1,0 +1,98 @@
+[
+  {
+    "slug": "baden-wuerttemberg",
+    "kuerzel": "bw",
+    "name": "Baden-Württemberg",
+    "naechste_wahl": "Frühjahr 2031"
+  },
+  {
+    "slug": "bayern",
+    "kuerzel": "by",
+    "name": "Bayern",
+    "naechste_wahl": "Herbst 2028"
+  },
+  {
+    "slug": "berlin",
+    "kuerzel": "be",
+    "name": "Berlin",
+    "naechste_wahl": "20. September 2026"
+  },
+  {
+    "slug": "brandenburg",
+    "kuerzel": "bb",
+    "name": "Brandenburg",
+    "naechste_wahl": "Herbst 2029"
+  },
+  {
+    "slug": "bremen",
+    "kuerzel": "hb",
+    "name": "Bremen",
+    "naechste_wahl": "30. Mai 2027"
+  },
+  {
+    "slug": "hamburg",
+    "kuerzel": "hh",
+    "name": "Hamburg",
+    "naechste_wahl": "Winter 2030"
+  },
+  {
+    "slug": "hessen",
+    "kuerzel": "he",
+    "name": "Hessen",
+    "naechste_wahl": "Herbst 2028"
+  },
+  {
+    "slug": "mecklenburg-vorpommern",
+    "kuerzel": "mv",
+    "name": "Mecklenburg- Vorpommern",
+    "naechste_wahl": "20. September 2026"
+  },
+  {
+    "slug": "niedersachsen",
+    "kuerzel": "ni",
+    "name": "Niedersachsen",
+    "naechste_wahl": "26. September 2027"
+  },
+  {
+    "slug": "nrw",
+    "kuerzel": "nw",
+    "name": "Nordrhein-Westfalen",
+    "naechste_wahl": "25. April 2027"
+  },
+  {
+    "slug": "rheinland-pfalz",
+    "kuerzel": "rp",
+    "name": "Rheinland-Pfalz",
+    "naechste_wahl": "Frühjahr 2031"
+  },
+  {
+    "slug": "saarland",
+    "kuerzel": "sl",
+    "name": "Saarland",
+    "naechste_wahl": "18. April 2027"
+  },
+  {
+    "slug": "sachsen",
+    "kuerzel": "sn",
+    "name": "Sachsen",
+    "naechste_wahl": "Herbst 2029"
+  },
+  {
+    "slug": "sachsen-anhalt",
+    "kuerzel": "st",
+    "name": "Sachsen-Anhalt",
+    "naechste_wahl": "6. September 2026"
+  },
+  {
+    "slug": "schleswig-holstein",
+    "kuerzel": "sh",
+    "name": "Schleswig-Holstein",
+    "naechste_wahl": "18. April 2027"
+  },
+  {
+    "slug": "thueringen",
+    "kuerzel": "th",
+    "name": "Thüringen",
+    "naechste_wahl": "Herbst 2029"
+  }
+]

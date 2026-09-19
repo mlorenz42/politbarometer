@@ -1,0 +1,3144 @@
+{
+ "stand": "2026-09-19",
+ "quelle": "https://de.wikipedia.org/wiki/Liste_der_Ministerpr%C3%A4sidenten_der_deutschen_L%C3%A4nder",
+ "parteien": {
+  "x-pro": "PRO",
+  "x-statt": "Statt",
+  "x-th-ringen-gerecht": "Thüringen.Gerecht"
+ },
+ "laender": {
+  "baden-wuerttemberg": {
+   "name": "Baden-Württemberg",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-grüne Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 8. März 2026"
+   },
+   "kabinette": [
+    {
+     "name": "Späth IV",
+     "cab": "Kabinett Späth IV",
+     "title": "Ministerpräsident",
+     "who": "Lothar Späth",
+     "wp": "cdu",
+     "from": "1988-06-08",
+     "to": "1991-01-13",
+     "ph": [
+      {
+       "from": "1988-06-08",
+       "to": "1991-01-13",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Teufel I",
+     "cab": "Kabinett Teufel I",
+     "title": "Ministerpräsident",
+     "who": "Erwin Teufel",
+     "wp": "cdu",
+     "from": "1991-01-22",
+     "to": "1992-06-11",
+     "ph": [
+      {
+       "from": "1991-01-22",
+       "to": "1992-06-11",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Teufel II",
+     "cab": "Kabinett Teufel II",
+     "title": "Ministerpräsident",
+     "who": "Erwin Teufel",
+     "wp": "cdu",
+     "from": "1992-06-11",
+     "to": "1996-06-12",
+     "ph": [
+      {
+       "from": "1992-06-11",
+       "to": "1996-06-12",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Teufel III",
+     "cab": "Kabinett Teufel III",
+     "title": "Ministerpräsident",
+     "who": "Erwin Teufel",
+     "wp": "cdu",
+     "from": "1996-06-12",
+     "to": "2001-06-13",
+     "ph": [
+      {
+       "from": "1996-06-12",
+       "to": "2001-06-13",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Teufel IV",
+     "cab": "Kabinett Teufel IV",
+     "title": "Ministerpräsident",
+     "who": "Erwin Teufel",
+     "wp": "cdu",
+     "from": "2001-06-13",
+     "to": "2005-04-21",
+     "ph": [
+      {
+       "from": "2001-06-13",
+       "to": "2005-04-21",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Oettinger I",
+     "cab": "Kabinett Oettinger I",
+     "title": "Ministerpräsident",
+     "who": "Günther Oettinger",
+     "wp": "cdu",
+     "from": "2005-04-29",
+     "to": "2006-06-14",
+     "ph": [
+      {
+       "from": "2005-04-29",
+       "to": "2006-06-14",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Oettinger II",
+     "cab": "Kabinett Oettinger II",
+     "title": "Ministerpräsident",
+     "who": "Günther Oettinger",
+     "wp": "cdu",
+     "from": "2006-06-26",
+     "to": "2010-02-10",
+     "ph": [
+      {
+       "from": "2006-06-26",
+       "to": "2010-02-10",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Mappus",
+     "cab": "Kabinett Mappus",
+     "title": "Ministerpräsident",
+     "who": "Stefan Mappus",
+     "wp": "cdu",
+     "from": "2010-02-10",
+     "to": "2011-05-11",
+     "ph": [
+      {
+       "from": "2010-02-10",
+       "to": "2011-05-11",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Kretschmann I",
+     "cab": "Kabinett Kretschmann I",
+     "title": "Ministerpräsident",
+     "who": "Winfried Kretschmann",
+     "wp": "gru",
+     "from": "2011-05-12",
+     "to": "2016-05-11",
+     "ph": [
+      {
+       "from": "2011-05-12",
+       "to": "2016-05-11",
+       "co": ["gru", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Kretschmann II",
+     "cab": "Kabinett Kretschmann II",
+     "title": "Ministerpräsident",
+     "who": "Winfried Kretschmann",
+     "wp": "gru",
+     "from": "2016-05-12",
+     "to": "2021-05-12",
+     "ph": [
+      {
+       "from": "2016-05-12",
+       "to": "2021-05-12",
+       "co": ["gru", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Kretschmann III",
+     "cab": "Kabinett Kretschmann III",
+     "title": "Ministerpräsident",
+     "who": "Winfried Kretschmann",
+     "wp": "gru",
+     "from": "2021-05-12",
+     "to": "2026-05-13",
+     "ph": [
+      {
+       "from": "2021-05-12",
+       "to": "2026-05-13",
+       "co": ["gru", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Özdemir",
+     "cab": "Kabinett Özdemir",
+     "title": "Ministerpräsident",
+     "who": "Cem Özdemir",
+     "wp": "gru",
+     "from": "2026-05-13",
+     "to": null,
+     "ph": [
+      {
+       "from": "2026-05-13",
+       "to": null,
+       "co": ["gru", "cdu"]
+      }
+     ]
+    }
+   ]
+  },
+  "bayern": {
+   "name": "Bayern",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-orange Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 8. Oktober 2023"
+   },
+   "kabinette": [
+    {
+     "name": "Streibl I",
+     "cab": "Kabinett Streibl I",
+     "title": "Ministerpräsident",
+     "who": "Max Streibl",
+     "wp": "cdu",
+     "from": "1988-10-19",
+     "to": "1990-10-30",
+     "ph": [
+      {
+       "from": "1988-10-19",
+       "to": "1990-10-30",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Streibl II",
+     "cab": "Kabinett Streibl II",
+     "title": "Ministerpräsident",
+     "who": "Max Streibl",
+     "wp": "cdu",
+     "from": "1990-10-30",
+     "to": "1993-05-28",
+     "ph": [
+      {
+       "from": "1990-10-30",
+       "to": "1993-05-28",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Stoiber I",
+     "cab": "Kabinett Stoiber I",
+     "title": "Ministerpräsident",
+     "who": "Edmund Stoiber",
+     "wp": "cdu",
+     "from": "1993-06-17",
+     "to": "1994-10-27",
+     "ph": [
+      {
+       "from": "1993-06-17",
+       "to": "1994-10-27",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Stoiber II",
+     "cab": "Kabinett Stoiber II",
+     "title": "Ministerpräsident",
+     "who": "Edmund Stoiber",
+     "wp": "cdu",
+     "from": "1994-10-27",
+     "to": "1998-10-06",
+     "ph": [
+      {
+       "from": "1994-10-27",
+       "to": "1998-10-06",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Stoiber III",
+     "cab": "Kabinett Stoiber III",
+     "title": "Ministerpräsident",
+     "who": "Edmund Stoiber",
+     "wp": "cdu",
+     "from": "1998-10-06",
+     "to": "2003-10-14",
+     "ph": [
+      {
+       "from": "1998-10-06",
+       "to": "2003-10-14",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Stoiber IV",
+     "cab": "Kabinett Stoiber IV",
+     "title": "Ministerpräsident",
+     "who": "Edmund Stoiber",
+     "wp": "cdu",
+     "from": "2003-10-14",
+     "to": "2007-10-16",
+     "ph": [
+      {
+       "from": "2003-10-14",
+       "to": "2007-10-16",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Beckstein",
+     "cab": "Kabinett Beckstein",
+     "title": "Ministerpräsident",
+     "who": "Günther Beckstein",
+     "wp": "cdu",
+     "from": "2007-10-16",
+     "to": "2008-10-27",
+     "ph": [
+      {
+       "from": "2007-10-16",
+       "to": "2008-10-27",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Seehofer I",
+     "cab": "Kabinett Seehofer I",
+     "title": "Ministerpräsident",
+     "who": "Horst Seehofer",
+     "wp": "cdu",
+     "from": "2008-10-30",
+     "to": "2013-10-08",
+     "ph": [
+      {
+       "from": "2008-10-30",
+       "to": "2013-10-08",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Seehofer II",
+     "cab": "Kabinett Seehofer II",
+     "title": "Ministerpräsident",
+     "who": "Horst Seehofer",
+     "wp": "cdu",
+     "from": "2013-10-10",
+     "to": "2018-03-21",
+     "ph": [
+      {
+       "from": "2013-10-10",
+       "to": "2018-03-21",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Söder I",
+     "cab": "Kabinett Söder I",
+     "title": "Ministerpräsident",
+     "who": "Markus Söder",
+     "wp": "cdu",
+     "from": "2018-03-21",
+     "to": "2018-11-06",
+     "ph": [
+      {
+       "from": "2018-03-21",
+       "to": "2018-11-06",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Söder II",
+     "cab": "Kabinett Söder II",
+     "title": "Ministerpräsident",
+     "who": "Markus Söder",
+     "wp": "cdu",
+     "from": "2018-11-06",
+     "to": "2023-10-31",
+     "ph": [
+      {
+       "from": "2018-11-06",
+       "to": "2023-10-31",
+       "co": ["cdu", "fw"]
+      }
+     ]
+    },
+    {
+     "name": "Söder III",
+     "cab": "Kabinett Söder III",
+     "title": "Ministerpräsident",
+     "who": "Markus Söder",
+     "wp": "cdu",
+     "from": "2023-10-31",
+     "to": null,
+     "ph": [
+      {
+       "from": "2023-10-31",
+       "to": null,
+       "co": ["cdu", "fw"]
+      }
+     ]
+    }
+   ]
+  },
+  "berlin": {
+   "name": "Berlin",
+   "wahl": "Abgeordnetenhauswahl",
+   "aktuell": {
+    "koalitionsname": "Große Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Abgeordnetenhauswahl vom 12. Februar 2023"
+   },
+   "kabinette": [
+    {
+     "name": "Diepgen II",
+     "cab": "Senat Diepgen II",
+     "title": "Regierender Bürgermeister",
+     "who": "Eberhard Diepgen",
+     "wp": "cdu",
+     "from": "1985-04-18",
+     "to": "1989-03-16",
+     "ph": [
+      {
+       "from": "1985-04-18",
+       "to": "1989-03-16",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Momper",
+     "cab": "Senat Momper",
+     "title": "Regierender Bürgermeister",
+     "who": "Walter Momper",
+     "wp": "spd",
+     "from": "1989-03-16",
+     "to": "1991-01-24",
+     "ph": [
+      {
+       "from": "1989-03-16",
+       "to": "1991-01-24",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Diepgen III",
+     "cab": "Senat Diepgen III",
+     "title": "Regierender Bürgermeister",
+     "who": "Eberhard Diepgen",
+     "wp": "cdu",
+     "from": "1991-01-24",
+     "to": "1996-01-25",
+     "ph": [
+      {
+       "from": "1991-01-24",
+       "to": "1996-01-25",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Diepgen IV",
+     "cab": "Senat Diepgen IV",
+     "title": "Regierender Bürgermeister",
+     "who": "Eberhard Diepgen",
+     "wp": "cdu",
+     "from": "1996-01-25",
+     "to": "1999-12-09",
+     "ph": [
+      {
+       "from": "1996-01-25",
+       "to": "1999-12-09",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Diepgen V",
+     "cab": "Senat Diepgen V",
+     "title": "Regierender Bürgermeister",
+     "who": "Eberhard Diepgen",
+     "wp": "cdu",
+     "from": "1999-12-09",
+     "to": "2001-06-16",
+     "ph": [
+      {
+       "from": "1999-12-09",
+       "to": "2001-06-16",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Wowereit I",
+     "cab": "Senat Wowereit I",
+     "title": "Regierender Bürgermeister",
+     "who": "Klaus Wowereit",
+     "wp": "spd",
+     "from": "2001-06-16",
+     "to": "2002-01-17",
+     "ph": [
+      {
+       "from": "2001-06-16",
+       "to": "2002-01-17",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Wowereit II",
+     "cab": "Senat Wowereit II",
+     "title": "Regierender Bürgermeister",
+     "who": "Klaus Wowereit",
+     "wp": "spd",
+     "from": "2002-01-17",
+     "to": "2006-11-22",
+     "ph": [
+      {
+       "from": "2002-01-17",
+       "to": "2006-11-22",
+       "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Wowereit III",
+     "cab": "Senat Wowereit III",
+     "title": "Regierender Bürgermeister",
+     "who": "Klaus Wowereit",
+     "wp": "spd",
+     "from": "2006-11-23",
+     "to": "2011-11-24",
+     "ph": [
+      {
+       "from": "2006-11-23",
+       "to": "2011-11-24",
+       "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Wowereit IV",
+     "cab": "Senat Wowereit IV",
+     "title": "Regierender Bürgermeister",
+     "who": "Klaus Wowereit",
+     "wp": "spd",
+     "from": "2011-11-24",
+     "to": "2014-12-11",
+     "ph": [
+      {
+       "from": "2011-11-24",
+       "to": "2014-12-11",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Müller I",
+     "cab": "Senat Müller I",
+     "title": "Regierender Bürgermeister",
+     "who": "Michael Müller",
+     "wp": "spd",
+     "from": "2014-12-11",
+     "to": "2016-12-08",
+     "ph": [
+      {
+       "from": "2014-12-11",
+       "to": "2016-12-08",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Müller II",
+     "cab": "Senat Müller II",
+     "title": "Regierender Bürgermeister",
+     "who": "Michael Müller",
+     "wp": "spd",
+     "from": "2016-12-08",
+     "to": "2021-12-21",
+     "ph": [
+      {
+       "from": "2016-12-08",
+       "to": "2021-12-21",
+       "co": ["spd", "lin", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Giffey",
+     "cab": "Senat Giffey",
+     "title": "Regierende Bürgermeisterin",
+     "who": "Franziska Giffey",
+     "wp": "spd",
+     "from": "2021-12-21",
+     "to": "2023-04-27",
+     "ph": [
+      {
+       "from": "2021-12-21",
+       "to": "2023-04-27",
+       "co": ["spd", "gru", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Wegner",
+     "cab": "Senat Wegner",
+     "title": "Regierender Bürgermeister",
+     "who": "Kai Wegner",
+     "wp": "cdu",
+     "from": "2023-04-27",
+     "to": null,
+     "ph": [
+      {
+       "from": "2023-04-27",
+       "to": null,
+       "co": ["cdu", "spd"]
+      }
+     ]
+    }
+   ]
+  },
+  "brandenburg": {
+   "name": "Brandenburg",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-rote Koalition"
+   },
+   "kabinette": [
+    {
+     "name": "Stolpe I",
+     "cab": "Kabinett Stolpe I",
+     "title": "Ministerpräsident",
+     "who": "Manfred Stolpe",
+     "wp": "spd",
+     "from": "1990-11-01",
+     "to": "1994-10-11",
+     "ph": [
+      {
+       "from": "1990-11-01",
+       "to": "1994-10-11",
+       "co": ["spd", "fdp", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Stolpe II",
+     "cab": "Kabinett Stolpe II",
+     "title": "Ministerpräsident",
+     "who": "Manfred Stolpe",
+     "wp": "spd",
+     "from": "1994-10-11",
+     "to": "1999-10-13",
+     "ph": [
+      {
+       "from": "1994-10-11",
+       "to": "1999-10-13",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Stolpe III",
+     "cab": "Kabinett Stolpe III",
+     "title": "Ministerpräsident",
+     "who": "Manfred Stolpe",
+     "wp": "spd",
+     "from": "1999-10-13",
+     "to": "2002-06-26",
+     "ph": [
+      {
+       "from": "1999-10-13",
+       "to": "2002-06-26",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Platzeck I",
+     "cab": "Kabinett Platzeck I",
+     "title": "Ministerpräsident",
+     "who": "Matthias Platzeck",
+     "wp": "spd",
+     "from": "2002-06-26",
+     "to": "2004-09-19",
+     "ph": [
+      {
+       "from": "2002-06-26",
+       "to": "2004-09-19",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Platzeck II",
+     "cab": "Kabinett Platzeck II",
+     "title": "Ministerpräsident",
+     "who": "Matthias Platzeck",
+     "wp": "spd",
+     "from": "2004-09-19",
+     "to": "2009-11-06",
+     "ph": [
+      {
+       "from": "2004-09-19",
+       "to": "2009-11-06",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Platzeck III",
+     "cab": "Kabinett Platzeck III",
+     "title": "Ministerpräsident",
+     "who": "Matthias Platzeck",
+     "wp": "spd",
+     "from": "2009-11-06",
+     "to": "2013-08-28",
+     "ph": [
+      {
+       "from": "2009-11-06",
+       "to": "2013-08-28",
+       "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Woidke I",
+     "cab": "Kabinett Woidke I",
+     "title": "Ministerpräsident",
+     "who": "Dietmar Woidke",
+     "wp": "spd",
+     "from": "2013-08-28",
+     "to": "2014-11-05",
+     "ph": [
+      {
+       "from": "2013-08-28",
+       "to": "2014-11-05",
+       "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Woidke II",
+     "cab": "Kabinett Woidke II",
+     "title": "Ministerpräsident",
+     "who": "Dietmar Woidke",
+     "wp": "spd",
+     "from": "2014-11-05",
+     "to": "2019-11-20",
+     "ph": [
+      {
+       "from": "2014-11-05",
+       "to": "2019-11-20",
+       "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Woidke III",
+     "cab": "Kabinett Woidke III",
+     "title": "Ministerpräsident",
+     "who": "Dietmar Woidke",
+     "wp": "spd",
+     "from": "2019-11-20",
+     "to": "2024-12-11",
+     "ph": [
+      {
+       "from": "2019-11-20",
+       "to": "2024-11-22",
+       "co": ["spd", "cdu", "gru"]
+      },
+      {
+       "from": "2024-11-22",
+       "to": "2024-12-11",
+       "co": ["spd", "cdu"],
+       "nm": "ohne GRÜNE"
+      }
+     ]
+    },
+    {
+     "name": "Woidke IV",
+     "cab": "Kabinett Woidke IV",
+     "title": "Ministerpräsident",
+     "who": "Dietmar Woidke",
+     "wp": "spd",
+     "from": "2024-12-11",
+     "to": "2026-03-17",
+     "ph": [
+      {
+       "from": "2024-12-11",
+       "to": "2026-01-06",
+       "co": ["spd", "bsw"]
+      },
+      {
+       "from": "2026-01-06",
+       "to": "2026-03-17",
+       "co": ["spd"],
+       "nm": "ohne BSW"
+      }
+     ]
+    },
+    {
+     "name": "Woidke V",
+     "cab": "Kabinett Woidke V",
+     "title": "Ministerpräsident",
+     "who": "Dietmar Woidke",
+     "wp": "spd",
+     "from": "2026-03-18",
+     "to": null,
+     "ph": [
+      {
+       "from": "2026-03-18",
+       "to": null,
+       "co": ["spd", "cdu"]
+      }
+     ]
+    }
+   ]
+  },
+  "bremen": {
+   "name": "Bremen",
+   "wahl": "Bürgerschaftswahl",
+   "aktuell": {
+    "koalitionsname": "Rot-rot-grüne Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Bürgerschaftswahl vom 14. Mai 2023"
+   },
+   "kabinette": [
+    {
+     "name": "Wedemeier II",
+     "cab": "Senat Wedemeier II",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Klaus Wedemeier",
+     "wp": "spd",
+     "from": "1987-10-15",
+     "to": "1991-12-11",
+     "ph": [
+      {
+       "from": "1987-10-15",
+       "to": "1991-12-11",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Wedemeier III",
+     "cab": "Senat Wedemeier III",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Klaus Wedemeier",
+     "wp": "spd",
+     "from": "1991-12-11",
+     "to": "1995-07-04",
+     "ph": [
+      {
+       "from": "1991-12-11",
+       "to": "1995-07-04",
+       "co": ["spd", "fdp", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Scherf I",
+     "cab": "Senat Scherf I",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Henning Scherf",
+     "wp": "spd",
+     "from": "1995-07-04",
+     "to": "1999-07-07",
+     "ph": [
+      {
+       "from": "1995-07-04",
+       "to": "1999-07-07",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Scherf II",
+     "cab": "Senat Scherf II",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Henning Scherf",
+     "wp": "spd",
+     "from": "1999-07-07",
+     "to": "2003-07-04",
+     "ph": [
+      {
+       "from": "1999-07-07",
+       "to": "2003-07-04",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Scherf III",
+     "cab": "Senat Scherf III",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Henning Scherf",
+     "wp": "spd",
+     "from": "2003-07-04",
+     "to": "2005-11-07",
+     "ph": [
+      {
+       "from": "2003-07-04",
+       "to": "2005-11-07",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Böhrnsen I",
+     "cab": "Senat Böhrnsen I",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Jens Böhrnsen",
+     "wp": "spd",
+     "from": "2005-11-08",
+     "to": "2007-06-29",
+     "ph": [
+      {
+       "from": "2005-11-08",
+       "to": "2007-06-29",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Böhrnsen II",
+     "cab": "Senat Böhrnsen II",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Jens Böhrnsen",
+     "wp": "spd",
+     "from": "2007-06-29",
+     "to": "2011-06-30",
+     "ph": [
+      {
+       "from": "2007-06-29",
+       "to": "2011-06-30",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Böhrnsen III",
+     "cab": "Senat Böhrnsen III",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Jens Böhrnsen",
+     "wp": "spd",
+     "from": "2011-06-30",
+     "to": "2015-07-15",
+     "ph": [
+      {
+       "from": "2011-06-30",
+       "to": "2015-07-15",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Sieling",
+     "cab": "Senat Sieling",
+     "title": "Bürgermeister und Präsident des Senats",
+     "who": "Carsten Sieling",
+     "wp": "spd",
+     "from": "2015-07-15",
+     "to": "2019-08-15",
+     "ph": [
+      {
+       "from": "2015-07-15",
+       "to": "2019-08-15",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Bovenschulte I",
+     "cab": "Senat Bovenschulte I",
+     "title": "Präsident des Senats und Bürgermeister",
+     "who": "Andreas Bovenschulte",
+     "wp": "spd",
+     "from": "2019-08-15",
+     "to": "2023-07-05",
+     "ph": [
+      {
+       "from": "2019-08-15",
+       "to": "2023-07-05",
+       "co": ["spd", "gru", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Bovenschulte II",
+     "cab": "Senat Bovenschulte II",
+     "title": "Präsident des Senats und Bürgermeister",
+     "who": "Andreas Bovenschulte",
+     "wp": "spd",
+     "from": "2023-07-05",
+     "to": null,
+     "ph": [
+      {
+       "from": "2023-07-05",
+       "to": null,
+       "co": ["spd", "gru", "lin"]
+      }
+     ]
+    }
+   ]
+  },
+  "hamburg": {
+   "name": "Hamburg",
+   "wahl": "Bürgerschaftswahl",
+   "aktuell": {
+    "koalitionsname": "Rot-grüne Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Bürgerschaftswahl vom 2. März 2025"
+   },
+   "kabinette": [
+    {
+     "name": "Voscherau I",
+     "cab": "Senat Voscherau I",
+     "title": "Erster Bürgermeister",
+     "who": "Henning Voscherau",
+     "wp": "spd",
+     "from": "1988-06-08",
+     "to": "1991-06-26",
+     "ph": [
+      {
+       "from": "1988-06-08",
+       "to": "1991-06-26",
+       "co": ["spd", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Voscherau II",
+     "cab": "Senat Voscherau II",
+     "title": "Erster Bürgermeister",
+     "who": "Henning Voscherau",
+     "wp": "spd",
+     "from": "1991-06-26",
+     "to": "1993-12-15",
+     "ph": [
+      {
+       "from": "1991-06-26",
+       "to": "1993-12-15",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Voscherau III",
+     "cab": "Senat Voscherau III",
+     "title": "Erster Bürgermeister",
+     "who": "Henning Voscherau",
+     "wp": "spd",
+     "from": "1993-12-15",
+     "to": "1997-11-12",
+     "ph": [
+      {
+       "from": "1993-12-15",
+       "to": "1997-11-12",
+       "co": ["spd", "x-statt"]
+      }
+     ]
+    },
+    {
+     "name": "Runde",
+     "cab": "Senat Runde",
+     "title": "Erster Bürgermeister",
+     "who": "Ortwin Runde",
+     "wp": "spd",
+     "from": "1997-11-12",
+     "to": "2001-10-31",
+     "ph": [
+      {
+       "from": "1997-11-12",
+       "to": "2001-10-31",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "von Beust I",
+     "cab": "Senat von Beust I",
+     "title": "Erster Bürgermeister",
+     "who": "Ole von Beust",
+     "wp": "cdu",
+     "from": "2001-10-31",
+     "to": "2004-03-17",
+     "ph": [
+      {
+       "from": "2001-10-31",
+       "to": "2004-03-17",
+       "co": ["cdu", "x-pro", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "von Beust II",
+     "cab": "Senat von Beust II",
+     "title": "Erster Bürgermeister",
+     "who": "Ole von Beust",
+     "wp": "cdu",
+     "from": "2004-03-17",
+     "to": "2008-05-07",
+     "ph": [
+      {
+       "from": "2004-03-17",
+       "to": "2008-05-07",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "von Beust III",
+     "cab": "Senat von Beust III",
+     "title": "Erster Bürgermeister",
+     "who": "Ole von Beust",
+     "wp": "cdu",
+     "from": "2008-05-07",
+     "to": "2010-08-25",
+     "ph": [
+      {
+       "from": "2008-05-07",
+       "to": "2010-08-25",
+       "co": ["cdu", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Ahlhaus",
+     "cab": "Senat Ahlhaus",
+     "title": "Erster Bürgermeister",
+     "who": "Christoph Ahlhaus",
+     "wp": "cdu",
+     "from": "2010-08-25",
+     "to": "2011-03-07",
+     "ph": [
+      {
+       "from": "2010-08-25",
+       "to": "2011-03-07",
+       "co": ["cdu", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Scholz I",
+     "cab": "Senat Scholz I",
+     "title": "Erster Bürgermeister",
+     "who": "Olaf Scholz",
+     "wp": "spd",
+     "from": "2011-03-07",
+     "to": "2015-04-15",
+     "ph": [
+      {
+       "from": "2011-03-07",
+       "to": "2015-04-15",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Scholz II",
+     "cab": "Senat Scholz II",
+     "title": "Erster Bürgermeister",
+     "who": "Olaf Scholz",
+     "wp": "spd",
+     "from": "2015-04-15",
+     "to": "2018-03-28",
+     "ph": [
+      {
+       "from": "2015-04-15",
+       "to": "2018-03-28",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Tschentscher I",
+     "cab": "Senat Tschentscher I",
+     "title": "Erster Bürgermeister",
+     "who": "Peter Tschentscher",
+     "wp": "spd",
+     "from": "2018-03-28",
+     "to": "2020-06-10",
+     "ph": [
+      {
+       "from": "2018-03-28",
+       "to": "2020-06-10",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Tschentscher II",
+     "cab": "Senat Tschentscher II",
+     "title": "Erster Bürgermeister",
+     "who": "Peter Tschentscher",
+     "wp": "spd",
+     "from": "2020-06-10",
+     "to": "2025-05-07",
+     "ph": [
+      {
+       "from": "2020-06-10",
+       "to": "2025-05-07",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Tschentscher III",
+     "cab": "Senat Tschentscher III",
+     "title": "Erster Bürgermeister",
+     "who": "Peter Tschentscher",
+     "wp": "spd",
+     "from": "2025-05-07",
+     "to": null,
+     "ph": [
+      {
+       "from": "2025-05-07",
+       "to": null,
+       "co": ["spd", "gru"]
+      }
+     ]
+    }
+   ]
+  },
+  "hessen": {
+   "name": "Hessen",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-rote Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 8. Oktober 2023"
+   },
+   "kabinette": [
+    {
+     "name": "Wallmann",
+     "cab": "Kabinett Wallmann",
+     "title": "Ministerpräsident",
+     "who": "Walter Wallmann",
+     "wp": "cdu",
+     "from": "1987-04-24",
+     "to": "1991-04-05",
+     "ph": [
+      {
+       "from": "1987-04-24",
+       "to": "1991-04-05",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Eichel I",
+     "cab": "Kabinett Eichel I",
+     "title": "Ministerpräsident",
+     "who": "Hans Eichel",
+     "wp": "spd",
+     "from": "1991-04-05",
+     "to": "1995-04-05",
+     "ph": [
+      {
+       "from": "1991-04-05",
+       "to": "1995-04-05",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Eichel II",
+     "cab": "Kabinett Eichel II",
+     "title": "Ministerpräsident",
+     "who": "Hans Eichel",
+     "wp": "spd",
+     "from": "1995-04-05",
+     "to": "1999-04-07",
+     "ph": [
+      {
+       "from": "1995-04-05",
+       "to": "1999-04-07",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Koch I",
+     "cab": "Kabinett Koch I",
+     "title": "Ministerpräsident",
+     "who": "Roland Koch",
+     "wp": "cdu",
+     "from": "1999-04-07",
+     "to": "2003-04-05",
+     "ph": [
+      {
+       "from": "1999-04-07",
+       "to": "2003-04-05",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Koch II",
+     "cab": "Kabinett Koch II",
+     "title": "Ministerpräsident",
+     "who": "Roland Koch",
+     "wp": "cdu",
+     "from": "2003-04-05",
+     "to": "2009-02-05",
+     "ph": [
+      {
+       "from": "2003-04-05",
+       "to": "2009-02-05",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Koch III",
+     "cab": "Kabinett Koch III",
+     "title": "Ministerpräsident",
+     "who": "Roland Koch",
+     "wp": "cdu",
+     "from": "2009-02-05",
+     "to": "2010-08-31",
+     "ph": [
+      {
+       "from": "2009-02-05",
+       "to": "2010-08-31",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Bouffier I",
+     "cab": "Kabinett Bouffier I",
+     "title": "Ministerpräsident",
+     "who": "Volker Bouffier",
+     "wp": "cdu",
+     "from": "2010-08-31",
+     "to": "2014-01-18",
+     "ph": [
+      {
+       "from": "2010-08-31",
+       "to": "2014-01-18",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Bouffier II",
+     "cab": "Kabinett Bouffier II",
+     "title": "Ministerpräsident",
+     "who": "Volker Bouffier",
+     "wp": "cdu",
+     "from": "2014-01-18",
+     "to": "2019-01-18",
+     "ph": [
+      {
+       "from": "2014-01-18",
+       "to": "2019-01-18",
+       "co": ["cdu", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Bouffier III",
+     "cab": "Kabinett Bouffier III",
+     "title": "Ministerpräsident",
+     "who": "Volker Bouffier",
+     "wp": "cdu",
+     "from": "2019-01-18",
+     "to": "2022-05-31",
+     "ph": [
+      {
+       "from": "2019-01-18",
+       "to": "2022-05-31",
+       "co": ["cdu", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Rhein I",
+     "cab": "Kabinett Rhein I",
+     "title": "Ministerpräsident",
+     "who": "Boris Rhein",
+     "wp": "cdu",
+     "from": "2022-05-31",
+     "to": "2024-01-18",
+     "ph": [
+      {
+       "from": "2022-05-31",
+       "to": "2024-01-18",
+       "co": ["cdu", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Rhein II",
+     "cab": "Kabinett Rhein II",
+     "title": "Ministerpräsident",
+     "who": "Boris Rhein",
+     "wp": "cdu",
+     "from": "2024-01-18",
+     "to": null,
+     "ph": [
+      {
+       "from": "2024-01-18",
+       "to": null,
+       "co": ["cdu", "spd"]
+      }
+     ]
+    }
+   ]
+  },
+  "mecklenburg-vorpommern": {
+   "name": "Mecklenburg-Vorpommern",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Rot-rote Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 26. September 2021"
+   },
+   "kabinette": [
+    {
+     "name": "Gomolka",
+     "cab": "Kabinett Gomolka",
+     "title": "Ministerpräsident",
+     "who": "Alfred Gomolka",
+     "wp": "cdu",
+     "from": "1990-10-28",
+     "to": "1992-03-19",
+     "ph": [
+      {
+       "from": "1990-10-28",
+       "to": "1992-03-19",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Seite I",
+     "cab": "Kabinett Seite I",
+     "title": "Ministerpräsident",
+     "who": "Berndt Seite",
+     "wp": "cdu",
+     "from": "1992-03-19",
+     "to": "1994-12-08",
+     "ph": [
+      {
+       "from": "1992-03-19",
+       "to": "1994-12-08",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Seite II",
+     "cab": "Kabinett Seite II",
+     "title": "Ministerpräsident",
+     "who": "Berndt Seite",
+     "wp": "cdu",
+     "from": "1994-12-08",
+     "to": "1998-11-02",
+     "ph": [
+      {
+       "from": "1994-12-08",
+       "to": "1998-11-02",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Ringstorff I",
+     "cab": "Kabinett Ringstorff I",
+     "title": "Ministerpräsident",
+     "who": "Harald Ringstorff",
+     "wp": "spd",
+     "from": "1998-11-03",
+     "to": "2002-11-06",
+     "ph": [
+      {
+       "from": "1998-11-03",
+       "to": "2002-11-06",
+       "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Ringstorff II",
+     "cab": "Kabinett Ringstorff II",
+     "title": "Ministerpräsident",
+     "who": "Harald Ringstorff",
+     "wp": "spd",
+     "from": "2002-11-06",
+     "to": "2006-11-07",
+     "ph": [
+      {
+       "from": "2002-11-06",
+       "to": "2006-11-07",
+       "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Ringstorff III",
+     "cab": "Kabinett Ringstorff III",
+     "title": "Ministerpräsident",
+     "who": "Harald Ringstorff",
+     "wp": "spd",
+     "from": "2006-11-07",
+     "to": "2008-10-06",
+     "ph": [
+      {
+       "from": "2006-11-07",
+       "to": "2008-10-06",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Sellering I",
+     "cab": "Kabinett Sellering I",
+     "title": "Ministerpräsident",
+     "who": "Erwin Sellering",
+     "wp": "spd",
+     "from": "2008-10-06",
+     "to": "2011-10-25",
+     "ph": [
+      {
+       "from": "2008-10-06",
+       "to": "2011-10-25",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Sellering II",
+     "cab": "Kabinett Sellering II",
+     "title": "Ministerpräsident",
+     "who": "Erwin Sellering",
+     "wp": "spd",
+     "from": "2011-10-25",
+     "to": "2016-11-01",
+     "ph": [
+      {
+       "from": "2011-10-25",
+       "to": "2016-11-01",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Sellering III",
+     "cab": "Kabinett Sellering III",
+     "title": "Ministerpräsident",
+     "who": "Erwin Sellering",
+     "wp": "spd",
+     "from": "2016-11-01",
+     "to": "2017-07-04",
+     "ph": [
+      {
+       "from": "2016-11-01",
+       "to": "2017-07-04",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Schwesig I",
+     "cab": "Kabinett Schwesig I",
+     "title": "Ministerpräsidentin",
+     "who": "Manuela Schwesig",
+     "wp": "spd",
+     "from": "2017-07-04",
+     "to": "2021-11-15",
+     "ph": [
+      {
+       "from": "2017-07-04",
+       "to": "2021-11-15",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Schwesig II",
+     "cab": "Kabinett Schwesig II",
+     "title": "Ministerpräsidentin",
+     "who": "Manuela Schwesig",
+     "wp": "spd",
+     "from": "2021-11-15",
+     "to": null,
+     "ph": [
+      {
+       "from": "2021-11-15",
+       "to": null,
+       "co": ["spd", "lin"]
+      }
+     ]
+    }
+   ]
+  },
+  "niedersachsen": {
+   "name": "Niedersachsen",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Rot-grüne Koalition"
+   },
+   "kabinette": [
+    {
+     "name": "Albrecht V",
+     "cab": "Kabinett Albrecht V",
+     "title": "Ministerpräsident",
+     "who": "Ernst Albrecht",
+     "wp": "cdu",
+     "from": "1986-07-09",
+     "to": "1990-06-21",
+     "ph": [
+      {
+       "from": "1986-07-09",
+       "to": "1990-06-21",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Schröder I (Niedersachsen)",
+     "cab": "Kabinett Schröder I (Niedersachsen)",
+     "title": "Ministerpräsident",
+     "who": "Gerhard Schröder",
+     "wp": "spd",
+     "from": "1990-06-21",
+     "to": "1994-06-20",
+     "ph": [
+      {
+       "from": "1990-06-21",
+       "to": "1994-06-20",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Schröder II (Niedersachsen)",
+     "cab": "Kabinett Schröder II (Niedersachsen)",
+     "title": "Ministerpräsident",
+     "who": "Gerhard Schröder",
+     "wp": "spd",
+     "from": "1994-06-20",
+     "to": "1998-03-30",
+     "ph": [
+      {
+       "from": "1994-06-20",
+       "to": "1998-03-30",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Schröder III",
+     "cab": "Kabinett Schröder III",
+     "title": "Ministerpräsident",
+     "who": "Gerhard Schröder",
+     "wp": "spd",
+     "from": "1998-03-30",
+     "to": "1998-10-27",
+     "ph": [
+      {
+       "from": "1998-03-30",
+       "to": "1998-10-27",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Glogowski",
+     "cab": "Kabinett Glogowski",
+     "title": "Ministerpräsident",
+     "who": "Gerhard Glogowski",
+     "wp": "spd",
+     "from": "1998-10-28",
+     "to": "1999-12-14",
+     "ph": [
+      {
+       "from": "1998-10-28",
+       "to": "1999-12-14",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Gabriel",
+     "cab": "Kabinett Gabriel",
+     "title": "Ministerpräsident",
+     "who": "Sigmar Gabriel",
+     "wp": "spd",
+     "from": "1999-12-15",
+     "to": "2003-03-04",
+     "ph": [
+      {
+       "from": "1999-12-15",
+       "to": "2003-03-04",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Wulff I",
+     "cab": "Kabinett Wulff I",
+     "title": "Ministerpräsident",
+     "who": "Christian Wulff",
+     "wp": "cdu",
+     "from": "2003-03-04",
+     "to": "2008-02-26",
+     "ph": [
+      {
+       "from": "2003-03-04",
+       "to": "2008-02-26",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Wulff II",
+     "cab": "Kabinett Wulff II",
+     "title": "Ministerpräsident",
+     "who": "Christian Wulff",
+     "wp": "cdu",
+     "from": "2008-02-26",
+     "to": "2010-06-30",
+     "ph": [
+      {
+       "from": "2008-02-26",
+       "to": "2010-06-30",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "McAllister",
+     "cab": "Kabinett McAllister",
+     "title": "Ministerpräsident",
+     "who": "David McAllister",
+     "wp": "cdu",
+     "from": "2010-07-01",
+     "to": "2013-02-19",
+     "ph": [
+      {
+       "from": "2010-07-01",
+       "to": "2013-02-19",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Weil I",
+     "cab": "Kabinett Weil I",
+     "title": "Ministerpräsident",
+     "who": "Stephan Weil",
+     "wp": "spd",
+     "from": "2013-02-19",
+     "to": "2017-11-22",
+     "ph": [
+      {
+       "from": "2013-02-19",
+       "to": "2017-11-22",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Weil II",
+     "cab": "Kabinett Weil II",
+     "title": "Ministerpräsident",
+     "who": "Stephan Weil",
+     "wp": "spd",
+     "from": "2017-11-22",
+     "to": "2022-11-08",
+     "ph": [
+      {
+       "from": "2017-11-22",
+       "to": "2022-11-08",
+       "co": ["spd", "cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Weil III",
+     "cab": "Kabinett Weil III",
+     "title": "Ministerpräsident",
+     "who": "Stephan Weil",
+     "wp": "spd",
+     "from": "2022-11-08",
+     "to": "2025-05-20",
+     "ph": [
+      {
+       "from": "2022-11-08",
+       "to": "2025-05-20",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Lies",
+     "cab": "Kabinett Lies",
+     "title": "Ministerpräsident",
+     "who": "Olaf Lies",
+     "wp": "spd",
+     "from": "2025-05-20",
+     "to": null,
+     "ph": [
+      {
+       "from": "2025-05-20",
+       "to": null,
+       "co": ["spd", "gru"]
+      }
+     ]
+    }
+   ]
+  },
+  "nrw": {
+   "name": "Nordrhein-Westfalen",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-grüne Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 15. Mai 2022"
+   },
+   "kabinette": [
+    {
+     "name": "Rau III",
+     "cab": "Kabinett Rau III",
+     "title": "Ministerpräsident",
+     "who": "Johannes Rau",
+     "wp": "spd",
+     "from": "1985-06-05",
+     "to": "1990-06-12",
+     "ph": [
+      {
+       "from": "1985-06-05",
+       "to": "1990-06-12",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Rau IV",
+     "cab": "Kabinett Rau IV",
+     "title": "Ministerpräsident",
+     "who": "Johannes Rau",
+     "wp": "spd",
+     "from": "1990-06-12",
+     "to": "1995-07-17",
+     "ph": [
+      {
+       "from": "1990-06-12",
+       "to": "1995-07-17",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Rau V",
+     "cab": "Kabinett Rau V",
+     "title": "Ministerpräsident",
+     "who": "Johannes Rau",
+     "wp": "spd",
+     "from": "1995-07-17",
+     "to": "1998-06-09",
+     "ph": [
+      {
+       "from": "1995-07-17",
+       "to": "1998-06-09",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Clement I",
+     "cab": "Kabinett Clement I",
+     "title": "Ministerpräsident",
+     "who": "Wolfgang Clement",
+     "wp": "spd",
+     "from": "1998-06-09",
+     "to": "2000-06-27",
+     "ph": [
+      {
+       "from": "1998-06-09",
+       "to": "2000-06-27",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Clement II",
+     "cab": "Kabinett Clement II",
+     "title": "Ministerpräsident",
+     "who": "Wolfgang Clement",
+     "wp": "spd",
+     "from": "2000-06-27",
+     "to": "2002-11-12",
+     "ph": [
+      {
+       "from": "2000-06-27",
+       "to": "2002-11-12",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Steinbrück",
+     "cab": "Kabinett Steinbrück",
+     "title": "Ministerpräsident",
+     "who": "Peer Steinbrück",
+     "wp": "spd",
+     "from": "2002-11-12",
+     "to": "2005-06-24",
+     "ph": [
+      {
+       "from": "2002-11-12",
+       "to": "2005-06-24",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Rüttgers",
+     "cab": "Kabinett Rüttgers",
+     "title": "Ministerpräsident",
+     "who": "Jürgen Rüttgers",
+     "wp": "cdu",
+     "from": "2005-06-24",
+     "to": "2010-07-14",
+     "ph": [
+      {
+       "from": "2005-06-24",
+       "to": "2010-07-14",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Kraft I",
+     "cab": "Kabinett Kraft I",
+     "title": "Ministerpräsidentin",
+     "who": "Hannelore Kraft",
+     "wp": "spd",
+     "from": "2010-07-15",
+     "to": "2012-06-21",
+     "ph": [
+      {
+       "from": "2010-07-15",
+       "to": "2012-06-21",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Kraft II",
+     "cab": "Kabinett Kraft II",
+     "title": "Ministerpräsidentin",
+     "who": "Hannelore Kraft",
+     "wp": "spd",
+     "from": "2012-06-20",
+     "to": "2017-06-27",
+     "ph": [
+      {
+       "from": "2012-06-20",
+       "to": "2017-06-27",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Laschet",
+     "cab": "Kabinett Laschet",
+     "title": "Ministerpräsident",
+     "who": "Armin Laschet",
+     "wp": "cdu",
+     "from": "2017-06-30",
+     "to": "2021-10-27",
+     "ph": [
+      {
+       "from": "2017-06-30",
+       "to": "2021-10-27",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Wüst I",
+     "cab": "Kabinett Wüst I",
+     "title": "Ministerpräsident",
+     "who": "Hendrik Wüst",
+     "wp": "cdu",
+     "from": "2021-10-28",
+     "to": "2022-06-28",
+     "ph": [
+      {
+       "from": "2021-10-28",
+       "to": "2022-06-28",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Wüst II",
+     "cab": "Kabinett Wüst II",
+     "title": "Ministerpräsident",
+     "who": "Hendrik Wüst",
+     "wp": "cdu",
+     "from": "2022-06-29",
+     "to": null,
+     "ph": [
+      {
+       "from": "2022-06-29",
+       "to": null,
+       "co": ["cdu", "gru"]
+      }
+     ]
+    }
+   ]
+  },
+  "rheinland-pfalz": {
+   "name": "Rheinland-Pfalz",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Große Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 22. März 2026"
+   },
+   "kabinette": [
+    {
+     "name": "Wagner (Rheinland-Pfalz)",
+     "cab": "Kabinett Wagner (Rheinland-Pfalz)",
+     "title": "Ministerpräsident",
+     "who": "Carl-Ludwig Wagner",
+     "wp": "cdu",
+     "from": "1988-12-08",
+     "to": "1991-05-21",
+     "ph": [
+      {
+       "from": "1988-12-08",
+       "to": "1991-05-21",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Scharping",
+     "cab": "Kabinett Scharping",
+     "title": "Ministerpräsident",
+     "who": "Rudolf Scharping",
+     "wp": "spd",
+     "from": "1991-05-21",
+     "to": "1994-10-26",
+     "ph": [
+      {
+       "from": "1991-05-21",
+       "to": "1994-10-26",
+       "co": ["spd", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Beck I",
+     "cab": "Kabinett Beck I",
+     "title": "Ministerpräsident",
+     "who": "Kurt Beck",
+     "wp": "spd",
+     "from": "1994-10-26",
+     "to": "1996-05-20",
+     "ph": [
+      {
+       "from": "1994-10-26",
+       "to": "1996-05-20",
+       "co": ["spd", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Beck II",
+     "cab": "Kabinett Beck II",
+     "title": "Ministerpräsident",
+     "who": "Kurt Beck",
+     "wp": "spd",
+     "from": "1996-05-20",
+     "to": "2001-05-18",
+     "ph": [
+      {
+       "from": "1996-05-20",
+       "to": "2001-05-18",
+       "co": ["spd", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Beck III",
+     "cab": "Kabinett Beck III",
+     "title": "Ministerpräsident",
+     "who": "Kurt Beck",
+     "wp": "spd",
+     "from": "2001-05-18",
+     "to": "2006-05-18",
+     "ph": [
+      {
+       "from": "2001-05-18",
+       "to": "2006-05-18",
+       "co": ["spd", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Beck IV",
+     "cab": "Kabinett Beck IV",
+     "title": "Ministerpräsident",
+     "who": "Kurt Beck",
+     "wp": "spd",
+     "from": "2006-05-18",
+     "to": "2011-05-18",
+     "ph": [
+      {
+       "from": "2006-05-18",
+       "to": "2011-05-18",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Beck V",
+     "cab": "Kabinett Beck V",
+     "title": "Ministerpräsident",
+     "who": "Kurt Beck",
+     "wp": "spd",
+     "from": "2011-05-18",
+     "to": "2013-01-16",
+     "ph": [
+      {
+       "from": "2011-05-18",
+       "to": "2013-01-16",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Dreyer I",
+     "cab": "Kabinett Dreyer I",
+     "title": "Ministerpräsidentin",
+     "who": "Malu Dreyer",
+     "wp": "spd",
+     "from": "2013-01-16",
+     "to": "2016-05-18",
+     "ph": [
+      {
+       "from": "2013-01-16",
+       "to": "2016-05-18",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Dreyer II",
+     "cab": "Kabinett Dreyer II",
+     "title": "Ministerpräsidentin",
+     "who": "Malu Dreyer",
+     "wp": "spd",
+     "from": "2016-05-18",
+     "to": "2021-05-18",
+     "ph": [
+      {
+       "from": "2016-05-18",
+       "to": "2021-05-18",
+       "co": ["spd", "fdp", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Dreyer III",
+     "cab": "Kabinett Dreyer III",
+     "title": "Ministerpräsidentin",
+     "who": "Malu Dreyer",
+     "wp": "spd",
+     "from": "2021-05-18",
+     "to": "2024-07-10",
+     "ph": [
+      {
+       "from": "2021-05-18",
+       "to": "2024-07-10",
+       "co": ["spd", "gru", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Schweitzer",
+     "cab": "Kabinett Schweitzer",
+     "title": "Ministerpräsident",
+     "who": "Alexander Schweitzer",
+     "wp": "spd",
+     "from": "2024-07-10",
+     "to": "2026-05-18",
+     "ph": [
+      {
+       "from": "2024-07-10",
+       "to": "2026-05-18",
+       "co": ["spd", "gru", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Schnieder",
+     "cab": "Kabinett Schnieder",
+     "title": "Ministerpräsident",
+     "who": "Gordon Schnieder",
+     "wp": "cdu",
+     "from": "2026-05-18",
+     "to": null,
+     "ph": [
+      {
+       "from": "2026-05-18",
+       "to": null,
+       "co": ["cdu", "spd"]
+      }
+     ]
+    }
+   ]
+  },
+  "saarland": {
+   "name": "Saarland",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Alleinregierung",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 27. März 2022"
+   },
+   "kabinette": [
+    {
+     "name": "Lafontaine I",
+     "cab": "Kabinett Lafontaine I",
+     "title": "Ministerpräsident",
+     "who": "Oskar Lafontaine",
+     "wp": "spd",
+     "from": "1985-04-09",
+     "to": "1990-02-21",
+     "ph": [
+      {
+       "from": "1985-04-09",
+       "to": "1990-02-21",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Lafontaine II",
+     "cab": "Kabinett Lafontaine II",
+     "title": "Ministerpräsident",
+     "who": "Oskar Lafontaine",
+     "wp": "spd",
+     "from": "1990-02-21",
+     "to": "1994-11-23",
+     "ph": [
+      {
+       "from": "1990-02-21",
+       "to": "1994-11-23",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Lafontaine III",
+     "cab": "Kabinett Lafontaine III",
+     "title": "Ministerpräsident",
+     "who": "Oskar Lafontaine",
+     "wp": "spd",
+     "from": "1994-11-23",
+     "to": "1998-11-09",
+     "ph": [
+      {
+       "from": "1994-11-23",
+       "to": "1998-11-09",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Klimmt",
+     "cab": "Kabinett Klimmt",
+     "title": "Ministerpräsident",
+     "who": "Reinhard Klimmt",
+     "wp": "spd",
+     "from": "1998-11-10",
+     "to": "1999-09-29",
+     "ph": [
+      {
+       "from": "1998-11-10",
+       "to": "1999-09-29",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Müller I (Saarland)",
+     "cab": "Kabinett Müller I (Saarland)",
+     "title": "Ministerpräsident",
+     "who": "Peter Müller",
+     "wp": "cdu",
+     "from": "1999-09-29",
+     "to": "2004-10-06",
+     "ph": [
+      {
+       "from": "1999-09-29",
+       "to": "2004-10-06",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Müller II (Saarland)",
+     "cab": "Kabinett Müller II (Saarland)",
+     "title": "Ministerpräsident",
+     "who": "Peter Müller",
+     "wp": "cdu",
+     "from": "2004-10-06",
+     "to": "2009-11-10",
+     "ph": [
+      {
+       "from": "2004-10-06",
+       "to": "2009-11-10",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Müller III (Saarland)",
+     "cab": "Kabinett Müller III (Saarland)",
+     "title": "Ministerpräsident",
+     "who": "Peter Müller",
+     "wp": "cdu",
+     "from": "2009-11-10",
+     "to": "2011-08-10",
+     "ph": [
+      {
+       "from": "2009-11-10",
+       "to": "2011-08-10",
+       "co": ["cdu", "fdp", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Kramp-Karrenbauer I",
+     "cab": "Kabinett Kramp-Karrenbauer I",
+     "title": "Ministerpräsident",
+     "who": "Annegret Kramp-Karrenbauer",
+     "wp": "cdu",
+     "from": "2011-08-10",
+     "to": "2012-05-09",
+     "ph": [
+      {
+       "from": "2011-08-10",
+       "to": "2012-05-09",
+       "co": ["cdu", "fdp", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Kramp-Karrenbauer II",
+     "cab": "Kabinett Kramp-Karrenbauer II",
+     "title": "Ministerpräsidentin",
+     "who": "Annegret Kramp-Karrenbauer",
+     "wp": "cdu",
+     "from": "2012-05-09",
+     "to": "2017-05-17",
+     "ph": [
+      {
+       "from": "2012-05-09",
+       "to": "2017-05-17",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Kramp-Karrenbauer III",
+     "cab": "Kabinett Kramp-Karrenbauer III",
+     "title": "Ministerpräsident",
+     "who": "Annegret Kramp-Karrenbauer",
+     "wp": "cdu",
+     "from": "2017-05-17",
+     "to": "2018-03-01",
+     "ph": [
+      {
+       "from": "2017-05-17",
+       "to": "2018-03-01",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Hans",
+     "cab": "Kabinett Hans",
+     "title": "Ministerpräsident",
+     "who": "Tobias Hans",
+     "wp": "cdu",
+     "from": "2018-03-01",
+     "to": "2022-04-25",
+     "ph": [
+      {
+       "from": "2018-03-01",
+       "to": "2022-04-25",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Rehlinger",
+     "cab": "Kabinett Rehlinger",
+     "title": "Ministerpräsidentin",
+     "who": "Anke Rehlinger",
+     "wp": "spd",
+     "from": "2022-04-25",
+     "to": null,
+     "ph": [
+      {
+       "from": "2022-04-25",
+       "to": null,
+       "co": ["spd"]
+      }
+     ]
+    }
+   ]
+  },
+  "sachsen": {
+   "name": "Sachsen",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-rote Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 1. September 2024"
+   },
+   "kabinette": [
+    {
+     "name": "Biedenkopf I",
+     "cab": "Kabinett Biedenkopf I",
+     "title": "Ministerpräsident",
+     "who": "Kurt Biedenkopf",
+     "wp": "cdu",
+     "from": "1990-10-27",
+     "to": "1994-10-06",
+     "ph": [
+      {
+       "from": "1990-10-27",
+       "to": "1994-10-06",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Biedenkopf II",
+     "cab": "Kabinett Biedenkopf II",
+     "title": "Ministerpräsident",
+     "who": "Kurt Biedenkopf",
+     "wp": "cdu",
+     "from": "1994-10-06",
+     "to": "1999-10-27",
+     "ph": [
+      {
+       "from": "1994-10-06",
+       "to": "1999-10-27",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Biedenkopf III",
+     "cab": "Kabinett Biedenkopf III",
+     "title": "Ministerpräsident",
+     "who": "Kurt Biedenkopf",
+     "wp": "cdu",
+     "from": "1999-10-27",
+     "to": "2002-05-02",
+     "ph": [
+      {
+       "from": "1999-10-27",
+       "to": "2002-05-02",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Milbradt I",
+     "cab": "Kabinett Milbradt I",
+     "title": "Ministerpräsident",
+     "who": "Georg Milbradt",
+     "wp": "cdu",
+     "from": "2002-05-02",
+     "to": "2004-11-11",
+     "ph": [
+      {
+       "from": "2002-05-02",
+       "to": "2004-11-11",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Milbradt II",
+     "cab": "Kabinett Milbradt II",
+     "title": "Ministerpräsident",
+     "who": "Georg Milbradt",
+     "wp": "cdu",
+     "from": "2004-11-11",
+     "to": "2008-06-18",
+     "ph": [
+      {
+       "from": "2004-11-11",
+       "to": "2008-06-18",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Tillich I",
+     "cab": "Kabinett Tillich I",
+     "title": "Ministerpräsident",
+     "who": "Stanislaw Tillich",
+     "wp": "cdu",
+     "from": "2008-06-18",
+     "to": "2009-09-30",
+     "ph": [
+      {
+       "from": "2008-06-18",
+       "to": "2009-09-30",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Tillich II",
+     "cab": "Kabinett Tillich II",
+     "title": "Ministerpräsident",
+     "who": "Stanislaw Tillich",
+     "wp": "cdu",
+     "from": "2009-09-30",
+     "to": "2014-11-13",
+     "ph": [
+      {
+       "from": "2009-09-30",
+       "to": "2014-11-13",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Tillich III",
+     "cab": "Kabinett Tillich III",
+     "title": "Ministerpräsident",
+     "who": "Stanislaw Tillich",
+     "wp": "cdu",
+     "from": "2014-11-13",
+     "to": "2017-12-13",
+     "ph": [
+      {
+       "from": "2014-11-13",
+       "to": "2017-12-13",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Kretschmer I",
+     "cab": "Kabinett Kretschmer I",
+     "title": "Ministerpräsident",
+     "who": "Michael Kretschmer",
+     "wp": "cdu",
+     "from": "2017-12-13",
+     "to": "2019-12-20",
+     "ph": [
+      {
+       "from": "2017-12-13",
+       "to": "2019-12-20",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Kretschmer II",
+     "cab": "Kabinett Kretschmer II",
+     "title": "Ministerpräsident",
+     "who": "Michael Kretschmer",
+     "wp": "cdu",
+     "from": "2019-12-20",
+     "to": "2024-12-19",
+     "ph": [
+      {
+       "from": "2019-12-20",
+       "to": "2024-12-19",
+       "co": ["cdu", "gru", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Kretschmer III",
+     "cab": "Kabinett Kretschmer III",
+     "title": "Ministerpräsident",
+     "who": "Michael Kretschmer",
+     "wp": "cdu",
+     "from": "2024-12-19",
+     "to": null,
+     "ph": [
+      {
+       "from": "2024-12-19",
+       "to": null,
+       "co": ["cdu", "spd"]
+      }
+     ]
+    }
+   ]
+  },
+  "sachsen-anhalt": {
+   "name": "Sachsen-Anhalt",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-rot-gelbe Koalition"
+   },
+   "kabinette": [
+    {
+     "name": "Gies",
+     "cab": "Kabinett Gies",
+     "title": "Ministerpräsident",
+     "who": "Gerd Gies",
+     "wp": "cdu",
+     "from": "1990-11-02",
+     "to": "1991-07-04",
+     "ph": [
+      {
+       "from": "1990-11-02",
+       "to": "1991-07-04",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Münch",
+     "cab": "Kabinett Münch",
+     "title": "Ministerpräsident",
+     "who": "Werner Münch",
+     "wp": "cdu",
+     "from": "1991-07-04",
+     "to": "1993-12-02",
+     "ph": [
+      {
+       "from": "1991-07-04",
+       "to": "1993-12-02",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Bergner",
+     "cab": "Kabinett Bergner",
+     "title": "Ministerpräsident",
+     "who": "Christoph Bergner",
+     "wp": "cdu",
+     "from": "1993-12-02",
+     "to": "1994-07-22",
+     "ph": [
+      {
+       "from": "1993-12-02",
+       "to": "1994-07-22",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Höppner I",
+     "cab": "Kabinett Höppner I",
+     "title": "Ministerpräsident",
+     "who": "Reinhard Höppner",
+     "wp": "spd",
+     "from": "1994-07-21",
+     "to": "1998-05-25",
+     "ph": [
+      {
+       "from": "1994-07-21",
+       "to": "1998-05-25",
+       "co": ["spd", "gru"],
+       "nm": "gestützt von der PDS"
+      }
+     ]
+    },
+    {
+     "name": "Höppner II",
+     "cab": "Kabinett Höppner II",
+     "title": "Ministerpräsident",
+     "who": "Reinhard Höppner",
+     "wp": "spd",
+     "from": "1998-05-26",
+     "to": "2002-05-16",
+     "ph": [
+      {
+       "from": "1998-05-26",
+       "to": "2002-05-16",
+       "co": ["spd"],
+       "nm": "gestützt von der PDS"
+      }
+     ]
+    },
+    {
+     "name": "Böhmer I",
+     "cab": "Kabinett Böhmer I",
+     "title": "Ministerpräsident",
+     "who": "Wolfgang Böhmer",
+     "wp": "cdu",
+     "from": "2002-05-16",
+     "to": "2006-04-26",
+     "ph": [
+      {
+       "from": "2002-05-16",
+       "to": "2006-04-26",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Böhmer II",
+     "cab": "Kabinett Böhmer II",
+     "title": "Ministerpräsident",
+     "who": "Wolfgang Böhmer",
+     "wp": "cdu",
+     "from": "2006-04-26",
+     "to": "2011-04-19",
+     "ph": [
+      {
+       "from": "2006-04-26",
+       "to": "2011-04-19",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Haseloff I",
+     "cab": "Kabinett Haseloff I",
+     "title": "Ministerpräsident",
+     "who": "Reiner Haseloff",
+     "wp": "cdu",
+     "from": "2011-04-19",
+     "to": "2016-04-25",
+     "ph": [
+      {
+       "from": "2011-04-19",
+       "to": "2016-04-25",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Haseloff II",
+     "cab": "Kabinett Haseloff II",
+     "title": "Ministerpräsident",
+     "who": "Reiner Haseloff",
+     "wp": "cdu",
+     "from": "2016-04-25",
+     "to": "2021-09-16",
+     "ph": [
+      {
+       "from": "2016-04-25",
+       "to": "2021-09-16",
+       "co": ["cdu", "spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Haseloff III",
+     "cab": "Kabinett Haseloff III",
+     "title": "Ministerpräsident",
+     "who": "Reiner Haseloff",
+     "wp": "cdu",
+     "from": "2021-09-16",
+     "to": "2026-01-28",
+     "ph": [
+      {
+       "from": "2021-09-16",
+       "to": "2026-01-28",
+       "co": ["cdu", "spd", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Schulze",
+     "cab": "Kabinett Schulze",
+     "title": "Ministerpräsident",
+     "who": "Sven Schulze",
+     "wp": "cdu",
+     "from": "2026-01-28",
+     "to": null,
+     "ph": [
+      {
+       "from": "2026-01-28",
+       "to": null,
+       "co": ["cdu", "spd", "fdp"]
+      }
+     ]
+    }
+   ]
+  },
+  "schleswig-holstein": {
+   "name": "Schleswig-Holstein",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Schwarz-grüne Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 8. Mai 2022"
+   },
+   "kabinette": [
+    {
+     "name": "Engholm I",
+     "cab": "Kabinett Engholm I",
+     "title": "Ministerpräsident",
+     "who": "Björn Engholm",
+     "wp": "spd",
+     "from": "1988-05-31",
+     "to": "1992-05-05",
+     "ph": [
+      {
+       "from": "1988-05-31",
+       "to": "1992-05-05",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Engholm II",
+     "cab": "Kabinett Engholm II",
+     "title": "Ministerpräsident",
+     "who": "Björn Engholm",
+     "wp": "spd",
+     "from": "1992-05-05",
+     "to": "1993-05-19",
+     "ph": [
+      {
+       "from": "1992-05-05",
+       "to": "1993-05-19",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Simonis I",
+     "cab": "Kabinett Simonis I",
+     "title": "Ministerpräsidentin",
+     "who": "Heide Simonis",
+     "wp": "spd",
+     "from": "1993-05-19",
+     "to": "1996-05-22",
+     "ph": [
+      {
+       "from": "1993-05-19",
+       "to": "1996-05-22",
+       "co": ["spd"]
+      }
+     ]
+    },
+    {
+     "name": "Simonis II",
+     "cab": "Kabinett Simonis II",
+     "title": "Ministerpräsidentin",
+     "who": "Heide Simonis",
+     "wp": "spd",
+     "from": "1996-05-22",
+     "to": "2000-03-28",
+     "ph": [
+      {
+       "from": "1996-05-22",
+       "to": "2000-03-28",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Simonis III",
+     "cab": "Kabinett Simonis III",
+     "title": "Ministerpräsidentin",
+     "who": "Heide Simonis",
+     "wp": "spd",
+     "from": "2000-03-28",
+     "to": "2005-04-27",
+     "ph": [
+      {
+       "from": "2000-03-28",
+       "to": "2005-04-27",
+       "co": ["spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Carstensen I",
+     "cab": "Kabinett Carstensen I",
+     "title": "Ministerpräsident",
+     "who": "Peter Harry Carstensen",
+     "wp": "cdu",
+     "from": "2005-04-27",
+     "to": "2009-10-27",
+     "ph": [
+      {
+       "from": "2005-04-27",
+       "to": "2009-10-27",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Carstensen II",
+     "cab": "Kabinett Carstensen II",
+     "title": "Ministerpräsident",
+     "who": "Peter Harry Carstensen",
+     "wp": "cdu",
+     "from": "2009-10-27",
+     "to": "2012-06-12",
+     "ph": [
+      {
+       "from": "2009-10-27",
+       "to": "2012-06-12",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Albig",
+     "cab": "Kabinett Albig",
+     "title": "Ministerpräsident",
+     "who": "Torsten Albig",
+     "wp": "spd",
+     "from": "2012-06-12",
+     "to": "2017-06-28",
+     "ph": [
+      {
+       "from": "2012-06-12",
+       "to": "2017-06-28",
+       "co": ["spd", "gru", "ssw"]
+      }
+     ]
+    },
+    {
+     "name": "Günther I",
+     "cab": "Kabinett Günther I",
+     "title": "Ministerpräsident",
+     "who": "Daniel Günther",
+     "wp": "cdu",
+     "from": "2017-06-28",
+     "to": "2022-06-29",
+     "ph": [
+      {
+       "from": "2017-06-28",
+       "to": "2022-06-29",
+       "co": ["cdu", "gru", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Günther II",
+     "cab": "Kabinett Günther II",
+     "title": "Ministerpräsident",
+     "who": "Daniel Günther",
+     "wp": "cdu",
+     "from": "2022-06-29",
+     "to": null,
+     "ph": [
+      {
+       "from": "2022-06-29",
+       "to": null,
+       "co": ["cdu", "gru"]
+      }
+     ]
+    }
+   ]
+  },
+  "thueringen": {
+   "name": "Thüringen",
+   "wahl": "Landtagswahl",
+   "aktuell": {
+    "koalitionsname": "Brombeer-Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 1. September 2024"
+   },
+   "kabinette": [
+    {
+     "name": "Duchač",
+     "cab": "Kabinett Duchač",
+     "title": "Ministerpräsident",
+     "who": "Josef Duchač",
+     "wp": "cdu",
+     "from": "1990-11-08",
+     "to": "1992-02-11",
+     "ph": [
+      {
+       "from": "1990-11-08",
+       "to": "1992-02-11",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Vogel I (Thüringen)",
+     "cab": "Kabinett Vogel I (Thüringen)",
+     "title": "Ministerpräsident",
+     "who": "Bernhard Vogel",
+     "wp": "cdu",
+     "from": "1992-02-11",
+     "to": "1994-11-30",
+     "ph": [
+      {
+       "from": "1992-02-11",
+       "to": "1994-11-30",
+       "co": ["cdu", "fdp"]
+      }
+     ]
+    },
+    {
+     "name": "Vogel II (Thüringen)",
+     "cab": "Kabinett Vogel II (Thüringen)",
+     "title": "Ministerpräsident",
+     "who": "Bernhard Vogel",
+     "wp": "cdu",
+     "from": "1994-11-30",
+     "to": "1999-10-01",
+     "ph": [
+      {
+       "from": "1994-11-30",
+       "to": "1999-10-01",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Vogel III (Thüringen)",
+     "cab": "Kabinett Vogel III (Thüringen)",
+     "title": "Ministerpräsident",
+     "who": "Bernhard Vogel",
+     "wp": "cdu",
+     "from": "1999-10-01",
+     "to": "2003-06-05",
+     "ph": [
+      {
+       "from": "1999-10-01",
+       "to": "2003-06-05",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Althaus I",
+     "cab": "Kabinett Althaus I",
+     "title": "Ministerpräsident",
+     "who": "Dieter Althaus",
+     "wp": "cdu",
+     "from": "2003-06-05",
+     "to": "2004-07-08",
+     "ph": [
+      {
+       "from": "2003-06-05",
+       "to": "2004-07-08",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Althaus II",
+     "cab": "Kabinett Althaus II",
+     "title": "Ministerpräsident",
+     "who": "Dieter Althaus",
+     "wp": "cdu",
+     "from": "2004-07-08",
+     "to": "2009-11-04",
+     "ph": [
+      {
+       "from": "2004-07-08",
+       "to": "2009-11-04",
+       "co": ["cdu"]
+      }
+     ]
+    },
+    {
+     "name": "Lieberknecht",
+     "cab": "Kabinett Lieberknecht",
+     "title": "Ministerpräsidentin",
+     "who": "Christine Lieberknecht",
+     "wp": "cdu",
+     "from": "2009-11-04",
+     "to": "2014-12-05",
+     "ph": [
+      {
+       "from": "2009-11-04",
+       "to": "2014-12-05",
+       "co": ["cdu", "spd"]
+      }
+     ]
+    },
+    {
+     "name": "Ramelow I",
+     "cab": "Kabinett Ramelow I",
+     "title": "Ministerpräsident",
+     "who": "Bodo Ramelow",
+     "wp": "lin",
+     "from": "2014-12-05",
+     "to": "2020-02-05",
+     "ph": [
+      {
+       "from": "2014-12-05",
+       "to": "2020-02-05",
+       "co": ["lin", "spd", "gru"]
+      }
+     ]
+    },
+    {
+     "name": "Ramelow II",
+     "cab": "Kabinett Ramelow II",
+     "title": "Ministerpräsident",
+     "who": "Bodo Ramelow",
+     "wp": "lin",
+     "from": "2020-03-04",
+     "to": "2024-12-12",
+     "ph": [
+      {
+       "from": "2020-03-04",
+       "to": "2024-12-12",
+       "co": ["lin", "spd", "gru"],
+       "nm": "Minderheitsregierung"
+      }
+     ]
+    },
+    {
+     "name": "Voigt",
+     "cab": "Kabinett Voigt",
+     "title": "Ministerpräsident",
+     "who": "Mario Voigt",
+     "wp": "cdu",
+     "from": "2024-12-12",
+     "to": null,
+     "ph": [
+      {
+       "from": "2024-12-12",
+       "to": null,
+       "co": ["cdu", "spd", "x-th-ringen-gerecht"],
+       "nm": "Minderheitsregierung"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

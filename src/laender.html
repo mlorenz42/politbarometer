@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sonntagsfrage in den 16 Bundesländern: Umfragen mehrerer Institute im Zeitverlauf, dazu die jeweilige Landesregierung.">
+<title>Landtagswahl-Umfragen</title>
+<style>
+/*COMMON_CSS*/
+.picker { display: flex; flex-wrap: wrap; align-items: end; gap: 10px 16px; }
+.picker label { display: grid; gap: 4px; font-size: 12px; color: var(--ink2); letter-spacing: 0.06em; text-transform: uppercase; }
+.picker select { font: inherit; font-size: 17px; font-weight: 650; letter-spacing: 0; text-transform: none; color: var(--ink); background: var(--surface); border: 1px solid var(--ink); border-radius: 8px; padding: 8px 12px; min-height: 44px; min-width: min(100%, 300px); cursor: pointer; }
+.picker .hint { font-size: 12.5px; color: var(--ink2); padding-bottom: 12px; }
+.sel.inst select { max-width: 100%; }
+.empty { display: grid; place-items: center; min-height: 240px; color: var(--ink2); text-align: center; padding: 24px; }
+.tip li .t { color: var(--ink2); font-size: 11.5px; font-weight: 400; white-space: nowrap; }
+.tip li.wide { grid-template-columns: 14px 44px minmax(0, 1fr) auto; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="nav" aria-label="Seiten">
+      <a href="index.html">Bundestag</a>
+      <a href="laender.html" aria-current="page">Bundesländer</a>
+    </nav>
+    <h1>Landtagswahl-Umfragen</h1>
+    <p class="sub">Sonntagsfrage in den 16 Bundesländern: Umfragen mehrerer Institute im Zeitverlauf, dazu die jeweilige Landesregierung.</p>
+  </header>
+
+  <div class="picker">
+    <label for="land">Bundesland<select id="land"></select></label>
+    <p class="hint" id="landhint"></p>
+  </div>
+
+  <section class="gov" aria-labelledby="gov-h">
+    <div>
+      <p class="eyebrow" id="gov-eyebrow"></p>
+      <h2 id="gov-h"></h2>
+      <p class="coal" id="gov-coal"></p>
+    </div>
+    <dl class="facts" id="gov-facts"></dl>
+  </section>
+
+  <section class="card" aria-labelledby="ch-h">
+    <div class="bar">
+      <div>
+        <h2 id="ch-h">Verlauf der Umfragewerte</h2>
+        <p class="rangeinfo" id="rangeinfo" aria-live="polite"></p>
+      </div>
+      <div class="ctrls">
+        <div class="seg" id="ranges" role="group" aria-label="Zeitraum"></div>
+        <label class="sel"><span class="sr">Seit einer Wahl, nach Amtszeit oder nach Kabinett filtern</span><select id="cabinet"></select></label>
+        <label class="sel inst"><span class="sr">Nach Umfrageinstitut filtern</span><select id="inst"></select></label>
+        <div class="seg" id="views" role="group" aria-label="Ansicht"></div>
+      </div>
+    </div>
+    <div class="legend" id="legend" role="group" aria-label="Parteien ein- oder ausblenden"></div>
+    <div id="chartview">
+      <div class="chart" id="chart" tabindex="0" role="group" aria-label="Diagramm der Umfragewerte. Mit den Pfeiltasten eine Umfrage wählen. Alle Werte stehen auch in der Tabellenansicht."></div>
+    </div>
+    <div id="tableview" hidden></div>
+    <p class="note" id="note"></p>
+  </section>
+
+  <section class="govs" aria-labelledby="gs-h">
+    <h2 id="gs-h">Landesregierungen im Diagramm</h2>
+    <p class="lead">Das Band über dem Diagramm zeigt, wer wann regiert hat. Die Punkte stehen für die Koalitionsparteien.</p>
+    <div class="tablewrap"><table id="govtable"></table></div>
+  </section>
+
+  <footer>
+    <p>Umfragedaten: <a href="https://www.wahlrecht.de/umfragen/landtage/" target="_blank" rel="noopener">wahlrecht.de – Umfragen zu Landtagswahlen</a>, Stand der Daten: <span id="f-data"></span>. Angegeben ist das Veröffentlichungsdatum der Umfrage. Jedes Institut befragt anders, deshalb sind Umfragen verschiedener Institute nicht direkt vergleichbar.</p>
+    <p>Regierungsangaben: <a id="f-gov-link" href="https://de.wikipedia.org/" target="_blank" rel="noopener">Wikipedia – Liste der Ministerpräsidenten</a> und die Artikel der einzelnen Kabinette, zuletzt abgeglichen am <span id="f-gov"></span>.</p>
+    <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  /*COMMON_JS*/
+  var LAENDER = /*LAENDER*/[];
+  var GOV = /*GOV*/{};
+
+  var DAY = 86400000, OPEN_END = "2100-01-01";
+  // Dargestellte Parteien in der Reihenfolge der Spalten 6 bis 14 jeder Zeile; danach SSW, NPD, BIW, Sonstige
+  var PK = ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw", "fw", "pir"];
+  var LABEL = { cdu: "CDU", spd: "SPD", gru: "GRÜNE", fdp: "FDP", lin: "LINKE", afd: "AfD", bsw: "BSW", fw: "FW", pir: "PIRATEN", ssw: "SSW" };
+  var TREND_DAYS = 45, GAP_DAYS = 150;
+  var state = { land: null, range: "all", inst: "", view: "chart", on: {}, active: null, strip: null };
+  var S = null, view = null, trendCache = {};
+
+  function partyName(k) {
+    if (k === "cdu") return S.union;
+    return LABEL[k] || (GOV.parteien && GOV.parteien[k]) || k;
+  }
+  function coalText(co) { return co.map(partyName).join(" + "); }
+
+  // ---------- Daten je Land aufbereiten ----------
+  function prepare(L) {
+    var g = GOV.laender[L.slug] || { kabinette: [], aktuell: {}, wahl: "Landtagswahl" };
+    var rows = L.rows.map(function (r) {
+      return { t: ts(r[0]), el: r[1] === 1, inst: r[2] >= 0 ? L.insts[r[2]] : "", client: r[3] || "", n: r[4], per: r[5], v: r.slice(6, 15), x: r.slice(15, 19) };
+    });
+    rows.sort(function (a, b) { return a.t - b.t || (a.el ? -1 : 0) - (b.el ? -1 : 0); });
+    var G = g.kabinette.map(function (c) {
+      var o = { name: c.name, cab: c.cab, title: c.title, who: c.who, wp: c.wp, from: c.from, to: c.to || OPEN_END,
+        ph: c.ph.map(function (p) { return { from: p.from, to: p.to || OPEN_END, co: p.co, nm: p.nm }; }) };
+      o.f = ts(o.from); o.e = ts(o.to);
+      o.ph.forEach(function (p) { p.f = ts(p.from); p.e = ts(p.to); });
+      return o;
+    });
+    var chancellors = [];
+    G.forEach(function (c, i) {
+      var last = chancellors[chancellors.length - 1];
+      if (last && last.who === c.who) last.to = i; else chancellors.push({ who: c.who, title: c.title, wp: c.wp, from: i, to: i });
+    });
+    var polls = rows.filter(function (r) { return !r.el; });
+    var instCount = {};
+    polls.forEach(function (p) { if (p.inst) instCount[p.inst] = (instCount[p.inst] || 0) + 1; });
+    return {
+      slug: L.slug, name: L.name, wahl: L.wahl || g.wahl, union: L.union, next: L.next, keys: L.parties,
+      rows: rows, polls: polls, elections: rows.filter(function (r) { return r.el; }).map(function (r) { return r.t; }),
+      first: rows[0].t, last: polls.length ? polls[polls.length - 1].t : rows[rows.length - 1].t,
+      insts: Object.keys(instCount).sort(function (a, b) { return instCount[b] - instCount[a] || (a < b ? -1 : 1); }).map(function (k) { return { name: k, n: instCount[k] }; }),
+      G: G, chancellors: chancellors, gov: g
+    };
+  }
+  var PREPARED = {};
+  function stateOf(slug) { return PREPARED[slug] || (PREPARED[slug] = prepare(LAENDER.filter(function (l) { return l.slug === slug; })[0])); }
+
+  var isOpen = function (g) { return g.e > S.last + 365 * DAY; };
+  var yearOf = function (t) { return new Date(t).getUTCFullYear(); };
+  var span = function (a, b, open) { return yearOf(a) + "–" + (open ? "heute" : yearOf(b)); };
+  function govAt(t) { for (var i = S.G.length - 1; i >= 0; i--) if (t >= S.G[i].f) return S.G[i]; return S.G[0]; }
+  function phaseAt(g, t) { for (var i = g.ph.length - 1; i >= 0; i--) if (t >= g.ph[i].f) return g.ph[i]; return g.ph[0]; }
+
+  // ---------- Zeitraum ----------
+  var RANGES = [{ id: "all", label: "Alles" }, { id: "last", label: "Seit letzter Wahl" }];
+  function rangeDef() {
+    var m = /^(cab|kz|wahl):(\d+)$/.exec(state.range), first = S.first, last = S.last, i, g;
+    if (m && m[1] === "wahl" && S.elections[+m[2]] != null) {
+      var w = S.elections[+m[2]];
+      return { tmin: w, tmax: last, info: "Seit der " + S.wahl + " " + yearOf(w) + " · " + fmt(w) + " – " + fmt(last) };
+    }
+    if (m && m[1] === "cab" && S.G[+m[2]]) {
+      g = S.G[+m[2]];
+      return { tmin: Math.max(g.f, first), tmax: Math.min(g.e, last),
+        info: g.cab + " · " + g.title + " " + g.who + " (" + partyName(g.wp) + ") · " + g.ph.map(function (p) { return coalText(p.co); }).join(" → ") + " · " + fmt(g.f) + " – " + (isOpen(g) ? "heute" : fmt(g.e)) };
+    }
+    if (m && m[1] === "kz" && S.chancellors[+m[2]]) {
+      var c = S.chancellors[+m[2]], a = S.G[c.from], b = S.G[c.to];
+      return { tmin: Math.max(a.f, first), tmax: Math.min(b.e, last),
+        info: c.title + " " + c.who + " (" + partyName(c.wp) + ") · Kabinette " + a.name + " bis " + b.name + " · " + fmt(a.f) + " – " + (isOpen(b) ? "heute" : fmt(b.e)) };
+    }
+    if (state.range === "last" && S.elections.length) {
+      var e = S.elections[S.elections.length - 1];
+      return { tmin: e, tmax: last, info: "Seit der letzten " + S.wahl + " · " + fmt(e) + " – " + fmt(last) };
+    }
+    return { tmin: first, tmax: last, info: fmt(first) + " – " + fmt(last) };
+  }
+  function rangeRows() {
+    var rd = rangeDef();
+    return S.rows.filter(function (d) { return d.t >= rd.tmin && d.t <= rd.tmax && (d.el || !state.inst || d.inst === state.inst); });
+  }
+
+  function buildSelects() {
+    var s = $("cabinet"); s.textContent = "";
+    h("option", "", s, "Wahl, Amtszeit oder Kabinett …").value = "";
+    var i;
+    if (S.elections.length) {
+      var since = h("optgroup", "", s); since.label = "Seit einer " + S.wahl;
+      for (i = S.elections.length - 1; i >= 0; i--) h("option", "", since, "Seit der " + S.wahl + " " + yearOf(S.elections[i]) + " (" + fmt(S.elections[i]) + ")").value = "wahl:" + i;
+    }
+    var multi = h("optgroup", "", s); multi.label = "Amtszeit eines Regierungschefs (mehrere Kabinette)";
+    for (i = S.chancellors.length - 1; i >= 0; i--) {
+      var c = S.chancellors[i];
+      if (c.to > c.from) h("option", "", multi, c.who + " (" + span(S.G[c.from].f, S.G[c.to].e, isOpen(S.G[c.to])) + ")").value = "kz:" + i;
+    }
+    if (!multi.children.length) multi.remove();
+    var single = h("optgroup", "", s); single.label = "Einzelnes Kabinett";
+    for (i = S.G.length - 1; i >= 0; i--) h("option", "", single, S.G[i].cab + " · " + S.G[i].who + " (" + span(S.G[i].f, S.G[i].e, isOpen(S.G[i])) + ")").value = "cab:" + i;
+    var t = $("inst"); t.textContent = "";
+    h("option", "", t, "Alle Institute").value = "";
+    S.insts.forEach(function (x) { h("option", "", t, x.name + " (" + x.n + ")").value = x.name; });
+  }
+
+  function hashOf() {
+    var parts = ["land=" + S.slug], m = /^(cab|kz|wahl):(\d+)$/.exec(state.range);
+    if (m && m[1] === "cab") parts.push("kabinett=" + encodeURIComponent(S.G[+m[2]].name));
+    else if (m && m[1] === "kz") parts.push("amtszeit=" + encodeURIComponent(S.chancellors[+m[2]].who));
+    else if (m && m[1] === "wahl") parts.push("wahl=" + yearOf(S.elections[+m[2]]));
+    else if (state.range !== "all") parts.push("zeitraum=" + state.range);
+    if (state.inst) parts.push("institut=" + encodeURIComponent(state.inst));
+    return "#" + parts.join("&");
+  }
+  function applyHash() {
+    var q = {};
+    location.hash.replace(/^#/, "").split("&").forEach(function (kv) { var a = kv.split("="); if (a[0]) q[a[0]] = decodeURIComponent(a.slice(1).join("=")); });
+    var slug = LAENDER.some(function (l) { return l.slug === q.land; }) ? q.land : defaultLand();
+    return { slug: slug, q: q };
+  }
+  function rangeFromQuery(q) {
+    var i;
+    if (q.kabinett) for (i = 0; i < S.G.length; i++) if (S.G[i].name === q.kabinett) return "cab:" + i;
+    if (q.amtszeit) for (i = 0; i < S.chancellors.length; i++) if (S.chancellors[i].who === q.amtszeit && S.chancellors[i].to > S.chancellors[i].from) return "kz:" + i;
+    if (q.wahl) for (i = 0; i < S.elections.length; i++) if (String(yearOf(S.elections[i])) === q.wahl) return "wahl:" + i;
+    return q.zeitraum === "last" ? "last" : "all";
+  }
+  function defaultLand() { // das Land mit der jüngsten Umfrage
+    var best = LAENDER[0], bt = "";
+    LAENDER.forEach(function (l) { var d = l.rows[0][0]; l.rows.forEach(function (r) { if (r[0] > d) d = r[0]; }); if (d > bt) { bt = d; best = l; } });
+    return best.slug;
+  }
+
+  function seg(container, items, key) {
+    container.textContent = "";
+    items.forEach(function (it) {
+      var b = h("button", "", container, it.label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", state[key] === it.id ? "true" : "false");
+      b.addEventListener("click", function () {
+        if (key === "range") { setRange(it.id); return; }
+        state[key] = it.id; state.active = null; state.strip = null;
+        seg(container, items, key); update();
+      });
+    });
+  }
+  function setRange(id) {
+    state.range = id; state.active = null; state.strip = null;
+    syncControls(); writeHash(); update();
+  }
+  function syncControls() {
+    seg($("ranges"), RANGES, "range");
+    var s = $("cabinet"); s.value = /^(cab|kz|wahl):/.test(state.range) ? state.range : ""; s.className = s.value ? "on" : "";
+    var t = $("inst"); t.value = state.inst; t.className = state.inst ? "on" : "";
+  }
+  function writeHash() { try { history.replaceState(null, "", location.pathname + location.search + hashOf()); } catch (e) { /* z. B. file:// */ } }
+
+  // ---------- Trend: gewichteter gleitender Mittelwert je Wahlperiode ----------
+  function trendFor() {
+    var key = S.slug + "|" + state.inst;
+    if (trendCache[key]) return trendCache[key];
+    var polls = S.polls.filter(function (p) { return !state.inst || p.inst === state.inst; });
+    var segOf = function (t) { for (var i = 0; i < S.elections.length; i++) if (t <= S.elections[i]) return i; return S.elections.length; };
+    var out = {};
+    PK.forEach(function (k, i) {
+      var bySeg = {}, pts = [];
+      polls.forEach(function (p) { if (p.v[i] != null) (bySeg[segOf(p.t)] = bySeg[segOf(p.t)] || []).push(p); });
+      Object.keys(bySeg).map(Number).sort(function (a, b) { return a - b; }).forEach(function (sg) {
+        var arr = bySeg[sg], prev = null;
+        arr.forEach(function (p) {
+          if (prev === p.t) return;
+          var num = 0, den = 0, n = 0;
+          arr.forEach(function (q) {
+            var dd = Math.abs(q.t - p.t) / DAY;
+            if (dd <= TREND_DAYS) { var w = 1 - dd / (TREND_DAYS + 1); num += w * q.v[i]; den += w; n++; }
+          });
+          pts.push({ t: p.t, v: num / den, n: n, brk: prev === null || p.t - prev > GAP_DAYS * DAY });
+          prev = p.t;
+        });
+      });
+      out[k] = pts;
+    });
+    trendCache[key] = out;
+    return out;
+  }
+
+  // ---------- Stand und Veränderung je Partei ----------
+  function windowAvg(polls, i, fromEnd, refLast) {
+    var vals = polls.filter(function (p) { return p.v[i] != null; });
+    if (!vals.length) return null;
+    var ref = fromEnd ? vals[vals.length - 1].t : vals[0].t;
+    if (fromEnd && ref < refLast - 200 * DAY) return null; // Partei wird seit langem nicht mehr ausgewiesen
+    var w = vals.filter(function (p) { return fromEnd ? p.t >= ref - 60 * DAY : p.t <= ref + 60 * DAY; });
+    if (w.length < 2) w = fromEnd ? vals.slice(-3) : vals.slice(0, 3);
+    var sum = 0; w.forEach(function (p) { sum += p.v[i]; });
+    return { v: Math.round(sum / w.length * 10) / 10, n: w.length, t0: w[0].t, t1: w[w.length - 1].t };
+  }
+  var numDe = function (x) { return String(x).replace(".", ","); };
+  var range3 = function (a) { return fmt(a.t0) + (a.t1 !== a.t0 ? " – " + fmt(a.t1) : ""); };
+
+  var legendLabel = null, legendRefs = {};
+  function buildLegend() {
+    var lg = $("legend"); lg.textContent = ""; legendRefs = {};
+    legendLabel = h("span", "lbl", lg);
+    S.keys.forEach(function (k) {
+      var i = PK.indexOf(k), b = h("button", "chip p-" + k, lg);
+      b.type = "button";
+      b.setAttribute("aria-pressed", state.on[k] ? "true" : "false");
+      h("i", "key", b); h("span", "", b, partyName(k));
+      legendRefs[k] = { b: b, v: h("b", "", b), d: h("span", "d", b) };
+      b.addEventListener("click", function () {
+        var count = S.keys.filter(function (q) { return state.on[q]; }).length;
+        if (state.on[k] && count === 1) return;
+        state.on[k] = !state.on[k];
+        b.setAttribute("aria-pressed", state.on[k] ? "true" : "false");
+        update();
+      });
+    });
+    var r = h("span", "ring", lg); h("i", "", r); h("span", "", r, S.wahl + "ergebnis");
+    var hu = h("span", "ring", lg); h("i", "hu", hu); h("span", "", hu, "5-%-Hürde");
+  }
+  function updateLegend(rows) {
+    var polls = rows.filter(function (r) { return !r.el; });
+    if (!polls.length) {
+      legendLabel.textContent = "Keine Umfragen im gewählten Zeitraum";
+      S.keys.forEach(function (k) { legendRefs[k].b.hidden = false; legendRefs[k].v.textContent = "–"; legendRefs[k].d.textContent = ""; legendRefs[k].b.title = partyName(k) + " ein- oder ausblenden"; });
+      return;
+    }
+    var lastT = polls[polls.length - 1].t, first = rows[0], fromElection = first.el;
+    legendLabel.textContent = "Ø der letzten Umfragen bis " + fmt(lastT) + " · Veränderung seit " +
+      (fromElection ? "dem Ergebnis der " + S.wahl + " vom " + fmt(first.t) : "Ø der ersten Umfragen ab " + fmt(polls[0].t)) + ", in Prozentpunkten" +
+      (state.inst ? " · nur " + state.inst : "");
+    S.keys.forEach(function (k) {
+      var i = PK.indexOf(k), ref = legendRefs[k], b = windowAvg(polls, i, true, lastT), a;
+      ref.b.hidden = !polls.some(function (p) { return p.v[i] != null; }); // Partei im Zeitraum nie ausgewiesen: keine Schaltfläche
+      var startLabel;
+      if (fromElection && first.v[i] != null) { a = { v: first.v[i], n: 1, t0: first.t, t1: first.t }; startLabel = S.wahl + "ergebnis " + fmt(first.t); }
+      else { a = windowAvg(polls, i, false, lastT); startLabel = a ? "Ø aus " + a.n + " Umfrage" + (a.n > 1 ? "n" : "") + " (" + range3(a) + ")" : ""; }
+      ref.v.textContent = b ? pct(b.v) : "–";
+      ref.d.textContent = "";
+      var title;
+      if (!b) title = partyName(k) + ": am Ende des Zeitraums nicht ausgewiesen.";
+      else if (!a || a.t1 >= b.t0) {
+        h("span", "", ref.d, "–"); h("span", "sr", ref.d, " kein Vergleichswert");
+        title = partyName(k) + ": Ø " + pct(b.v) + " aus " + b.n + " Umfrage" + (b.n > 1 ? "n" : "") + " (" + range3(b) + "). Kein Vergleichswert, die Partei wurde zu Beginn des Zeitraums nicht ausgewiesen.";
+      } else {
+        var d = Math.round((b.v - a.v) * 10) / 10;
+        var text = d > 0 ? "+" + numDe(d) : d < 0 ? "−" + numDe(-d) : "±0";
+        h("span", "g", ref.d, d > 0 ? "▲" : d < 0 ? "▼" : "▪").setAttribute("aria-hidden", "true");
+        ref.d.appendChild(document.createTextNode(text));
+        h("span", "sr", ref.d, " Prozentpunkte");
+        title = partyName(k) + ": Ø " + pct(b.v) + " aus " + b.n + " Umfrage" + (b.n > 1 ? "n" : "") + " (" + range3(b) + "), zuvor " + pct(a.v) + " (" + startLabel + "): " + text + " Prozentpunkte.";
+      }
+      ref.b.title = title + " Klicken zum Ein- oder Ausblenden.";
+    });
+  }
+
+  // ---------- Diagramm ----------
+  function drawChart(rows) {
+    var box = $("chart");
+    var W = Math.max(280, Math.round(box.clientWidth || 900)), narrow = W < 560, H = narrow ? 350 : 450;
+    var m = { t: 54, r: narrow ? 12 : 84, b: 30, l: narrow ? 36 : 44 };
+    var x0 = m.l, x1 = W - m.r, y0 = m.t, y1 = H - m.b;
+    var rd = rangeDef(), tmin = rd.tmin, tmax = Math.max(rd.tmax, rd.tmin + 30 * DAY);
+    var polls = rows.filter(function (r) { return !r.el; });
+    var vmax = 0;
+    rows.forEach(function (d) { S.keys.forEach(function (k) { var v = d.v[PK.indexOf(k)]; if (v != null && v > vmax) vmax = v; }); });
+    var ymax = Math.max(30, Math.ceil(vmax / 10) * 10);
+    var X = function (t) { return x0 + (t - tmin) / (tmax - tmin) * (x1 - x0); };
+    var Y = function (v) { return y1 - v / ymax * (y1 - y0); };
+    var keys = S.keys.filter(function (k) { return polls.some(function (p) { return p.v[PK.indexOf(k)] != null; }); });
+    view = { rows: rows, X: X, Y: Y, x0: x0, x1: x1, y0: y0, y1: y1, W: W, H: H, tmin: tmin, tmax: tmax, keys: keys };
+    var old = box.querySelector("svg"); if (old) old.remove();
+    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    box.insertBefore(svg, box.firstChild);
+
+    for (var v = 0; v <= ymax; v += 10) {
+      el("line", { x1: x0, x2: x1, y1: Y(v), y2: Y(v), style: "stroke:var(" + (v === 0 ? "--axis" : "--grid") + ");stroke-width:1" }, svg);
+      el("text", { x: x0 - 8, y: Y(v) + 4, "text-anchor": "end", style: "fill:var(--ink2);font-size:11.5px;font-variant-numeric:tabular-nums" }, svg, v + (narrow ? "" : " %"));
+    }
+    if (narrow) el("text", { x: x0 - 8, y: y0 - 8, "text-anchor": "end", style: "fill:var(--ink2);font-size:11px" }, svg, "%");
+    tickList(tmin, tmax, x0, x1).forEach(function (k) {
+      var x = X(k.t);
+      el("line", { x1: x, x2: x, y1: y1, y2: y1 + 5, style: "stroke:var(--axis);stroke-width:1" }, svg);
+      el("text", { x: x, y: y1 + 20, "text-anchor": "middle", style: "fill:var(--ink2);font-size:11.5px;" + (k.major ? "font-weight:600" : "") }, svg, k.label);
+    });
+    el("line", { x1: x0, x2: x1, y1: Y(5), y2: Y(5), style: "stroke:var(--ink2);stroke-width:1;opacity:.5" }, svg);
+
+    // Wahltage: dünne senkrechte Linie mit Jahreszahl
+    var lastLabelX = -99;
+    S.elections.forEach(function (t) {
+      if (t < tmin || t > tmax) return;
+      var x = X(t);
+      el("line", { x1: x, x2: x, y1: y0, y2: y1, style: "stroke:var(--grid);stroke-width:1" }, svg);
+      if (x - lastLabelX > 34) { el("text", { x: x, y: y0 - 4, "text-anchor": "middle", style: "fill:var(--ink2);font-size:10.5px" }, svg, String(yearOf(t))); lastLabelX = x; }
+    });
+
+    // Regierungsband
+    el("text", { x: x0, y: 12, style: "fill:var(--ink2);font-size:11px;letter-spacing:.05em;text-transform:uppercase" }, svg, "Landesregierung");
+    var sTop = 18, sH = 24;
+    S.G.forEach(function (g, gi) {
+      g.ph.forEach(function (p, pi) {
+        var a = Math.max(p.f, tmin), b = Math.min(p.e, tmax);
+        if (b <= a) return;
+        var xa = X(a) + (a > tmin ? 1 : 0), xb = X(b) - (b < tmax ? 1 : 0), w = xb - xa;
+        el("rect", { x: xa, y: sTop, width: Math.max(0, w), height: sH, rx: 3, style: "fill:var(--band-" + (gi % 2 ? "b" : "a") + ")" }, svg);
+        var showName = pi === 0, txtW = g.name.length * 6.3, dotsW = p.co.length * 11 + 6;
+        var full = showName && w >= dotsW + txtW + 10, lite = showName && !full && w >= txtW + 8;
+        if (full || (!showName && w >= dotsW + 2)) {
+          var cx = xa + 8;
+          p.co.forEach(function (k) { el("circle", { cx: cx + 4, cy: sTop + sH / 2, r: 4, style: "fill:var(--s-" + (PK.indexOf(k) >= 0 ? k : "ink2") + ")" }, svg); cx += 11; });
+          if (full) el("text", { x: cx + 3, y: sTop + sH / 2 + 4, style: "fill:var(--ink);font-size:11.5px;font-weight:600" }, svg, g.name);
+        } else if (lite) {
+          el("text", { x: xa + w / 2, y: sTop + sH / 2 + 4, "text-anchor": "middle", style: "fill:var(--ink);font-size:11.5px;font-weight:600" }, svg, g.name);
+        }
+      });
+    });
+
+    if (!polls.length) {
+      el("text", { x: (x0 + x1) / 2, y: (y0 + y1) / 2, "text-anchor": "middle", style: "fill:var(--ink2);font-size:14px" }, svg, "Keine Umfragen im gewählten Zeitraum");
+      view.overlay = null; view.svg = svg; showTip(); return;
+    }
+
+    // Einzelne Umfragen als Punkte (dezent), Trend als Linie
+    var trend = trendFor(), ends = [];
+    S.keys.forEach(function (k) {
+      if (!state.on[k]) return;
+      var i = PK.indexOf(k), col = "var(--s-" + k + ")";
+      var dots = el("g", { style: "fill:" + col + ";opacity:.32" }, svg);
+      polls.forEach(function (p) { if (p.v[i] != null) el("circle", { cx: X(p.t).toFixed(1), cy: Y(p.v[i]).toFixed(1), r: 2.6 }, dots); });
+      var seg = [], last = null;
+      var flush = function () {
+        if (seg.length > 1) el("path", { d: "M" + seg.join("L"), fill: "none", style: "stroke:" + col + ";stroke-width:2;stroke-linejoin:round;stroke-linecap:round" }, svg);
+        else if (seg.length === 1) { var q = seg[0].split(" "); el("circle", { cx: q[0], cy: q[1], r: 2.5, style: "fill:" + col }, svg); }
+        seg = [];
+      };
+      (trend[k] || []).forEach(function (pt) {
+        if (pt.t < tmin || pt.t > tmax) return;
+        if (pt.brk) flush();
+        seg.push(X(pt.t).toFixed(1) + " " + Y(pt.v).toFixed(1)); last = pt;
+      });
+      flush();
+      rows.forEach(function (d) { if (d.el && d.v[i] != null) el("circle", { cx: X(d.t), cy: Y(d.v[i]), r: 4.5, style: "fill:" + col + ";stroke:var(--surface);stroke-width:2" }, svg); });
+      if (last) {
+        el("circle", { cx: X(last.t), cy: Y(last.v), r: 4, style: "fill:" + col + ";stroke:var(--surface);stroke-width:2" }, svg);
+        if (tmax - last.t < 120 * DAY) ends.push({ y: Y(last.v), n: partyName(k) });
+      }
+    });
+    if (!narrow) {
+      ends.sort(function (a, b) { return a.y - b.y; });
+      var prev = -99;
+      ends.forEach(function (e) {
+        if (e.y - prev < 14) return;
+        prev = e.y;
+        el("text", { x: x1 + 10, y: e.y + 4, style: "fill:var(--ink2);font-size:12px;font-weight:600" }, svg, e.n);
+      });
+    }
+
+    view.cross = el("g", { style: "display:none" }, svg);
+    view.overlay = el("rect", { x: x0, y: 0, width: x1 - x0, height: y1, fill: "transparent", style: "cursor:crosshair" }, svg);
+    view.svg = svg;
+    view.overlay.addEventListener("pointermove", onPointer);
+    view.overlay.addEventListener("pointerdown", onPointer);
+    view.overlay.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") { state.active = null; state.strip = null; showTip(); } });
+    view.overlay.addEventListener("click", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      var pt = pointerPos(e);
+      if (pt.py < view.y0 - 4) setRange("cab:" + S.G.indexOf(govAt(Math.min(Math.max(pt.t, view.tmin), view.tmax))));
+    });
+    showTip();
+  }
+
+  function pointerPos(e) {
+    var box = view.svg.getBoundingClientRect();
+    var px = (e.clientX - box.left) * (view.W / box.width), py = (e.clientY - box.top) * (view.H / box.height);
+    return { px: px, py: py, t: view.tmin + (px - view.x0) / (view.x1 - view.x0) * (view.tmax - view.tmin) };
+  }
+  // Nächster Eintrag: vor allem in der Zeit, bei mehreren Umfragen am selben Tag nach Abstand zum Zeiger
+  function nearestItem(px, py) {
+    var best = -1, cost = 1e9;
+    view.rows.forEach(function (d, idx) {
+      var dx = Math.abs(view.X(d.t) - px), dy = 1e9;
+      S.keys.forEach(function (k) { if (state.on[k]) { var v = d.v[PK.indexOf(k)]; if (v != null) dy = Math.min(dy, Math.abs(view.Y(v) - py)); } });
+      var c = dx + Math.min(dy, 120) * 0.25;
+      if (c < cost) { cost = c; best = idx; }
+    });
+    return best;
+  }
+  function onPointer(e) {
+    var pt = pointerPos(e);
+    view.overlay.style.cursor = pt.py < view.y0 - 4 ? "pointer" : "crosshair";
+    if (pt.py < view.y0 - 4) { state.strip = govAt(Math.min(Math.max(pt.t, view.tmin), view.tmax)); state.active = null; }
+    else { state.strip = null; state.active = nearestItem(pt.px, pt.py); }
+    showTip(pt.px);
+  }
+
+  function showTip(pxHint) {
+    var tip = $("chart").querySelector(".tip");
+    if (!tip) { tip = h("div", "tip", $("chart")); tip.setAttribute("role", "status"); }
+    if (!view || !view.cross) { tip.hidden = true; return; }
+    var cross = view.cross; while (cross.firstChild) cross.removeChild(cross.firstChild);
+    if (state.strip) {
+      cross.style.display = "none";
+      tip.textContent = ""; tip.hidden = false;
+      var g = state.strip;
+      h("div", "th", tip, g.cab);
+      h("div", "ts", tip, fmt(g.f) + " – " + (isOpen(g) ? "heute" : fmt(g.e)));
+      var ul = h("ul", "", tip);
+      var li = h("li", "", ul); li.style.gridTemplateColumns = "minmax(0,1fr)";
+      var l1 = h("span", "n", li, g.title + ": "); h("strong", "", l1, g.who).style.color = "var(--ink)";
+      l1.appendChild(document.createTextNode(" (" + partyName(g.wp) + ")"));
+      g.ph.forEach(function (p) {
+        var l = h("li", "", ul); l.style.gridTemplateColumns = "minmax(0,1fr)";
+        h("span", "n", l, "Koalition: " + coalText(p.co) + (p.nm ? " (" + p.nm + ", ab " + fmt(p.f) + ")" : ""));
+      });
+      if (window.matchMedia && window.matchMedia("(hover: hover)").matches) h("div", "tg", tip, "Klicken: nur dieses Kabinett anzeigen");
+      place(tip, pxHint != null ? pxHint : view.x0);
+      return;
+    }
+    if (state.active == null || !view.rows[state.active]) { tip.hidden = true; cross.style.display = "none"; return; }
+    var d = view.rows[state.active], x = view.X(d.t), trend = trendFor();
+    cross.style.display = "";
+    el("line", { x1: x, x2: x, y1: view.y0, y2: view.y1, style: "stroke:var(--ink2);stroke-width:1;opacity:.55" }, cross);
+    var items = [];
+    view.keys.forEach(function (k) {
+      if (!state.on[k]) return;
+      var i = PK.indexOf(k), val = d.v[i];
+      if (val != null) el("circle", { cx: x, cy: view.Y(val), r: 4.5, style: "fill:var(--s-" + k + ");stroke:var(--surface);stroke-width:2" }, cross);
+      var tr = null;
+      if (!d.el && val != null) (trend[k] || []).some(function (pt) { if (pt.t === d.t) { tr = pt; return true; } return false; });
+      items.push({ k: k, v: val, tr: tr });
+    });
+    items.sort(function (a, b) { return (b.v == null ? -1 : b.v) - (a.v == null ? -1 : a.v); });
+    tip.textContent = ""; tip.hidden = false;
+    h("div", "th", tip, fmt(d.t));
+    if (d.el) h("div", "ts", tip, S.wahl + " – Ergebnis");
+    else {
+      h("div", "ts", tip, (d.inst || "Institut unbekannt") + (d.client ? " · " + d.client : ""));
+      var meta = [d.n ? "Befragte " + fnum(d.n) : "", d.per ? "Feldzeit " + d.per : ""].filter(Boolean).join(" · ");
+      if (meta) h("div", "ts", tip, meta);
+    }
+    var ul2 = h("ul", "", tip), showTrend = items.some(function (it) { return it.tr; });
+    items.forEach(function (it) {
+      var li2 = h("li", "p-" + it.k + (showTrend ? " wide" : ""), ul2);
+      h("i", "k", li2); h("span", "v", li2, pct(it.v)); h("span", "n", li2, partyName(it.k));
+      if (showTrend) h("span", "t", li2, it.tr ? "Trend " + numDe(Math.round(it.tr.v * 10) / 10) : "");
+    });
+    var g2 = govAt(d.t), ph2 = phaseAt(g2, d.t);
+    var tg = h("div", "tg", tip);
+    tg.appendChild(document.createTextNode("Regierung: "));
+    h("strong", "", tg, g2.cab);
+    tg.appendChild(document.createTextNode(" · " + coalText(ph2.co)));
+    place(tip, x);
+  }
+  function place(tip, x) {
+    var w = tip.offsetWidth, hgt = tip.offsetHeight, W = view.W;
+    var left = x + 16; if (left + w > W) left = x - 16 - w;
+    if (left < 0) left = Math.max(0, Math.min(W - w, x - w / 2));
+    var top = view.y0 + 6;
+    if (top + hgt > view.H) top = Math.max(0, view.H - hgt);
+    tip.style.transform = "translate(" + Math.round(left) + "px," + Math.round(top) + "px)";
+  }
+  $("chart").addEventListener("keydown", function (e) {
+    if (!view || !view.rows.length) return;
+    var n = view.rows.length, a = state.active == null ? n - 1 : state.active, hit = true;
+    if (e.key === "ArrowLeft") a -= 1; else if (e.key === "ArrowRight") a += 1;
+    else if (e.key === "PageUp") a -= 10; else if (e.key === "PageDown") a += 10;
+    else if (e.key === "Home") a = 0; else if (e.key === "End") a = n - 1;
+    else if (e.key === "Escape") { state.active = null; state.strip = null; showTip(); return; }
+    else hit = false;
+    if (!hit) return;
+    e.preventDefault(); state.strip = null; state.active = Math.max(0, Math.min(n - 1, a)); showTip();
+  });
+  $("chart").addEventListener("blur", function () { state.active = null; showTip(); });
+
+  // ---------- Tabellen ----------
+  function drawTable(rows) {
+    var box = $("tableview"); box.textContent = "";
+    var wrap = h("div", "tablewrap", box), t = h("table", "", wrap);
+    var head = h("tr", "", h("thead", "", t));
+    h("th", "", head, "Datum"); h("th", "txt", head, "Institut"); h("th", "txt", head, "Auftraggeber"); h("th", "", head, "Befragte");
+    S.keys.forEach(function (k) { var th = h("th", "p-" + k, head); h("i", "dot", th); th.appendChild(document.createTextNode(partyName(k))); });
+    h("th", "", head, "Sonstige");
+    var tb = h("tbody", "", t);
+    rows.slice().reverse().forEach(function (d) {
+      var tr = h("tr", d.el ? "elec" : "", tb);
+      h("td", "", tr, fmt(d.t));
+      h("td", "txt", tr, d.el ? S.wahl + " (Ergebnis)" : d.inst);
+      h("td", "txt", tr, d.el ? "" : d.client);
+      h("td", "num", tr, d.el ? "" : fnum(d.n));
+      S.keys.forEach(function (k) { h("td", "num", tr, pct(d.v[PK.indexOf(k)])); });
+      h("td", "num", tr, pct(d.x[3]));
+    });
+  }
+  function drawGovTable() {
+    var t = $("govtable"); t.textContent = "";
+    var hr = h("tr", "", h("thead", "", t));
+    ["Kabinett", "Koalition", "Regierungschef(in)", "Amtszeit"].forEach(function (x) { h("th", "", hr, x); });
+    var tb = h("tbody", "", t);
+    S.G.slice().reverse().forEach(function (g) {
+      var now = isOpen(g), tr = h("tr", now ? "now" : "", tb);
+      var c1 = h("td", "", tr, g.cab);
+      if (now) h("span", "pill", c1, "aktuell");
+      var c2 = h("td", "", tr);
+      g.ph.forEach(function (p, i) {
+        var line = h("div", "cell-co", c2);
+        p.co.forEach(function (k) { var s = h("span", "p-" + k, line); h("i", "dot", s); s.appendChild(document.createTextNode(partyName(k))); });
+        if (p.nm || g.ph.length > 1) h("span", "small", line, "(" + (p.nm || "") + (g.ph.length > 1 ? (p.nm ? ", " : "") + "ab " + fmt(p.f) : "") + ")");
+        if (g.ph.length > 1 && i === 0) line.style.marginBottom = "2px";
+      });
+      var c3 = h("td", "", tr), s3 = h("span", "cell-co p-" + g.wp, c3), s3b = h("span", "", s3);
+      h("i", "dot", s3b); s3b.appendChild(document.createTextNode(g.who + " (" + partyName(g.wp) + ")"));
+      h("td", "", tr, fmt(g.f) + " – " + (now ? "heute" : fmt(g.e)));
+    });
+  }
+
+  function drawGovHero() {
+    var g = S.G[S.G.length - 1], ph = g.ph[g.ph.length - 1], A = S.gov.aktuell || {};
+    $("gov-eyebrow").textContent = "Landesregierung heute · " + S.name + " · Stand " + LONGMON[new Date(ts(GOV.stand)).getUTCMonth()] + " " + new Date(ts(GOV.stand)).getUTCFullYear();
+    $("gov-h").textContent = g.cab;
+    var c = $("gov-coal"); c.textContent = "";
+    h("span", "", c, A.koalitionsname || (ph.co.length > 1 ? "Koalition" : "Alleinregierung"));
+    ph.co.forEach(function (k) { var s = h("span", "pp p-" + k, c); h("i", "dot", s); s.appendChild(document.createTextNode(partyName(k))); });
+    if (ph.nm) h("span", "", c, "(" + ph.nm + ")");
+    var f = $("gov-facts"); f.textContent = "";
+    h("dt", "", f, g.title);
+    var dd = h("dd", "", f), w = h("span", "who p-" + g.wp, dd);
+    h("i", "dot", w); h("strong", "", w, g.who); h("span", "small", dd, partyName(g.wp));
+    h("dt", "", f, "Im Amt seit");
+    var dd2 = h("dd", "", f); h("strong", "", dd2, longDate(g.f));
+    if (A.seit_zusatz) h("span", "small", dd2, A.seit_zusatz);
+    var lastElection = S.elections[S.elections.length - 1];
+    h("dt", "", f, "Nächste " + S.wahl);
+    var dd3 = h("dd", "", f); h("strong", "", dd3, S.next || "noch nicht angesetzt");
+    if (lastElection) h("span", "small", dd3, "zuletzt am " + longDate(lastElection));
+    var lp = S.polls[S.polls.length - 1];
+    if (lp) { h("dt", "", f, "Letzte Umfrage"); var dd4 = h("dd", "", f); h("strong", "", dd4, fmt(lp.t)); h("span", "small", dd4, lp.inst + (lp.client ? " · " + lp.client : "")); }
+    $("landhint").textContent = S.polls.length + " Umfragen von " + S.insts.length + " Instituten, " + fmt(S.first) + " bis " + fmt(S.last);
+    $("f-data").textContent = fmt(DATA_LAST);
+    $("f-gov").textContent = fmt(ts(GOV.stand));
+    var link = $("f-gov-link");
+    if (/^https:\/\//.test(GOV.quelle || "")) link.href = GOV.quelle;
+  }
+
+  function drawNote() {
+    $("note").textContent = "Punkte: einzelne Umfragen, Linien: gewichteter gleitender Mittelwert (± " + TREND_DAYS + " Tage, innerhalb einer Wahlperiode; bei Lücken über " + GAP_DAYS + " Tage unterbrochen). Punkte mit Ring: Ergebnisse der " + S.wahl + "en. Nicht dargestellt sind kleine Parteien wie SSW, NPD oder BIW, sie stehen in der Tabelle unter „Sonstige“. Ein Strich bedeutet: nicht ausgewiesen.";
+  }
+
+  function update() {
+    seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
+    var rows = rangeRows(), polls = rows.filter(function (d) { return !d.el; });
+    $("rangeinfo").textContent = rangeDef().info + " · " + polls.length + " Umfragen" + (state.inst ? " (" + state.inst + ")" : "");
+    updateLegend(rows);
+    var isChart = state.view === "chart";
+    $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
+    if (isChart) drawChart(rows); else drawTable(rows);
+  }
+
+  function setLand(slug, q) {
+    S = stateOf(slug);
+    state.land = slug; state.inst = (q && q.institut && S.insts.some(function (x) { return x.name === q.institut; })) ? q.institut : "";
+    state.on = {}; S.keys.forEach(function (k) { state.on[k] = true; });
+    state.active = null; state.strip = null;
+    state.range = "all";
+    buildSelects();
+    state.range = q ? rangeFromQuery(q) : "all";
+    $("land").value = slug;
+    buildLegend(); drawGovHero(); drawGovTable(); drawNote();
+    syncControls(); writeHash(); update();
+  }
+
+  var DATA_LAST = 0;
+  LAENDER.forEach(function (l) { l.rows.forEach(function (r) { var t = ts(r[0]); if (r[1] === 0 && t > DATA_LAST) DATA_LAST = t; }); });
+  var land = $("land");
+  LAENDER.slice().sort(function (a, b) { return a.name < b.name ? -1 : 1; }).forEach(function (l) { h("option", "", land, l.name).value = l.slug; });
+  land.addEventListener("change", function () { setLand(land.value); });
+  $("cabinet").addEventListener("change", function () { setRange($("cabinet").value || "all"); });
+  $("inst").addEventListener("change", function () { state.inst = $("inst").value; state.active = null; setRange(state.range); });
+  var start = applyHash();
+  setLand(start.slug, start.q);
+  var lastW = 0;
+  if (window.ResizeObserver) {
+    new ResizeObserver(function (en) {
+      var w = Math.round(en[0].contentRect.width);
+      if (w && w !== lastW) { lastW = w; if (state.view === "chart") drawChart(rangeRows()); }
+    }).observe($("chart"));
+  }
+})();
+</script>
+</body>
+</html>

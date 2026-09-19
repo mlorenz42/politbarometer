@@ -1,4 +1,4 @@
-name: Daten aktualisieren und Seite veröffentlichen
+name: Daten aktualisieren und Seiten veröffentlichen
 
 on:
   schedule:
@@ -25,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       regierung: ${{ steps.regierung.outcome }}
+      landtage: ${{ steps.landtage.outcome }}
+      landesregierungen: ${{ steps.landesregierungen.outcome }}
     steps:
       - uses: actions/checkout@v7
 
@@ -32,18 +34,29 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Umfragedaten von wahlrecht.de abrufen
+      - name: Politbarometer von wahlrecht.de abrufen
         run: python scripts/update_data.py
 
-      # Schlägt dieser Schritt fehl (Wikipedia umgebaut, Quellen widersprechen sich, neue Partei),
-      # werden die Umfragedaten trotzdem veröffentlicht; der Job "regierung-fehler" unten schlägt dann
-      # absichtlich fehl, damit GitHub dir eine Fehlermail schickt.
-      - name: Regierungsdaten aus Wikipedia abrufen
+      # Die folgenden drei Schritte dürfen fehlschlagen (Quelle umgebaut, Quellen widersprechen sich,
+      # neue Partei, ...). Dann bleiben die bisherigen Daten stehen, alles andere wird trotzdem
+      # veröffentlicht, und der Job "daten-fehler" unten schlägt absichtlich fehl, damit GitHub eine
+      # Fehlermail schickt.
+      - name: Bundesregierung aus Wikipedia abrufen
         id: regierung
         continue-on-error: true
         run: python scripts/update_regierungen.py
 
-      - name: Seite bauen
+      - name: Landtagsumfragen von wahlrecht.de abrufen
+        id: landtage
+        continue-on-error: true
+        run: python scripts/update_landtage.py
+
+      - name: Landesregierungen aus Wikipedia abrufen
+        id: landesregierungen
+        continue-on-error: true
+        run: python scripts/update_landesregierungen.py
+
+      - name: Seiten bauen
         run: python scripts/build_site.py
 
       - name: Änderungen committen
@@ -74,11 +87,15 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v5
 
-  regierung-fehler:
+  daten-fehler:
     needs: build
-    if: needs.build.outputs.regierung == 'failure'
+    if: needs.build.outputs.regierung == 'failure' || needs.build.outputs.landtage == 'failure' || needs.build.outputs.landesregierungen == 'failure'
     runs-on: ubuntu-latest
     steps:
-      - run: |
-          echo "::error::Die Regierungsdaten konnten nicht aktualisiert werden (Details im Schritt 'Regierungsdaten aus Wikipedia abrufen' des Jobs 'build'). Die Umfragedaten wurden trotzdem veröffentlicht."
+      - env:
+          REGIERUNG: ${{ needs.build.outputs.regierung }}
+          LANDTAGE: ${{ needs.build.outputs.landtage }}
+          LANDESREGIERUNGEN: ${{ needs.build.outputs.landesregierungen }}
+        run: |
+          echo "::error::Nicht alle Daten konnten aktualisiert werden (Bundesregierung: $REGIERUNG, Landtagsumfragen: $LANDTAGE, Landesregierungen: $LANDESREGIERUNGEN). Details stehen in den Schritten des Jobs 'build'. Veröffentlicht wurde mit den zuletzt gültigen Daten."
           exit 1

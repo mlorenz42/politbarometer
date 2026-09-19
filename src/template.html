@@ -6,183 +6,16 @@
 <meta name="description" content="Verlauf der Sonntagsfrage im ZDF-Politbarometer seit 1998 mit den jeweiligen Bundesregierungen.">
 <title>Politbarometer seit 1998</title>
 <style>
-:root {
-  color-scheme: light;
-  --page: #f9f9f7;
-  --surface: #fcfcfb;
-  --ink: #0b0b0b;
-  --ink2: #52514e;
-  --muted: #898781;
-  --grid: #e1e0d9;
-  --axis: #c3c2b7;
-  --hair: rgba(11, 11, 11, 0.10);
-  --hover: rgba(11, 11, 11, 0.05);
-  --band-a: #efeee9;
-  --band-b: #e6e5de;
-  --s-cdu: #4b4b4b;
-  --s-spd: #e34948;
-  --s-gru: #008300;
-  --s-fdp: #eda100;
-  --s-lin: #e87ba4;
-  --s-afd: #2a78d6;
-  --s-bsw: #4a3aa7;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --page: #0d0d0d;
-    --surface: #1a1a19;
-    --ink: #ffffff;
-    --ink2: #c3c2b7;
-    --muted: #898781;
-    --grid: #2c2c2a;
-    --axis: #383835;
-    --hair: rgba(255, 255, 255, 0.10);
-    --hover: rgba(255, 255, 255, 0.07);
-    --band-a: #262624;
-    --band-b: #302f2d;
-    --s-cdu: #949494;
-    --s-spd: #e66767;
-    --s-gru: #008300;
-    --s-fdp: #c98500;
-    --s-lin: #d55181;
-    --s-afd: #3987e5;
-    --s-bsw: #9085e9;
-  }
-}
-:root[data-theme="dark"] {
-  color-scheme: dark;
-  --page: #0d0d0d;
-  --surface: #1a1a19;
-  --ink: #ffffff;
-  --ink2: #c3c2b7;
-  --muted: #898781;
-  --grid: #2c2c2a;
-  --axis: #383835;
-  --hair: rgba(255, 255, 255, 0.10);
-  --hover: rgba(255, 255, 255, 0.07);
-  --band-a: #262624;
-  --band-b: #302f2d;
-  --s-cdu: #949494;
-  --s-spd: #e66767;
-  --s-gru: #008300;
-  --s-fdp: #c98500;
-  --s-lin: #d55181;
-  --s-afd: #3987e5;
-  --s-bsw: #9085e9;
-}
-
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-body {
-  margin: 0;
-  background: var(--page);
-  color: var(--ink);
-  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
-  padding-inline: 16px;
-  padding-block: 32px 56px;
-}
-.wrap { max-width: 1040px; margin-inline: auto; display: flex; flex-direction: column; gap: 32px; }
-h1, h2, p, dl, dd { margin: 0; }
-h1 { font-size: clamp(26px, 4.4vw, 36px); line-height: 1.1; font-weight: 650; letter-spacing: -0.015em; text-wrap: balance; }
-h2 { font-size: 16px; line-height: 1.3; font-weight: 650; }
-.sub { color: var(--ink2); max-width: 64ch; margin-top: 8px; text-wrap: pretty; }
-a { color: inherit; text-underline-offset: 2px; }
-:focus-visible { outline: 2px solid var(--s-afd); outline-offset: 2px; border-radius: 4px; }
-
-.p-cdu { --c: var(--s-cdu); } .p-spd { --c: var(--s-spd); } .p-gru { --c: var(--s-gru); }
-.p-fdp { --c: var(--s-fdp); } .p-lin { --c: var(--s-lin); } .p-afd { --c: var(--s-afd); } .p-bsw { --c: var(--s-bsw); }
-.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
-
-/* Regierung heute */
-.gov { border-block: 1px solid var(--hair); padding-block: 22px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; }
-.eyebrow { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink2); margin-bottom: 8px; }
-.gov h2 { font-size: clamp(28px, 5vw, 44px); line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
-.coal { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; color: var(--ink2); }
-.coal .pp { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
-.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 20px; align-content: center; }
-.facts dt { color: var(--ink2); }
-.facts dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
-.facts dd strong { font-weight: 650; font-size: 15px; }
-.facts .who { display: inline-flex; align-items: center; gap: 6px; }
-.small { color: var(--ink2); font-size: 12.5px; }
-
-/* Diagramm-Karte */
-.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 14px; }
-.bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; }
-.ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; }
-.seg { display: inline-flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
-.seg button { font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 0; padding: 6px 12px; min-height: 32px; cursor: pointer; }
-.seg button + button { border-left: 1px solid var(--hair); }
-.seg button:hover { background: var(--hover); }
-.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 600; }
-.rangeinfo { color: var(--ink2); font-size: 12.5px; margin-top: 3px; text-wrap: pretty; }
-.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
-.sel select { font: inherit; font-size: 13px; color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 6px 10px; min-height: 34px; max-width: 100%; cursor: pointer; text-overflow: ellipsis; }
-.sel select:hover { background: var(--hover); }
-.sel select.on { color: var(--ink); font-weight: 600; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
-.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-.legend .lbl { flex: 0 0 100%; font-size: 12px; color: var(--ink2); }
-.chip .d { font-size: 12.5px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.chip .d .g { font-size: 10px; margin-right: 2px; }
-.chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px; min-height: 32px; border: 1px solid var(--hair); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
-.chip:hover { background: var(--hover); }
-.chip .key { width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
-.chip b { font-weight: 650; font-variant-numeric: tabular-nums; }
-.chip[aria-pressed="false"] { color: var(--ink2); }
-.chip[aria-pressed="false"] .key { opacity: 0.3; }
-.chip[aria-pressed="false"] b { opacity: 0.55; }
-.legend .ring { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2); margin-left: 6px; }
-.legend .ring i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); box-shadow: 0 0 0 2px var(--surface); }
-.legend .ring i.hu { width: 16px; height: 1px; border-radius: 0; box-shadow: none; opacity: 0.6; }
-
-.chart { position: relative; touch-action: pan-y; border-radius: 6px; }
-.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
-.chart text { font-family: inherit; }
-.tip { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; min-width: 190px; max-width: 280px; background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.14); font-size: 12.5px; }
-.tip[hidden] { display: none; }
-.tip .th { font-weight: 650; font-size: 13px; }
-.tip .ts { color: var(--ink2); font-size: 12px; margin-top: 1px; }
-.tip ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; }
-.tip li { display: grid; grid-template-columns: 14px 44px minmax(0, 1fr); align-items: center; gap: 6px; }
-.tip li .k { height: 3px; border-radius: 2px; background: var(--c); }
-.tip li .v { font-weight: 700; font-size: 13.5px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
-.tip li .n { color: var(--ink2); }
-.tip .tg { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hair); color: var(--ink2); font-size: 12px; }
-.tip .tg strong { color: var(--ink); font-weight: 600; }
-
-.tablewrap { max-height: 460px; overflow: auto; border: 1px solid var(--hair); border-radius: 8px; }
-table { border-collapse: collapse; width: 100%; font-size: 13px; }
-th, td { padding: 7px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--hair); }
-th:first-child, td:first-child { text-align: left; }
-thead th { position: sticky; top: 0; background: var(--surface); font-weight: 650; color: var(--ink2); z-index: 1; }
-thead th .dot { margin-right: 6px; }
-td.num { font-variant-numeric: tabular-nums; }
-tr.elec td { font-weight: 650; background: var(--hover); }
-td.txt, th.txt { text-align: left; }
-.note { font-size: 12px; color: var(--ink2); max-width: 90ch; text-wrap: pretty; }
-
-/* Regierungen */
-.govs h2 { margin-bottom: 4px; }
-.govs .lead { color: var(--ink2); margin-bottom: 12px; }
-.govs .tablewrap { max-height: none; }
-.govs td, .govs th { text-align: left; white-space: normal; }
-.govs tr.now td { background: var(--hover); }
-.pill { display: inline-block; font-size: 11px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--ink2); border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
-.cell-co { display: flex; flex-wrap: wrap; gap: 2px 12px; }
-.cell-co span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
-
-@media (max-width: 720px) {
-  .gov { grid-template-columns: minmax(0, 1fr); }
-  .card { padding: 14px 12px 12px; }
-  th, td { padding: 7px 9px; }
-}
+/*COMMON_CSS*/
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
+    <nav class="nav" aria-label="Seiten">
+      <a href="index.html" aria-current="page">Bundestag</a>
+      <a href="laender.html">Bundesländer</a>
+    </nav>
     <h1>Politbarometer seit 1998</h1>
     <p class="sub">Sonntagsfrage der Forschungsgruppe Wahlen: Stimmenanteile der Parteien in Prozent, dazu die jeweilige Bundesregierung.</p>
   </header>
@@ -204,7 +37,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       </div>
       <div class="ctrls">
         <div class="seg" id="ranges" role="group" aria-label="Zeitraum"></div>
-        <label class="sel"><span class="sr">Seit einer Bundestagswahl, nach Kanzlerschaft oder nach Kabinett filtern</span><select id="cabinet"></select></label>
+        <label class="sel"><span class="sr">Nach Jahr, Bundestagswahl, Kanzlerschaft oder Kabinett filtern</span><select id="cabinet"></select></label>
         <div class="seg" id="views" role="group" aria-label="Ansicht"></div>
       </div>
     </div>
@@ -232,6 +65,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 <script>
 (function () {
   "use strict";
+  /*COMMON_JS*/
   // Spalten: Datum, Wahl(1=Bundestagswahl-Ergebnis), CDU/CSU, SPD, GRÜNE, FDP, LINKE, AfD, BSW, Befragte, Zeitraum
   var RAW = /*DATA*/[];
   var P = [
@@ -239,7 +73,6 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     { k: "fdp", n: "FDP", c: 5 }, { k: "lin", n: "LINKE", c: 6 }, { k: "afd", n: "AfD", c: 7 }, { k: "bsw", n: "BSW", c: 8 }
   ];
   var PBY = {}; P.forEach(function (p) { PBY[p.k] = p; });
-  var ts = function (s) { var a = s.split("-"); return Date.UTC(+a[0], +a[1] - 1, +a[2]); };
   var DATA = RAW.map(function (r) { return { t: ts(r[0]), el: r[1] === 1, v: r.slice(2, 9), n: r[9], per: r[10] }; });
   var TMAX = DATA[DATA.length - 1].t;
 
@@ -254,10 +87,13 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   G.forEach(function (g) { g.f = ts(g.from); g.e = ts(g.to); g.ph.forEach(function (p) { p.f = ts(p.from); p.e = ts(p.to); }); });
   var COALNAME = { "cdu,fdp": "schwarz-gelb", "spd,gru": "rot-grün", "cdu,spd": "schwarz-rot", "spd,gru,fdp": "Ampel" };
 
-  var RANGES = [
-    { id: "all", label: "Alles", from: "1998-01-01" }, { id: "y13", label: "Seit 2013", from: "2013-01-01" },
-    { id: "y21", label: "Seit 2021", from: "2021-01-01" }, { id: "y25", label: "Seit 2025", from: "2025-01-01" }
-  ];
+  // Zeiträume "Seit <Jahr>" in 5-Jahres-Schritten (2000, 2005, ...), solange mindestens ein Jahr Daten übrig bleibt.
+  // Die Schaltflächen zeigen nur die Jahrzehnte, die vollständige Reihe steht in der Auswahlliste.
+  var FIRST_YEAR = new Date(DATA[0].t).getUTCFullYear(), LAST_YEAR = new Date(TMAX).getUTCFullYear();
+  var YEAR_STEPS = [];
+  for (var yr = Math.floor(FIRST_YEAR / 5) * 5 + 5; yr < LAST_YEAR; yr += 5) YEAR_STEPS.push(yr);
+  var RANGES = [{ id: "all", label: "Alles" }].concat(YEAR_STEPS.filter(function (y) { return y % 10 === 0 && y >= FIRST_YEAR + 5; })
+    .map(function (y) { return { id: "y" + y, label: "Seit " + y }; }));
   var state = { range: "all", view: "chart", on: {}, active: null, strip: null };
   var CHANCELLORS = []; // aufeinanderfolgende Kabinette desselben Kanzlers
   G.forEach(function (g, i) {
@@ -266,27 +102,6 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   });
   P.forEach(function (p) { state.on[p.k] = true; });
 
-  var MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
-  var p2 = function (n) { return (n < 10 ? "0" : "") + n; };
-  var fmt = function (t) { var d = new Date(t); return p2(d.getUTCDate()) + "." + p2(d.getUTCMonth() + 1) + "." + d.getUTCFullYear(); };
-  var pct = function (v) { return v == null ? "–" : String(v).replace(".", ",") + " %"; };
-  var fnum = function (n) { return n == null ? "" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
-  var $ = function (id) { return document.getElementById(id); };
-  var NS = "http://www.w3.org/2000/svg";
-  function el(tag, attrs, parent, text) {
-    var e = document.createElementNS(NS, tag);
-    for (var k in attrs) e.setAttribute(k, attrs[k]);
-    if (text != null) e.textContent = text;
-    if (parent) parent.appendChild(e);
-    return e;
-  }
-  function h(tag, cls, parent, text) {
-    var e = document.createElement(tag);
-    if (cls) e.className = cls;
-    if (text != null) e.textContent = text;
-    if (parent) parent.appendChild(e);
-    return e;
-  }
   function govAt(t) { for (var i = G.length - 1; i >= 0; i--) if (t >= G[i].f) return G[i]; return G[0]; }
   function phaseAt(g, t) { for (var i = g.ph.length - 1; i >= 0; i--) if (t >= g.ph[i].f) return g.ph[i]; return g.ph[0]; }
   function coalText(co) { return co.map(function (k) { return PBY[k].n; }).join(" + "); }
@@ -328,13 +143,16 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       return { tmin: Math.max(a.f, first), tmax: Math.min(b.e, TMAX),
         info: c.title + " " + c.who + " (" + PBY[c.wp].n + ") · Kabinette " + a.name + (c.to > c.from ? " bis " + b.name : "") + " · " + fmt(a.f) + " – " + (isOpen(b) ? "heute" : fmt(b.e)) };
     }
-    var r = RANGES.filter(function (x) { return x.id === state.range; })[0] || RANGES[0];
-    return { tmin: ts(r.from), tmax: TMAX, info: fmt(Math.max(ts(r.from), first)) + " – " + fmt(TMAX) };
+    var ym = /^y(\d{4})$/.exec(state.range), from = ts((ym ? ym[1] : FIRST_YEAR) + "-01-01");
+    return { tmin: from, tmax: TMAX, info: fmt(Math.max(from, first)) + " – " + fmt(TMAX) };
   }
 
   function buildSelect() {
     var s = $("cabinet"); s.textContent = "";
-    h("option", "", s, "Wahl, Kanzlerschaft oder Kabinett …").value = "";
+    h("option", "", s, "Jahr, Wahl, Kanzlerschaft oder Kabinett …").value = "";
+    var years = h("optgroup", "", s); years.label = "Seit Jahr (5-Jahres-Schritte)";
+    for (var y = YEAR_STEPS.length - 1; y >= 0; y--) h("option", "", years, "Seit " + YEAR_STEPS[y]).value = "y" + YEAR_STEPS[y];
+    if (!years.children.length) years.remove();
     var since = h("optgroup", "", s); since.label = "Seit einer Bundestagswahl";
     for (var k = ELECTIONS.length - 1; k >= 0; k--) h("option", "", since, "Seit der Bundestagswahl " + yearOf(ELECTIONS[k]) + " (" + fmt(ELECTIONS[k]) + ")").value = "wahl:" + k;
     if (!since.children.length) since.remove();
@@ -363,7 +181,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var m = /^#(kabinett|kanzlerschaft|zeitraum|wahl)=(.+)$/.exec(location.hash);
     if (!m) return "all";
     var v = decodeURIComponent(m[2]), i;
-    if (m[1] === "zeitraum") return RANGES.some(function (r) { return r.id === v; }) ? v : "all";
+    if (m[1] === "zeitraum") return YEAR_STEPS.some(function (y) { return "y" + y === v; }) ? v : "all";
     if (m[1] === "wahl") { for (i = 0; i < ELECTIONS.length; i++) if (String(yearOf(ELECTIONS[i])) === v) return "wahl:" + i; }
     else if (m[1] === "kabinett") { for (i = 0; i < G.length; i++) if (G[i].name === v) return "cab:" + i; }
     else { for (i = 0; i < CHANCELLORS.length; i++) if (CHANCELLORS[i].who === v && CHANCELLORS[i].to > CHANCELLORS[i].from) return "kz:" + i; }
@@ -373,7 +191,8 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   function setRange(id) {
     state.range = id; state.active = null; state.strip = null;
     seg($("ranges"), RANGES, "range");
-    var s = $("cabinet"); s.value = /^(cab|kz|wahl):/.test(id) ? id : ""; s.className = s.value ? "on" : "";
+    // Voreinstellungen mit eigener Schaltfläche werden dort hervorgehoben, nicht in der Auswahlliste
+    var s = $("cabinet"); s.value = /^(cab|kz|wahl|y\d{4})/.test(id) && !RANGES.some(function (r) { return r.id === id; }) ? id : ""; s.className = s.value ? "on" : "";
     try { history.replaceState(null, "", location.pathname + location.search + rangeToHash(id)); } catch (e) { /* z. B. file:// oder eingebettet */ }
     update();
   }
@@ -448,27 +267,6 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var rd = rangeDef();
     return DATA.filter(function (d) { return d.t >= rd.tmin && d.t <= rd.tmax; });
   }
-  function tickList(tmin, tmax, x0, x1) {
-    var span = (tmax - tmin) / 31557600000, ticks = [], y, m;
-    var yearPx = (x1 - x0) / span;
-    var d0 = new Date(tmin), d1 = new Date(tmax);
-    if (span < 4) {
-      for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) for (m = 0; m < 12; m += 3) {
-        var t = Date.UTC(y, m, 1);
-        if (t >= tmin && t <= tmax) ticks.push({ t: t, label: m === 0 ? String(y) : MON[m], major: m === 0 });
-      }
-      if (yearPx < 130) ticks = ticks.filter(function (k) { return k.major || (new Date(k.t).getUTCMonth() === 6); });
-      return ticks;
-    }
-    var steps = [1, 2, 4, 5, 10], step = 10;
-    for (var s = 0; s < steps.length; s++) { if (steps[s] * yearPx >= 54) { step = steps[s]; break; } }
-    for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) {
-      var tt = Date.UTC(y, 0, 1);
-      if (tt >= tmin && tt <= tmax && y % step === 0) ticks.push({ t: tt, label: String(y), major: true });
-    }
-    return ticks;
-  }
-
   function drawChart() {
     var box = $("chart");
     var W = Math.max(280, Math.round(box.clientWidth || 900));
@@ -713,8 +511,6 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     });
   }
 
-  var LONGMON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
-  function longDate(t) { var d = new Date(t); return d.getUTCDate() + ". " + LONGMON[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
   function drawGovHero() {
     var g = G[G.length - 1], ph = g.ph[g.ph.length - 1], A = GOV.aktuell || {};
     $("gov-eyebrow").textContent = "Bundesregierung heute · Stand " + LONGMON[new Date(ts(GOV.stand)).getUTCMonth()] + " " + new Date(ts(GOV.stand)).getUTCFullYear();
