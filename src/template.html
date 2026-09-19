@@ -116,6 +116,11 @@ a { color: inherit; text-underline-offset: 2px; }
 .seg button + button { border-left: 1px solid var(--hair); }
 .seg button:hover { background: var(--hover); }
 .seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 600; }
+.rangeinfo { color: var(--ink2); font-size: 12.5px; margin-top: 3px; text-wrap: pretty; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sel select { font: inherit; font-size: 13px; color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 6px 10px; min-height: 34px; max-width: 100%; cursor: pointer; text-overflow: ellipsis; }
+.sel select:hover { background: var(--hover); }
+.sel select.on { color: var(--ink); font-weight: 600; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .legend .lbl { font-size: 12px; color: var(--ink2); margin-right: 4px; }
 .chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px; min-height: 32px; border: 1px solid var(--hair); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
@@ -191,9 +196,13 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
   <section class="card" aria-labelledby="ch-h">
     <div class="bar">
-      <h2 id="ch-h">Verlauf der Umfragewerte</h2>
+      <div>
+        <h2 id="ch-h">Verlauf der Umfragewerte</h2>
+        <p class="rangeinfo" id="rangeinfo" aria-live="polite"></p>
+      </div>
       <div class="ctrls">
         <div class="seg" id="ranges" role="group" aria-label="Zeitraum"></div>
+        <label class="sel"><span class="sr">Nach Kanzlerschaft oder Kabinett filtern</span><select id="cabinet"></select></label>
         <div class="seg" id="views" role="group" aria-label="Ansicht"></div>
       </div>
     </div>
@@ -248,6 +257,11 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     { id: "y21", label: "Seit 2021", from: "2021-01-01" }, { id: "y25", label: "Seit 2025", from: "2025-01-01" }
   ];
   var state = { range: "all", view: "chart", on: {}, active: null, strip: null };
+  var CHANCELLORS = []; // aufeinanderfolgende Kabinette desselben Kanzlers
+  G.forEach(function (g, i) {
+    var last = CHANCELLORS[CHANCELLORS.length - 1];
+    if (last && last.who === g.who) last.to = i; else CHANCELLORS.push({ who: g.who, title: g.title, wp: g.wp, from: i, to: i });
+  });
   P.forEach(function (p) { state.on[p.k] = true; });
 
   var MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
@@ -283,11 +297,74 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       b.type = "button";
       b.setAttribute("aria-pressed", state[key] === it.id ? "true" : "false");
       b.addEventListener("click", function () {
+        if (key === "range") { setRange(it.id); return; }
         state[key] = it.id; state.active = null; state.strip = null;
         seg(container, items, key); update();
       });
     });
   }
+  var isOpen = function (g) { return g.e > TMAX + 365 * 86400000; };
+  var yearOf = function (t) { return new Date(t).getUTCFullYear(); };
+  var span = function (a, b, open) { return yearOf(a) + "–" + (open ? "heute" : yearOf(b)); };
+
+  // Zeitraum: Voreinstellung ("all", "y13", ...), Kabinett ("cab:<Index>") oder Kanzlerschaft ("kz:<Index>")
+  function rangeDef() {
+    var m = /^(cab|kz):(\d+)$/.exec(state.range), first = DATA[0].t;
+    if (m && m[1] === "cab" && G[+m[2]]) {
+      var g = G[+m[2]];
+      return { tmin: Math.max(g.f, first), tmax: Math.min(g.e, TMAX),
+        info: g.cab + " · " + g.title + " " + g.who + " (" + PBY[g.wp].n + ") · " + g.ph.map(function (p) { return coalText(p.co); }).join(" → ") + " · " + fmt(g.f) + " – " + (isOpen(g) ? "heute" : fmt(g.e)) };
+    }
+    if (m && m[1] === "kz" && CHANCELLORS[+m[2]]) {
+      var c = CHANCELLORS[+m[2]], a = G[c.from], b = G[c.to];
+      return { tmin: Math.max(a.f, first), tmax: Math.min(b.e, TMAX),
+        info: c.title + " " + c.who + " (" + PBY[c.wp].n + ") · Kabinette " + a.name + (c.to > c.from ? " bis " + b.name : "") + " · " + fmt(a.f) + " – " + (isOpen(b) ? "heute" : fmt(b.e)) };
+    }
+    var r = RANGES.filter(function (x) { return x.id === state.range; })[0] || RANGES[0];
+    return { tmin: ts(r.from), tmax: TMAX, info: fmt(Math.max(ts(r.from), first)) + " – " + fmt(TMAX) };
+  }
+
+  function buildSelect() {
+    var s = $("cabinet"); s.textContent = "";
+    h("option", "", s, "Kanzlerschaft oder Kabinett …").value = "";
+    var multi = h("optgroup", "", s); multi.label = "Kanzlerschaft (mehrere Kabinette)";
+    var single = h("optgroup", "", s); single.label = "Einzelnes Kabinett";
+    for (var i = CHANCELLORS.length - 1; i >= 0; i--) {
+      var c = CHANCELLORS[i];
+      if (c.to > c.from) h("option", "", multi, c.who + " (" + span(G[c.from].f, G[c.to].e, isOpen(G[c.to])) + ")").value = "kz:" + i;
+    }
+    for (var j = G.length - 1; j >= 0; j--) {
+      var g = G[j];
+      h("option", "", single, g.cab + " · " + g.who + " (" + span(g.f, g.e, isOpen(g)) + ")").value = "cab:" + j;
+    }
+    if (!multi.children.length) multi.remove();
+    s.addEventListener("change", function () { setRange(s.value || "all"); });
+  }
+
+  function rangeToHash(id) {
+    var m = /^(cab|kz):(\d+)$/.exec(id);
+    if (m && m[1] === "cab") return "#kabinett=" + encodeURIComponent(G[+m[2]].name);
+    if (m && m[1] === "kz") return "#kanzlerschaft=" + encodeURIComponent(CHANCELLORS[+m[2]].who);
+    return id === "all" ? "" : "#zeitraum=" + id;
+  }
+  function hashToRange() {
+    var m = /^#(kabinett|kanzlerschaft|zeitraum)=(.+)$/.exec(location.hash);
+    if (!m) return "all";
+    var v = decodeURIComponent(m[2]), i;
+    if (m[1] === "zeitraum") return RANGES.some(function (r) { return r.id === v; }) ? v : "all";
+    if (m[1] === "kabinett") { for (i = 0; i < G.length; i++) if (G[i].name === v) return "cab:" + i; }
+    else { for (i = 0; i < CHANCELLORS.length; i++) if (CHANCELLORS[i].who === v && CHANCELLORS[i].to > CHANCELLORS[i].from) return "kz:" + i; }
+    return "all";
+  }
+
+  function setRange(id) {
+    state.range = id; state.active = null; state.strip = null;
+    seg($("ranges"), RANGES, "range");
+    var s = $("cabinet"); s.value = /^(cab|kz):/.test(id) ? id : ""; s.className = s.value ? "on" : "";
+    try { history.replaceState(null, "", location.pathname + location.search + rangeToHash(id)); } catch (e) { /* z. B. file:// oder eingebettet */ }
+    update();
+  }
+
   var latest = null;
   for (var i = DATA.length - 1; i >= 0; i--) { if (!DATA[i].el) { latest = DATA[i]; break; } }
 
@@ -317,8 +394,8 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   // ---------- Diagramm ----------
   var view = null;
   function rangeRows() {
-    var from = ts(RANGES.filter(function (r) { return r.id === state.range; })[0].from);
-    return DATA.filter(function (d) { return d.t >= from; });
+    var rd = rangeDef();
+    return DATA.filter(function (d) { return d.t >= rd.tmin && d.t <= rd.tmax; });
   }
   function tickList(tmin, tmax, x0, x1) {
     var span = (tmax - tmin) / 31557600000, ticks = [], y, m;
@@ -349,7 +426,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var m = { t: 54, r: narrow ? 12 : 84, b: 30, l: narrow ? 36 : 44 };
     var x0 = m.l, x1 = W - m.r, y0 = m.t, y1 = H - m.b;
     var rows = rangeRows();
-    var tmin = ts(RANGES.filter(function (r) { return r.id === state.range; })[0].from), tmax = TMAX;
+    var rd = rangeDef(), tmin = rd.tmin, tmax = rd.tmax;
     var vmax = 0;
     rows.forEach(function (d) { d.v.forEach(function (v) { if (v != null && v > vmax) vmax = v; }); });
     var ymax = Math.max(30, Math.ceil(vmax / 10) * 10);
@@ -443,6 +520,11 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     view.svg = svg; view.sTop = sTop; view.sH = sH;
     view.overlay.addEventListener("pointermove", onPointer);
     view.overlay.addEventListener("pointerdown", onPointer);
+    view.overlay.addEventListener("click", function (e) {
+      if (e.pointerType && e.pointerType !== "mouse") return; // Touch: erster Tipp zeigt nur den Tooltip
+      var pt = pointerPos(e);
+      if (pt.py < view.y0 - 4) setRange("cab:" + G.indexOf(govAt(Math.min(Math.max(pt.t, view.tmin), view.tmax))));
+    });
     view.overlay.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") { state.active = null; state.strip = null; showTip(); } });
     showTip();
   }
@@ -452,11 +534,14 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (r[mid].t < t) lo = mid; else hi = mid; }
     return Math.abs(r[lo].t - t) <= Math.abs(r[hi].t - t) ? lo : hi;
   }
-  function onPointer(e) {
+  function pointerPos(e) {
     var box = view.svg.getBoundingClientRect();
-    var sx = view.W / box.width;
-    var px = (e.clientX - box.left) * sx, py = (e.clientY - box.top) * (view.H / box.height);
-    var t = view.tmin + (px - view.x0) / (view.x1 - view.x0) * (view.tmax - view.tmin);
+    var px = (e.clientX - box.left) * (view.W / box.width), py = (e.clientY - box.top) * (view.H / box.height);
+    return { px: px, py: py, t: view.tmin + (px - view.x0) / (view.x1 - view.x0) * (view.tmax - view.tmin) };
+  }
+  function onPointer(e) {
+    var pt = pointerPos(e), px = pt.px, py = pt.py, t = pt.t;
+    view.overlay.style.cursor = py < view.y0 - 4 ? "pointer" : "crosshair";
     if (py < view.y0 - 4) { state.strip = govAt(Math.min(Math.max(t, view.tmin), view.tmax)); state.active = null; }
     else { state.strip = null; state.active = nearest(t); }
     showTip(px);
@@ -481,6 +566,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
         var l = h("li", "", ul); l.style.gridTemplateColumns = "minmax(0,1fr)";
         h("span", "n", l, "Koalition: " + coalText(p.co) + (p.nm ? " (" + p.nm + ", ab " + fmt(p.f) + ")" : ""));
       });
+      if (window.matchMedia && window.matchMedia("(hover: hover)").matches) h("div", "tg", tip, "Klicken: nur dieses Kabinett anzeigen");
       place(tip, pxHint != null ? pxHint : view.x0);
       return;
     }
@@ -604,20 +690,28 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     if (/^https:\/\//.test(GOV.quelle || "")) link.href = GOV.quelle;
   }
 
+  function bswNote() {
+    var rows = DATA.filter(function (d) { return d.v[6] != null && !d.el; });
+    if (!rows.length) return "";
+    var a = new Date(rows[0].t), b = new Date(rows[rows.length - 1].t);
+    var lbl = function (d) { return LONGMON[d.getUTCMonth()] + " " + d.getUTCFullYear(); };
+    return "Das BSW erscheint von " + lbl(a) + " bis " + lbl(b) + ".";
+  }
   function drawNote() {
-    $("note").textContent = "Punkte mit Ring: Ergebnisse der Bundestagswahlen. Nicht dargestellt sind PIRATEN (2009–2013), FREIE WÄHLER und Sonstige. Lücken in einer Linie: Die Partei wurde in dieser Umfrage nicht einzeln ausgewiesen (Kleinpartei); das BSW erscheint von Januar 2024 bis September 2025. Der Vorgänger der LINKEN (PDS, später Linke.PDS) läuft in derselben Linie.";
+    $("note").textContent = "Punkte mit Ring: Ergebnisse der Bundestagswahlen. Nicht dargestellt sind PIRATEN (2009–2013), FREIE WÄHLER und Sonstige. Lücken in einer Linie: Die Partei wurde in dieser Umfrage nicht einzeln ausgewiesen (Kleinpartei); " + bswNote() + " Der Vorgänger der LINKEN (PDS, später Linke.PDS) läuft in derselben Linie.";
   }
 
   function update() {
     seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
     var isChart = state.view === "chart";
+    $("rangeinfo").textContent = rangeDef().info + " · " + rangeRows().filter(function (d) { return !d.el; }).length + " Umfragen";
     $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
     if (isChart) drawChart(); else drawTable();
   }
 
-  seg($("ranges"), RANGES, "range");
+  buildSelect();
   buildLegend(); drawGovHero(); drawGovTable(); drawNote();
-  update();
+  setRange(hashToRange());
   var lastW = 0;
   if (window.ResizeObserver) {
     new ResizeObserver(function (en) {
