@@ -4,7 +4,7 @@ Interaktive Grafik zum Verlauf der Sonntagsfrage im ZDF-Politbarometer (Forschun
 
 **Live:** https://mlorenz42.github.io/politbarometer/
 
-Die Seite zeigt CDU/CSU, SPD, Grüne, FDP, Linke (früher PDS), AfD und BSW, dazu die Ergebnisse der Bundestagswahlen und die 5-%-Hürde. Zeiträume und Parteien lassen sich umschalten, alle Werte gibt es auch als Tabelle. Zusätzlich lässt sich der Verlauf auf ein einzelnes Kabinett (z. B. „Kabinett Scholz“) oder eine Kanzlerschaft über mehrere Kabinette (z. B. Angela Merkel) eingrenzen, entweder über die Auswahlliste oder per Klick auf das Regierungsband über dem Diagramm. Die Auswahl steht in der Adresse und lässt sich teilen, etwa `https://mlorenz42.github.io/politbarometer/#kabinett=Scholz` oder `#kanzlerschaft=Angela%20Merkel`.
+Die Seite zeigt CDU/CSU, SPD, Grüne, FDP, Linke (früher PDS), AfD und BSW, dazu die Ergebnisse der Bundestagswahlen und die 5-%-Hürde. Zeiträume und Parteien lassen sich umschalten, alle Werte gibt es auch als Tabelle. Zusätzlich lässt sich der Verlauf seit einer beliebigen Bundestagswahl anzeigen (Auswahlliste, etwa „Seit der Bundestagswahl 2025“) sowie auf ein einzelnes Kabinett (z. B. „Kabinett Scholz“) oder eine Kanzlerschaft über mehrere Kabinette (z. B. Angela Merkel) eingrenzen, entweder über die Auswahlliste oder per Klick auf das Regierungsband über dem Diagramm. Die Auswahl steht in der Adresse und lässt sich teilen, etwa `https://mlorenz42.github.io/politbarometer/#wahl=2025`, `#kabinett=Scholz` oder `#kanzlerschaft=Angela%20Merkel`.
 
 ## So funktioniert es
 

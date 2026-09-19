@@ -202,7 +202,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       </div>
       <div class="ctrls">
         <div class="seg" id="ranges" role="group" aria-label="Zeitraum"></div>
-        <label class="sel"><span class="sr">Nach Kanzlerschaft oder Kabinett filtern</span><select id="cabinet"></select></label>
+        <label class="sel"><span class="sr">Seit einer Bundestagswahl, nach Kanzlerschaft oder nach Kabinett filtern</span><select id="cabinet"></select></label>
         <div class="seg" id="views" role="group" aria-label="Ansicht"></div>
       </div>
     </div>
@@ -303,13 +303,19 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       });
     });
   }
+  var ELECTIONS = DATA.filter(function (d) { return d.el; }).map(function (d) { return d.t; }); // Tage der Bundestagswahlen
   var isOpen = function (g) { return g.e > TMAX + 365 * 86400000; };
   var yearOf = function (t) { return new Date(t).getUTCFullYear(); };
   var span = function (a, b, open) { return yearOf(a) + "–" + (open ? "heute" : yearOf(b)); };
 
-  // Zeitraum: Voreinstellung ("all", "y13", ...), Kabinett ("cab:<Index>") oder Kanzlerschaft ("kz:<Index>")
+  // Zeitraum: Voreinstellung ("all", "y13", ...), Kabinett ("cab:<Index>"), Kanzlerschaft ("kz:<Index>")
+  // oder seit einer Bundestagswahl ("wahl:<Index>")
   function rangeDef() {
-    var m = /^(cab|kz):(\d+)$/.exec(state.range), first = DATA[0].t;
+    var m = /^(cab|kz|wahl):(\d+)$/.exec(state.range), first = DATA[0].t;
+    if (m && m[1] === "wahl" && ELECTIONS[+m[2]] != null) {
+      var w = ELECTIONS[+m[2]];
+      return { tmin: w, tmax: TMAX, info: "Seit der Bundestagswahl " + yearOf(w) + " · " + fmt(w) + " – " + fmt(TMAX) };
+    }
     if (m && m[1] === "cab" && G[+m[2]]) {
       var g = G[+m[2]];
       return { tmin: Math.max(g.f, first), tmax: Math.min(g.e, TMAX),
@@ -326,7 +332,10 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
   function buildSelect() {
     var s = $("cabinet"); s.textContent = "";
-    h("option", "", s, "Kanzlerschaft oder Kabinett …").value = "";
+    h("option", "", s, "Wahl, Kanzlerschaft oder Kabinett …").value = "";
+    var since = h("optgroup", "", s); since.label = "Seit einer Bundestagswahl";
+    for (var k = ELECTIONS.length - 1; k >= 0; k--) h("option", "", since, "Seit der Bundestagswahl " + yearOf(ELECTIONS[k]) + " (" + fmt(ELECTIONS[k]) + ")").value = "wahl:" + k;
+    if (!since.children.length) since.remove();
     var multi = h("optgroup", "", s); multi.label = "Kanzlerschaft (mehrere Kabinette)";
     var single = h("optgroup", "", s); single.label = "Einzelnes Kabinett";
     for (var i = CHANCELLORS.length - 1; i >= 0; i--) {
@@ -342,17 +351,19 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   }
 
   function rangeToHash(id) {
-    var m = /^(cab|kz):(\d+)$/.exec(id);
+    var m = /^(cab|kz|wahl):(\d+)$/.exec(id);
+    if (m && m[1] === "wahl") return "#wahl=" + yearOf(ELECTIONS[+m[2]]);
     if (m && m[1] === "cab") return "#kabinett=" + encodeURIComponent(G[+m[2]].name);
     if (m && m[1] === "kz") return "#kanzlerschaft=" + encodeURIComponent(CHANCELLORS[+m[2]].who);
     return id === "all" ? "" : "#zeitraum=" + id;
   }
   function hashToRange() {
-    var m = /^#(kabinett|kanzlerschaft|zeitraum)=(.+)$/.exec(location.hash);
+    var m = /^#(kabinett|kanzlerschaft|zeitraum|wahl)=(.+)$/.exec(location.hash);
     if (!m) return "all";
     var v = decodeURIComponent(m[2]), i;
     if (m[1] === "zeitraum") return RANGES.some(function (r) { return r.id === v; }) ? v : "all";
-    if (m[1] === "kabinett") { for (i = 0; i < G.length; i++) if (G[i].name === v) return "cab:" + i; }
+    if (m[1] === "wahl") { for (i = 0; i < ELECTIONS.length; i++) if (String(yearOf(ELECTIONS[i])) === v) return "wahl:" + i; }
+    else if (m[1] === "kabinett") { for (i = 0; i < G.length; i++) if (G[i].name === v) return "cab:" + i; }
     else { for (i = 0; i < CHANCELLORS.length; i++) if (CHANCELLORS[i].who === v && CHANCELLORS[i].to > CHANCELLORS[i].from) return "kz:" + i; }
     return "all";
   }
@@ -360,7 +371,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   function setRange(id) {
     state.range = id; state.active = null; state.strip = null;
     seg($("ranges"), RANGES, "range");
-    var s = $("cabinet"); s.value = /^(cab|kz):/.test(id) ? id : ""; s.className = s.value ? "on" : "";
+    var s = $("cabinet"); s.value = /^(cab|kz|wahl):/.test(id) ? id : ""; s.className = s.value ? "on" : "";
     try { history.replaceState(null, "", location.pathname + location.search + rangeToHash(id)); } catch (e) { /* z. B. file:// oder eingebettet */ }
     update();
   }
