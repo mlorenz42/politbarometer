@@ -9,7 +9,6 @@ on:
     paths:
       - "src/**"
       - "scripts/**"
-      - "data/regierungen.json"
       - ".github/workflows/update.yml"
 
 permissions:
@@ -24,6 +23,8 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      regierung: ${{ steps.regierung.outcome }}
     steps:
       - uses: actions/checkout@v7
 
@@ -33,6 +34,14 @@ jobs:
 
       - name: Umfragedaten von wahlrecht.de abrufen
         run: python scripts/update_data.py
+
+      # Schlägt dieser Schritt fehl (Wikipedia umgebaut, Quellen widersprechen sich, neue Partei),
+      # werden die Umfragedaten trotzdem veröffentlicht; der Job "regierung-fehler" unten schlägt dann
+      # absichtlich fehl, damit GitHub dir eine Fehlermail schickt.
+      - name: Regierungsdaten aus Wikipedia abrufen
+        id: regierung
+        continue-on-error: true
+        run: python scripts/update_regierungen.py
 
       - name: Seite bauen
         run: python scripts/build_site.py
@@ -64,3 +73,12 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  regierung-fehler:
+    needs: build
+    if: needs.build.outputs.regierung == 'failure'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "::error::Die Regierungsdaten konnten nicht aktualisiert werden (Details im Schritt 'Regierungsdaten aus Wikipedia abrufen' des Jobs 'build'). Die Umfragedaten wurden trotzdem veröffentlicht."
+          exit 1

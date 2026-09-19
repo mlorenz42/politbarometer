@@ -1,41 +1,168 @@
 {
   "stand": "2026-09-19",
-  "quelle": "https://de.wikipedia.org/wiki/Kabinett_Merz",
+  "quelle": "https://de.wikipedia.org/wiki/Liste_der_deutschen_Bundesregierungen",
   "aktuell": {
     "koalitionsname": "Schwarz-rote Koalition",
     "kanzler_zusatz": "CDU · die Union stellt den Kanzler",
-    "vizekanzler": { "titel": "Vizekanzler", "name": "Lars Klingbeil", "partei": "spd", "zusatz": "SPD · zugleich Finanzminister" },
+    "vizekanzler": {
+      "titel": "Vizekanzler",
+      "name": "Lars Klingbeil",
+      "partei": "spd",
+      "zusatz": "SPD · leitet zugleich das Bundesministerium der Finanzen"
+    },
     "seit_zusatz": "Wahl im Bundestag nach der Bundestagswahl vom 23. Februar 2025",
     "zuletzt": "Kabinettsumbildung im Juli 2026"
   },
   "kabinette": [
-    { "name": "Kohl V", "cab": "Kabinett Kohl V", "title": "Bundeskanzler", "who": "Helmut Kohl", "wp": "cdu",
-      "from": "1994-11-17", "to": "1998-10-27",
-      "ph": [ { "from": "1994-11-17", "to": "1998-10-27", "co": ["cdu", "fdp"] } ] },
-    { "name": "Schröder I", "cab": "Kabinett Schröder I", "title": "Bundeskanzler", "who": "Gerhard Schröder", "wp": "spd",
-      "from": "1998-10-27", "to": "2002-10-22",
-      "ph": [ { "from": "1998-10-27", "to": "2002-10-22", "co": ["spd", "gru"] } ] },
-    { "name": "Schröder II", "cab": "Kabinett Schröder II", "title": "Bundeskanzler", "who": "Gerhard Schröder", "wp": "spd",
-      "from": "2002-10-22", "to": "2005-11-22",
-      "ph": [ { "from": "2002-10-22", "to": "2005-11-22", "co": ["spd", "gru"] } ] },
-    { "name": "Merkel I", "cab": "Kabinett Merkel I", "title": "Bundeskanzlerin", "who": "Angela Merkel", "wp": "cdu",
-      "from": "2005-11-22", "to": "2009-10-28",
-      "ph": [ { "from": "2005-11-22", "to": "2009-10-28", "co": ["cdu", "spd"] } ] },
-    { "name": "Merkel II", "cab": "Kabinett Merkel II", "title": "Bundeskanzlerin", "who": "Angela Merkel", "wp": "cdu",
-      "from": "2009-10-28", "to": "2013-12-17",
-      "ph": [ { "from": "2009-10-28", "to": "2013-12-17", "co": ["cdu", "fdp"] } ] },
-    { "name": "Merkel III", "cab": "Kabinett Merkel III", "title": "Bundeskanzlerin", "who": "Angela Merkel", "wp": "cdu",
-      "from": "2013-12-17", "to": "2018-03-14",
-      "ph": [ { "from": "2013-12-17", "to": "2018-03-14", "co": ["cdu", "spd"] } ] },
-    { "name": "Merkel IV", "cab": "Kabinett Merkel IV", "title": "Bundeskanzlerin", "who": "Angela Merkel", "wp": "cdu",
-      "from": "2018-03-14", "to": "2021-12-08",
-      "ph": [ { "from": "2018-03-14", "to": "2021-12-08", "co": ["cdu", "spd"] } ] },
-    { "name": "Scholz", "cab": "Kabinett Scholz", "title": "Bundeskanzler", "who": "Olaf Scholz", "wp": "spd",
-      "from": "2021-12-08", "to": "2025-05-06",
-      "ph": [ { "from": "2021-12-08", "to": "2024-11-06", "co": ["spd", "gru", "fdp"], "nm": "Ampel" },
-              { "from": "2024-11-06", "to": "2025-05-06", "co": ["spd", "gru"], "nm": "Minderheitsregierung" } ] },
-    { "name": "Merz", "cab": "Kabinett Merz", "title": "Bundeskanzler", "who": "Friedrich Merz", "wp": "cdu",
-      "from": "2025-05-06", "to": null,
-      "ph": [ { "from": "2025-05-06", "to": null, "co": ["cdu", "spd"] } ] }
+    {
+      "name": "Kohl V",
+      "cab": "Kabinett Kohl V",
+      "title": "Bundeskanzler",
+      "who": "Helmut Kohl",
+      "wp": "cdu",
+      "from": "1994-11-17",
+      "to": "1998-10-27",
+      "ph": [
+        {
+          "from": "1994-11-17",
+          "to": "1998-10-27",
+          "co": ["cdu", "fdp"]
+        }
+      ]
+    },
+    {
+      "name": "Schröder I",
+      "cab": "Kabinett Schröder I",
+      "title": "Bundeskanzler",
+      "who": "Gerhard Schröder",
+      "wp": "spd",
+      "from": "1998-10-27",
+      "to": "2002-10-22",
+      "ph": [
+        {
+          "from": "1998-10-27",
+          "to": "2002-10-22",
+          "co": ["spd", "gru"]
+        }
+      ]
+    },
+    {
+      "name": "Schröder II",
+      "cab": "Kabinett Schröder II",
+      "title": "Bundeskanzler",
+      "who": "Gerhard Schröder",
+      "wp": "spd",
+      "from": "2002-10-22",
+      "to": "2005-11-22",
+      "ph": [
+        {
+          "from": "2002-10-22",
+          "to": "2005-11-22",
+          "co": ["spd", "gru"]
+        }
+      ]
+    },
+    {
+      "name": "Merkel I",
+      "cab": "Kabinett Merkel I",
+      "title": "Bundeskanzlerin",
+      "who": "Angela Merkel",
+      "wp": "cdu",
+      "from": "2005-11-22",
+      "to": "2009-10-28",
+      "ph": [
+        {
+          "from": "2005-11-22",
+          "to": "2009-10-28",
+          "co": ["cdu", "spd"]
+        }
+      ]
+    },
+    {
+      "name": "Merkel II",
+      "cab": "Kabinett Merkel II",
+      "title": "Bundeskanzlerin",
+      "who": "Angela Merkel",
+      "wp": "cdu",
+      "from": "2009-10-28",
+      "to": "2013-12-17",
+      "ph": [
+        {
+          "from": "2009-10-28",
+          "to": "2013-12-17",
+          "co": ["cdu", "fdp"]
+        }
+      ]
+    },
+    {
+      "name": "Merkel III",
+      "cab": "Kabinett Merkel III",
+      "title": "Bundeskanzlerin",
+      "who": "Angela Merkel",
+      "wp": "cdu",
+      "from": "2013-12-17",
+      "to": "2018-03-14",
+      "ph": [
+        {
+          "from": "2013-12-17",
+          "to": "2018-03-14",
+          "co": ["cdu", "spd"]
+        }
+      ]
+    },
+    {
+      "name": "Merkel IV",
+      "cab": "Kabinett Merkel IV",
+      "title": "Bundeskanzlerin",
+      "who": "Angela Merkel",
+      "wp": "cdu",
+      "from": "2018-03-14",
+      "to": "2021-12-08",
+      "ph": [
+        {
+          "from": "2018-03-14",
+          "to": "2021-12-08",
+          "co": ["cdu", "spd"]
+        }
+      ]
+    },
+    {
+      "name": "Scholz",
+      "cab": "Kabinett Scholz",
+      "title": "Bundeskanzler",
+      "who": "Olaf Scholz",
+      "wp": "spd",
+      "from": "2021-12-08",
+      "to": "2025-05-06",
+      "ph": [
+        {
+          "from": "2021-12-08",
+          "to": "2024-11-07",
+          "co": ["spd", "gru", "fdp"]
+        },
+        {
+          "from": "2024-11-07",
+          "to": "2025-05-06",
+          "co": ["spd", "gru"],
+          "nm": "ohne FDP"
+        }
+      ]
+    },
+    {
+      "name": "Merz",
+      "cab": "Kabinett Merz",
+      "title": "Bundeskanzler",
+      "who": "Friedrich Merz",
+      "wp": "cdu",
+      "from": "2025-05-06",
+      "to": null,
+      "ph": [
+        {
+          "from": "2025-05-06",
+          "to": null,
+          "co": ["cdu", "spd"]
+        }
+      ]
+    }
   ]
 }

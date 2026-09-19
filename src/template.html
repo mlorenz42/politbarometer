@@ -213,7 +213,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
   <footer>
     <p>Umfragedaten: <a href="https://www.wahlrecht.de/umfragen/politbarometer.htm" target="_blank" rel="noopener">wahlrecht.de – Politbarometer</a> (Forschungsgruppe Wahlen), Stand der Daten: <span id="f-data"></span>. Angegeben ist das Veröffentlichungsdatum der Umfrage.</p>
-    <p>Regierungsangaben: <a id="f-gov-link" href="https://de.wikipedia.org/" target="_blank" rel="noopener">Wikipedia</a> und Amtszeiten der Vorgängerkabinette, Stand <span id="f-gov"></span>.</p>
+    <p>Regierungsangaben: <a id="f-gov-link" href="https://de.wikipedia.org/wiki/Liste_der_deutschen_Bundesregierungen" target="_blank" rel="noopener">Wikipedia – Liste der deutschen Bundesregierungen</a> und die Artikel der einzelnen Kabinette, zuletzt abgeglichen am <span id="f-gov"></span>.</p>
     <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
   </footer>
 </div>
@@ -601,7 +601,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     $("f-data").textContent = fmt(TMAX);
     $("f-gov").textContent = fmt(ts(GOV.stand));
     var link = $("f-gov-link");
-    if (/^https:\/\//.test(GOV.quelle || "")) { link.href = GOV.quelle; link.textContent = "Wikipedia – " + g.cab; }
+    if (/^https:\/\//.test(GOV.quelle || "")) link.href = GOV.quelle;
   }
 
   function drawNote() {
