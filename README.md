@@ -19,7 +19,7 @@ wahlrecht.de (Landtage) ───────► scripts/update_landtage.py ─�
 Wikipedia (Ministerpräsidenten) ► scripts/update_landesregierungen.py ► data/landesregierungen.json ─► docs/laender.html
 ```
 
-Die GitHub Action [`update.yml`](.github/workflows/update.yml) läuft am 2. jedes Monats, ruft die aktuelle Politbarometer-Seite, die 16 Länderseiten und die Wikipedia-Artikel ab, führt neue Umfragen in die CSV ein, baut die Seite neu und veröffentlicht sie. Gibt es keine neuen Daten, entsteht kein Commit. Sie lässt sich auch manuell starten (Actions-Tab, „Run workflow“) und läuft bei Änderungen an Skripten, Template oder Workflow.
+Die GitHub Action [`update.yml`](.github/workflows/update.yml) läuft am 2. und 17. jedes Monats, ruft die aktuelle Politbarometer-Seite, die 16 Länderseiten und die Wikipedia-Artikel ab, führt neue Umfragen in die CSV ein, baut die Seite neu und veröffentlicht sie. Gibt es keine neuen Daten, entsteht kein Commit. Sie lässt sich auch manuell starten (Actions-Tab, „Run workflow“) und läuft bei Änderungen an Skripten, Template oder Workflow.
 
 Bei unplausiblen Abrufergebnissen (leere Seite, umgebaute Tabelle, älteres Datum als bisher) bricht der Lauf ab, statt die Daten zu überschreiben. GitHub schickt dann eine Fehlermail.
 

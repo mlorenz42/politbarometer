@@ -2,7 +2,7 @@ name: Daten aktualisieren und Seiten veröffentlichen
 
 on:
   schedule:
-    - cron: "23 5 2 * *" # am 2. jedes Monats, 05:23 UTC
+    - cron: "23 5 2,17 * *" # am 2. und 17. jedes Monats, 05:23 UTC
   workflow_dispatch: # manuell startbar (Actions-Tab > "Run workflow")
   push:
     branches: [main]
