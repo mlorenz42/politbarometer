@@ -122,7 +122,9 @@ a { color: inherit; text-underline-offset: 2px; }
 .sel select:hover { background: var(--hover); }
 .sel select.on { color: var(--ink); font-weight: 600; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
-.legend .lbl { font-size: 12px; color: var(--ink2); margin-right: 4px; }
+.legend .lbl { flex: 0 0 100%; font-size: 12px; color: var(--ink2); }
+.chip .d { font-size: 12.5px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip .d .g { font-size: 10px; margin-right: 2px; }
 .chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px; min-height: 32px; border: 1px solid var(--hair); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
 .chip:hover { background: var(--hover); }
 .chip .key { width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
@@ -376,20 +378,58 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     update();
   }
 
-  var latest = null;
-  for (var i = DATA.length - 1; i >= 0; i--) { if (!DATA[i].el) { latest = DATA[i]; break; } }
 
-  function buildLegend() {
-    var lg = $("legend"); lg.textContent = "";
-    h("span", "lbl", lg, "Letzte Umfrage " + fmt(latest.t));
+  // Erster bzw. letzter Wert einer Partei im Zeitraum. Ein paar Umfragen Toleranz, weil kleine Parteien
+  // nicht in jeder Umfrage ausgewiesen werden (z. B. die FDP 2014 und 2025/26).
+  function pick(rows, i, fromEnd) {
+    var n = rows.length;
+    for (var k = 0; k < Math.min(3, n); k++) {
+      var r = rows[fromEnd ? n - 1 - k : k];
+      if (r.v[i] != null) return { v: r.v[i], t: r.t, el: r.el };
+    }
+    return null;
+  }
+  var dateLbl = function (r) { return fmt(r.t) + (r.el ? " (Wahlergebnis)" : ""); };
+  var numDe = function (x) { return String(x).replace(".", ","); };
+
+  function updateLegend(rows) {
+    if (!rows.length) return;
+    var first = rows[0], last = rows[rows.length - 1];
+    legendLabel.textContent = "Letzte Umfrage " + dateLbl(last) + " · Veränderung seit " + dateLbl(first) + " in Prozentpunkten";
     P.forEach(function (p, i) {
+      var a = pick(rows, i, false), b = pick(rows, i, true), ref = legendRefs[i], title;
+      ref.v.textContent = b ? pct(b.v) : "–";
+      ref.d.textContent = "";
+      if (!b) {
+        title = p.n + ": am Ende des Zeitraums nicht ausgewiesen.";
+      } else if (!a || a.t >= b.t) {
+        h("span", "", ref.d, "–");
+        h("span", "sr", ref.d, " kein Vergleichswert");
+        title = p.n + ": " + pct(b.v) + " am " + dateLbl(b) + ". Kein Vergleichswert, die Partei wurde zu Beginn des Zeitraums nicht ausgewiesen.";
+      } else {
+        var d = Math.round((b.v - a.v) * 10) / 10;
+        var glyph = d > 0 ? "▲" : d < 0 ? "▼" : "▪";
+        var text = d > 0 ? "+" + numDe(d) : d < 0 ? "\u2212" + numDe(-d) : "±0";
+        h("span", "g", ref.d, glyph).setAttribute("aria-hidden", "true");
+        ref.d.appendChild(document.createTextNode(text));
+        h("span", "sr", ref.d, " Prozentpunkte");
+        title = p.n + ": " + pct(b.v) + " am " + dateLbl(b) + ", zuvor " + pct(a.v) + " am " + dateLbl(a) + " (" + text + " Prozentpunkte).";
+      }
+      ref.b.title = title + " Klicken zum Ein- oder Ausblenden.";
+    });
+  }
+
+  var legendLabel = null, legendRefs = [];
+  function buildLegend() {
+    var lg = $("legend"); lg.textContent = ""; legendRefs = [];
+    legendLabel = h("span", "lbl", lg);
+    P.forEach(function (p) {
       var b = h("button", "chip p-" + p.k, lg);
       b.type = "button";
       b.setAttribute("aria-pressed", state.on[p.k] ? "true" : "false");
-      b.title = latest.v[i] == null ? p.n + ": in der letzten Umfrage nicht ausgewiesen. Klicken zum Ein-/Ausblenden." : p.n + " ein- oder ausblenden";
       h("i", "key", b);
       h("span", "", b, p.n);
-      h("b", "", b, pct(latest.v[i]));
+      legendRefs.push({ b: b, v: h("b", "", b), d: h("span", "d", b) });
       b.addEventListener("click", function () {
         var count = P.filter(function (q) { return state.on[q.k]; }).length;
         if (state.on[p.k] && count === 1) return;
@@ -715,7 +755,9 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   function update() {
     seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
     var isChart = state.view === "chart";
-    $("rangeinfo").textContent = rangeDef().info + " · " + rangeRows().filter(function (d) { return !d.el; }).length + " Umfragen";
+    var rows = rangeRows();
+    $("rangeinfo").textContent = rangeDef().info + " · " + rows.filter(function (d) { return !d.el; }).length + " Umfragen";
+    updateLegend(rows);
     $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
     if (isChart) drawChart(); else drawTable();
   }
