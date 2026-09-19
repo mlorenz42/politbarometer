@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Verlauf der Sonntagsfrage im ZDF-Politbarometer seit 1998 mit den jeweiligen Bundesregierungen.">
+<title>Politbarometer seit 1998</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --hair: rgba(11, 11, 11, 0.10);
+  --hover: rgba(11, 11, 11, 0.05);
+  --band-a: #efeee9;
+  --band-b: #e6e5de;
+  --s-cdu: #4b4b4b;
+  --s-spd: #e34948;
+  --s-gru: #008300;
+  --s-fdp: #eda100;
+  --s-lin: #e87ba4;
+  --s-afd: #2a78d6;
+  --s-bsw: #4a3aa7;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --hair: rgba(255, 255, 255, 0.10);
+    --hover: rgba(255, 255, 255, 0.07);
+    --band-a: #262624;
+    --band-b: #302f2d;
+    --s-cdu: #949494;
+    --s-spd: #e66767;
+    --s-gru: #008300;
+    --s-fdp: #c98500;
+    --s-lin: #d55181;
+    --s-afd: #3987e5;
+    --s-bsw: #9085e9;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #ffffff;
+  --ink2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --hair: rgba(255, 255, 255, 0.10);
+  --hover: rgba(255, 255, 255, 0.07);
+  --band-a: #262624;
+  --band-b: #302f2d;
+  --s-cdu: #949494;
+  --s-spd: #e66767;
+  --s-gru: #008300;
+  --s-fdp: #c98500;
+  --s-lin: #d55181;
+  --s-afd: #3987e5;
+  --s-bsw: #9085e9;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding-inline: 16px;
+  padding-block: 32px 56px;
+}
+.wrap { max-width: 1040px; margin-inline: auto; display: flex; flex-direction: column; gap: 32px; }
+h1, h2, p, dl, dd { margin: 0; }
+h1 { font-size: clamp(26px, 4.4vw, 36px); line-height: 1.1; font-weight: 650; letter-spacing: -0.015em; text-wrap: balance; }
+h2 { font-size: 16px; line-height: 1.3; font-weight: 650; }
+.sub { color: var(--ink2); max-width: 64ch; margin-top: 8px; text-wrap: pretty; }
+a { color: inherit; text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--s-afd); outline-offset: 2px; border-radius: 4px; }
+
+.p-cdu { --c: var(--s-cdu); } .p-spd { --c: var(--s-spd); } .p-gru { --c: var(--s-gru); }
+.p-fdp { --c: var(--s-fdp); } .p-lin { --c: var(--s-lin); } .p-afd { --c: var(--s-afd); } .p-bsw { --c: var(--s-bsw); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+
+/* Regierung heute */
+.gov { border-block: 1px solid var(--hair); padding-block: 22px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink2); margin-bottom: 8px; }
+.gov h2 { font-size: clamp(28px, 5vw, 44px); line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
+.coal { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; color: var(--ink2); }
+.coal .pp { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 20px; align-content: center; }
+.facts dt { color: var(--ink2); }
+.facts dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.facts dd strong { font-weight: 650; font-size: 15px; }
+.facts .who { display: inline-flex; align-items: center; gap: 6px; }
+.small { color: var(--ink2); font-size: 12.5px; }
+
+/* Diagramm-Karte */
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 14px; }
+.bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.seg { display: inline-flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 0; padding: 6px 12px; min-height: 32px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--hair); }
+.seg button:hover { background: var(--hover); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.legend .lbl { font-size: 12px; color: var(--ink2); margin-right: 4px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px; min-height: 32px; border: 1px solid var(--hair); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.chip:hover { background: var(--hover); }
+.chip .key { width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
+.chip b { font-weight: 650; font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="false"] { color: var(--ink2); }
+.chip[aria-pressed="false"] .key { opacity: 0.3; }
+.chip[aria-pressed="false"] b { opacity: 0.55; }
+.legend .ring { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2); margin-left: 6px; }
+.legend .ring i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); box-shadow: 0 0 0 2px var(--surface); }
+.legend .ring i.hu { width: 16px; height: 1px; border-radius: 0; box-shadow: none; opacity: 0.6; }
+
+.chart { position: relative; touch-action: pan-y; border-radius: 6px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: inherit; }
+.tip { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; min-width: 190px; max-width: 280px; background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.14); font-size: 12.5px; }
+.tip[hidden] { display: none; }
+.tip .th { font-weight: 650; font-size: 13px; }
+.tip .ts { color: var(--ink2); font-size: 12px; margin-top: 1px; }
+.tip ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; }
+.tip li { display: grid; grid-template-columns: 14px 44px minmax(0, 1fr); align-items: center; gap: 6px; }
+.tip li .k { height: 3px; border-radius: 2px; background: var(--c); }
+.tip li .v { font-weight: 700; font-size: 13.5px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.tip li .n { color: var(--ink2); }
+.tip .tg { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hair); color: var(--ink2); font-size: 12px; }
+.tip .tg strong { color: var(--ink); font-weight: 600; }
+
+.tablewrap { max-height: 460px; overflow: auto; border: 1px solid var(--hair); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 7px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--hair); }
+th:first-child, td:first-child { text-align: left; }
+thead th { position: sticky; top: 0; background: var(--surface); font-weight: 650; color: var(--ink2); z-index: 1; }
+thead th .dot { margin-right: 6px; }
+td.num { font-variant-numeric: tabular-nums; }
+tr.elec td { font-weight: 650; background: var(--hover); }
+td.txt, th.txt { text-align: left; }
+.note { font-size: 12px; color: var(--ink2); max-width: 90ch; text-wrap: pretty; }
+
+/* Regierungen */
+.govs h2 { margin-bottom: 4px; }
+.govs .lead { color: var(--ink2); margin-bottom: 12px; }
+.govs .tablewrap { max-height: none; }
+.govs td, .govs th { text-align: left; white-space: normal; }
+.govs tr.now td { background: var(--hover); }
+.pill { display: inline-block; font-size: 11px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--ink2); border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
+.cell-co { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.cell-co span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
+
+@media (max-width: 720px) {
+  .gov { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 14px 12px 12px; }
+  th, td { padding: 7px 9px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Politbarometer seit 1998</h1>
+    <p class="sub">Sonntagsfrage der Forschungsgruppe Wahlen: Stimmenanteile der Parteien in Prozent, dazu die jeweilige Bundesregierung.</p>
+  </header>
+
+  <section class="gov" aria-labelledby="gov-h">
+    <div>
+      <p class="eyebrow" id="gov-eyebrow"></p>
+      <h2 id="gov-h"></h2>
+      <p class="coal" id="gov-coal"></p>
+    </div>
+    <dl class="facts" id="gov-facts"></dl>
+  </section>
+
+  <section class="card" aria-labelledby="ch-h">
+    <div class="bar">
+      <h2 id="ch-h">Verlauf der Umfragewerte</h2>
+      <div class="ctrls">
+        <div class="seg" id="ranges" role="group" aria-label="Zeitraum"></div>
+        <div class="seg" id="views" role="group" aria-label="Ansicht"></div>
+      </div>
+    </div>
+    <div class="legend" id="legend" role="group" aria-label="Parteien ein- oder ausblenden"></div>
+    <div id="chartview">
+      <div class="chart" id="chart" tabindex="0" role="group" aria-label="Liniendiagramm der Umfragewerte. Mit den Pfeiltasten ein Datum wählen. Alle Werte stehen auch in der Tabellenansicht."></div>
+    </div>
+    <div id="tableview" hidden></div>
+    <p class="note" id="note"></p>
+  </section>
+
+  <section class="govs" aria-labelledby="gs-h">
+    <h2 id="gs-h">Bundesregierungen im Diagramm</h2>
+    <p class="lead">Das Band über dem Diagramm zeigt, wer wann regiert hat. Die Punkte stehen für die Koalitionsparteien.</p>
+    <div class="tablewrap"><table id="govtable"></table></div>
+  </section>
+
+  <footer>
+    <p>Umfragedaten: <a href="https://www.wahlrecht.de/umfragen/politbarometer.htm" target="_blank" rel="noopener">wahlrecht.de – Politbarometer</a> (Forschungsgruppe Wahlen), Stand der Daten: <span id="f-data"></span>. Angegeben ist das Veröffentlichungsdatum der Umfrage.</p>
+    <p>Regierungsangaben: <a id="f-gov-link" href="https://de.wikipedia.org/" target="_blank" rel="noopener">Wikipedia</a> und Amtszeiten der Vorgängerkabinette, Stand <span id="f-gov"></span>.</p>
+    <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  // Spalten: Datum, Wahl(1=Bundestagswahl-Ergebnis), CDU/CSU, SPD, GRÜNE, FDP, LINKE, AfD, BSW, Befragte, Zeitraum
+  var RAW = /*DATA*/[];
+  var P = [
+    { k: "cdu", n: "CDU/CSU", c: 2 }, { k: "spd", n: "SPD", c: 3 }, { k: "gru", n: "GRÜNE", c: 4 },
+    { k: "fdp", n: "FDP", c: 5 }, { k: "lin", n: "LINKE", c: 6 }, { k: "afd", n: "AfD", c: 7 }, { k: "bsw", n: "BSW", c: 8 }
+  ];
+  var PBY = {}; P.forEach(function (p) { PBY[p.k] = p; });
+  var ts = function (s) { var a = s.split("-"); return Date.UTC(+a[0], +a[1] - 1, +a[2]); };
+  var DATA = RAW.map(function (r) { return { t: ts(r[0]), el: r[1] === 1, v: r.slice(2, 9), n: r[9], per: r[10] }; });
+  var TMAX = DATA[DATA.length - 1].t;
+
+  var OPEN_END = "2100-01-01"; // laufende Amtszeit (in der JSON: to = null)
+  var GOV = /*GOV*/{};
+  var G = GOV.kabinette.map(function (g) {
+    return {
+      name: g.name, cab: g.cab, title: g.title, who: g.who, wp: g.wp, from: g.from, to: g.to || OPEN_END,
+      ph: g.ph.map(function (p) { return { from: p.from, to: p.to || OPEN_END, co: p.co, nm: p.nm }; })
+    };
+  });
+  G.forEach(function (g) { g.f = ts(g.from); g.e = ts(g.to); g.ph.forEach(function (p) { p.f = ts(p.from); p.e = ts(p.to); }); });
+  var COALNAME = { "cdu,fdp": "schwarz-gelb", "spd,gru": "rot-grün", "cdu,spd": "schwarz-rot", "spd,gru,fdp": "Ampel" };
+
+  var RANGES = [
+    { id: "all", label: "Alles", from: "1998-01-01" }, { id: "y13", label: "Seit 2013", from: "2013-01-01" },
+    { id: "y21", label: "Seit 2021", from: "2021-01-01" }, { id: "y25", label: "Seit 2025", from: "2025-01-01" }
+  ];
+  var state = { range: "all", view: "chart", on: {}, active: null, strip: null };
+  P.forEach(function (p) { state.on[p.k] = true; });
+
+  var MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  var p2 = function (n) { return (n < 10 ? "0" : "") + n; };
+  var fmt = function (t) { var d = new Date(t); return p2(d.getUTCDate()) + "." + p2(d.getUTCMonth() + 1) + "." + d.getUTCFullYear(); };
+  var pct = function (v) { return v == null ? "–" : String(v).replace(".", ",") + " %"; };
+  var fnum = function (n) { return n == null ? "" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function h(tag, cls, parent, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function govAt(t) { for (var i = G.length - 1; i >= 0; i--) if (t >= G[i].f) return G[i]; return G[0]; }
+  function phaseAt(g, t) { for (var i = g.ph.length - 1; i >= 0; i--) if (t >= g.ph[i].f) return g.ph[i]; return g.ph[0]; }
+  function coalText(co) { return co.map(function (k) { return PBY[k].n; }).join(" + "); }
+
+  // ---------- Steuerung ----------
+  function seg(container, items, key) {
+    container.textContent = "";
+    items.forEach(function (it) {
+      var b = h("button", "", container, it.label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", state[key] === it.id ? "true" : "false");
+      b.addEventListener("click", function () {
+        state[key] = it.id; state.active = null; state.strip = null;
+        seg(container, items, key); update();
+      });
+    });
+  }
+  var latest = null;
+  for (var i = DATA.length - 1; i >= 0; i--) { if (!DATA[i].el) { latest = DATA[i]; break; } }
+
+  function buildLegend() {
+    var lg = $("legend"); lg.textContent = "";
+    h("span", "lbl", lg, "Letzte Umfrage " + fmt(latest.t));
+    P.forEach(function (p, i) {
+      var b = h("button", "chip p-" + p.k, lg);
+      b.type = "button";
+      b.setAttribute("aria-pressed", state.on[p.k] ? "true" : "false");
+      b.title = latest.v[i] == null ? p.n + ": in der letzten Umfrage nicht ausgewiesen. Klicken zum Ein-/Ausblenden." : p.n + " ein- oder ausblenden";
+      h("i", "key", b);
+      h("span", "", b, p.n);
+      h("b", "", b, pct(latest.v[i]));
+      b.addEventListener("click", function () {
+        var count = P.filter(function (q) { return state.on[q.k]; }).length;
+        if (state.on[p.k] && count === 1) return;
+        state.on[p.k] = !state.on[p.k];
+        b.setAttribute("aria-pressed", state.on[p.k] ? "true" : "false");
+        update();
+      });
+    });
+    var r = h("span", "ring", lg); h("i", "", r); h("span", "", r, "Bundestagswahl-Ergebnis");
+    var hu = h("span", "ring", lg); h("i", "hu", hu); h("span", "", hu, "5-%-Hürde");
+  }
+
+  // ---------- Diagramm ----------
+  var view = null;
+  function rangeRows() {
+    var from = ts(RANGES.filter(function (r) { return r.id === state.range; })[0].from);
+    return DATA.filter(function (d) { return d.t >= from; });
+  }
+  function tickList(tmin, tmax, x0, x1) {
+    var span = (tmax - tmin) / 31557600000, ticks = [], y, m;
+    var yearPx = (x1 - x0) / span;
+    var d0 = new Date(tmin), d1 = new Date(tmax);
+    if (span < 4) {
+      for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) for (m = 0; m < 12; m += 3) {
+        var t = Date.UTC(y, m, 1);
+        if (t >= tmin && t <= tmax) ticks.push({ t: t, label: m === 0 ? String(y) : MON[m], major: m === 0 });
+      }
+      if (yearPx < 130) ticks = ticks.filter(function (k) { return k.major || (new Date(k.t).getUTCMonth() === 6); });
+      return ticks;
+    }
+    var steps = [1, 2, 4, 5, 10], step = 10;
+    for (var s = 0; s < steps.length; s++) { if (steps[s] * yearPx >= 54) { step = steps[s]; break; } }
+    for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) {
+      var tt = Date.UTC(y, 0, 1);
+      if (tt >= tmin && tt <= tmax && y % step === 0) ticks.push({ t: tt, label: String(y), major: true });
+    }
+    return ticks;
+  }
+
+  function drawChart() {
+    var box = $("chart");
+    var W = Math.max(280, Math.round(box.clientWidth || 900));
+    var narrow = W < 560;
+    var H = narrow ? 350 : 450;
+    var m = { t: 54, r: narrow ? 12 : 84, b: 30, l: narrow ? 36 : 44 };
+    var x0 = m.l, x1 = W - m.r, y0 = m.t, y1 = H - m.b;
+    var rows = rangeRows();
+    var tmin = ts(RANGES.filter(function (r) { return r.id === state.range; })[0].from), tmax = TMAX;
+    var vmax = 0;
+    rows.forEach(function (d) { d.v.forEach(function (v) { if (v != null && v > vmax) vmax = v; }); });
+    var ymax = Math.max(30, Math.ceil(vmax / 10) * 10);
+    var X = function (t) { return x0 + (t - tmin) / (tmax - tmin) * (x1 - x0); };
+    var Y = function (v) { return y1 - v / ymax * (y1 - y0); };
+    view = { rows: rows, X: X, Y: Y, x0: x0, x1: x1, y0: y0, y1: y1, W: W, H: H, tmin: tmin, tmax: tmax };
+
+    var old = box.querySelector("svg"); if (old) old.remove();
+    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    box.insertBefore(svg, box.firstChild);
+
+    // Raster + Y-Achse
+    for (var v = 0; v <= ymax; v += 10) {
+      el("line", { x1: x0, x2: x1, y1: Y(v), y2: Y(v), style: "stroke:var(" + (v === 0 ? "--axis" : "--grid") + ");stroke-width:1" }, svg);
+      el("text", { x: x0 - 8, y: Y(v) + 4, "text-anchor": "end", style: "fill:var(--ink2);font-size:11.5px;font-variant-numeric:tabular-nums" }, svg, v + (narrow ? "" : " %"));
+    }
+    if (narrow) el("text", { x: x0 - 8, y: y0 - 8, "text-anchor": "end", style: "fill:var(--ink2);font-size:11px" }, svg, "%");
+    // X-Achse
+    tickList(tmin, tmax, x0, x1).forEach(function (k) {
+      var x = X(k.t);
+      el("line", { x1: x, x2: x, y1: y1, y2: y1 + 5, style: "stroke:var(--axis);stroke-width:1" }, svg);
+      el("text", { x: x, y: y1 + 20, "text-anchor": "middle", style: "fill:var(--ink2);font-size:11.5px;" + (k.major ? "font-weight:600" : "") }, svg, k.label);
+    });
+    // 5-%-Hürde
+    if (ymax >= 5) {
+      el("line", { x1: x0, x2: x1, y1: Y(5), y2: Y(5), style: "stroke:var(--ink2);stroke-width:1;opacity:.5" }, svg);
+    }
+
+    // Regierungsband
+    el("text", { x: x0, y: 12, style: "fill:var(--ink2);font-size:11px;letter-spacing:.05em;text-transform:uppercase" }, svg, "Bundesregierung");
+    var sTop = 18, sH = 24;
+    G.forEach(function (g, gi) {
+      g.ph.forEach(function (p, pi) {
+        var a = Math.max(p.f, tmin), b = Math.min(p.e, tmax);
+        if (b <= a) return;
+        var xa = X(a) + (a > tmin ? 1 : 0), xb = X(b) - (b < tmax ? 1 : 0), w = xb - xa;
+        el("rect", { x: xa, y: sTop, width: Math.max(0, w), height: sH, rx: 3, style: "fill:var(--band-" + (gi % 2 ? "b" : "a") + ")" }, svg);
+        var showName = pi === 0;
+        var txtW = g.name.length * 6.3, dotsW = p.co.length * 11 + 6;
+        var full = showName && w >= dotsW + txtW + 10;
+        var lite = showName && !full && w >= txtW + 8;
+        if (full || (!showName && w >= dotsW + 2)) {
+          var cx = xa + 8;
+          p.co.forEach(function (k) { el("circle", { cx: cx + 4, cy: sTop + sH / 2, r: 4, style: "fill:var(--s-" + k + ")" }, svg); cx += 11; });
+          if (full) el("text", { x: cx + 3, y: sTop + sH / 2 + 4, style: "fill:var(--ink);font-size:11.5px;font-weight:600" }, svg, g.name);
+        } else if (lite) {
+          el("text", { x: xa + w / 2, y: sTop + sH / 2 + 4, "text-anchor": "middle", style: "fill:var(--ink);font-size:11.5px;font-weight:600" }, svg, g.name);
+        }
+      });
+    });
+
+    // Linien
+    var ends = [];
+    P.forEach(function (p, pi) {
+      if (!state.on[p.k]) return;
+      var col = "var(--s-" + p.k + ")", seg = [], last = null;
+      var flush = function () {
+        if (seg.length > 1) el("path", { d: "M" + seg.map(function (q) { return q[0].toFixed(1) + " " + q[1].toFixed(1); }).join("L"), fill: "none", style: "stroke:" + col + ";stroke-width:2;stroke-linejoin:round;stroke-linecap:round" }, svg);
+        else if (seg.length === 1) el("circle", { cx: seg[0][0], cy: seg[0][1], r: 2.5, style: "fill:" + col }, svg);
+        seg = [];
+      };
+      rows.forEach(function (d) {
+        var val = d.v[pi];
+        if (val == null) { flush(); return; }
+        seg.push([X(d.t), Y(val)]); last = d;
+      });
+      flush();
+      // Wahlergebnisse als Punkte mit Ring
+      rows.forEach(function (d) {
+        if (d.el && d.v[pi] != null) el("circle", { cx: X(d.t), cy: Y(d.v[pi]), r: 4.5, style: "fill:" + col + ";stroke:var(--surface);stroke-width:2" }, svg);
+      });
+      if (last) {
+        el("circle", { cx: X(last.t), cy: Y(last.v[pi]), r: 4, style: "fill:" + col + ";stroke:var(--surface);stroke-width:2" }, svg);
+        if (tmax - last.t < 45 * 86400000) ends.push({ y: Y(last.v[pi]), n: p.n });
+      }
+    });
+    // Direktbeschriftung am Linienende (nur wo Platz ist; die Legende trägt den Rest)
+    if (!narrow) {
+      ends.sort(function (a, b) { return a.y - b.y; });
+      var prev = -99;
+      ends.forEach(function (e) {
+        if (e.y - prev < 14) return;
+        prev = e.y;
+        el("text", { x: x1 + 10, y: e.y + 4, style: "fill:var(--ink2);font-size:12px;font-weight:600" }, svg, e.n);
+      });
+    }
+
+    // Interaktionsebene + Fadenkreuz
+    view.cross = el("g", { style: "display:none" }, svg);
+    view.overlay = el("rect", { x: x0, y: 0, width: x1 - x0, height: y1, fill: "transparent", style: "cursor:crosshair" }, svg);
+    view.svg = svg; view.sTop = sTop; view.sH = sH;
+    view.overlay.addEventListener("pointermove", onPointer);
+    view.overlay.addEventListener("pointerdown", onPointer);
+    view.overlay.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") { state.active = null; state.strip = null; showTip(); } });
+    showTip();
+  }
+
+  function nearest(t) {
+    var r = view.rows, lo = 0, hi = r.length - 1;
+    while (hi - lo > 1) { var mid = (lo + hi) >> 1; if (r[mid].t < t) lo = mid; else hi = mid; }
+    return Math.abs(r[lo].t - t) <= Math.abs(r[hi].t - t) ? lo : hi;
+  }
+  function onPointer(e) {
+    var box = view.svg.getBoundingClientRect();
+    var sx = view.W / box.width;
+    var px = (e.clientX - box.left) * sx, py = (e.clientY - box.top) * (view.H / box.height);
+    var t = view.tmin + (px - view.x0) / (view.x1 - view.x0) * (view.tmax - view.tmin);
+    if (py < view.y0 - 4) { state.strip = govAt(Math.min(Math.max(t, view.tmin), view.tmax)); state.active = null; }
+    else { state.strip = null; state.active = nearest(t); }
+    showTip(px);
+  }
+
+  function showTip(pxHint) {
+    var tip = $("chart").querySelector(".tip");
+    if (!tip) { tip = h("div", "tip", $("chart")); tip.setAttribute("role", "status"); }
+    // Fadenkreuz leeren
+    var cross = view.cross; while (cross.firstChild) cross.removeChild(cross.firstChild);
+    if (state.strip) {
+      cross.style.display = "none";
+      tip.textContent = ""; tip.hidden = false;
+      var g = state.strip;
+      h("div", "th", tip, g.cab);
+      h("div", "ts", tip, fmt(g.f) + " – " + (g.e > TMAX + 5 * 365 * 86400000 ? "heute" : fmt(g.e)));
+      var ul = h("ul", "", tip);
+      var li = h("li", "", ul); li.style.gridTemplateColumns = "minmax(0,1fr)";
+      var l1 = h("span", "n", li, g.title + ": "); var s1 = h("strong", "", l1, g.who); s1.style.color = "var(--ink)";
+      l1.appendChild(document.createTextNode(" (" + PBY[g.wp].n + ")"));
+      g.ph.forEach(function (p) {
+        var l = h("li", "", ul); l.style.gridTemplateColumns = "minmax(0,1fr)";
+        h("span", "n", l, "Koalition: " + coalText(p.co) + (p.nm ? " (" + p.nm + ", ab " + fmt(p.f) + ")" : ""));
+      });
+      place(tip, pxHint != null ? pxHint : view.x0);
+      return;
+    }
+    if (state.active == null) { tip.hidden = true; cross.style.display = "none"; return; }
+    var d = view.rows[state.active], x = view.X(d.t);
+    cross.style.display = "";
+    el("line", { x1: x, x2: x, y1: view.y0, y2: view.y1, style: "stroke:var(--ink2);stroke-width:1;opacity:.55" }, cross);
+    var items = [];
+    P.forEach(function (p, i) {
+      if (!state.on[p.k]) return;
+      var v = d.v[i];
+      if (v != null) el("circle", { cx: x, cy: view.Y(v), r: 4.5, style: "fill:var(--s-" + p.k + ");stroke:var(--surface);stroke-width:2" }, cross);
+      items.push({ p: p, v: v });
+    });
+    items.sort(function (a, b) { return (b.v == null ? -1 : b.v) - (a.v == null ? -1 : a.v); });
+    tip.textContent = ""; tip.hidden = false;
+    h("div", "th", tip, fmt(d.t));
+    h("div", "ts", tip, d.el ? "Bundestagswahl – Wahlergebnis" : "Befragte " + fnum(d.n) + (d.per ? " · " + d.per : ""));
+    var ul2 = h("ul", "", tip);
+    items.forEach(function (it) {
+      var li2 = h("li", "p-" + it.p.k, ul2);
+      h("i", "k", li2);
+      h("span", "v", li2, pct(it.v));
+      h("span", "n", li2, it.p.n);
+    });
+    var g2 = govAt(d.t), ph2 = phaseAt(g2, d.t);
+    var tg = h("div", "tg", tip);
+    tg.appendChild(document.createTextNode("Regierung: "));
+    h("strong", "", tg, g2.cab);
+    tg.appendChild(document.createTextNode(" · " + coalText(ph2.co)));
+    place(tip, x);
+  }
+  function place(tip, x) {
+    var w = tip.offsetWidth, hgt = tip.offsetHeight, W = view.W;
+    var left = x + 16; if (left + w > W) left = x - 16 - w;
+    if (left < 0) left = Math.max(0, Math.min(W - w, x - w / 2));
+    var top = view.y0 + 6;
+    if (top + hgt > view.H) top = Math.max(0, view.H - hgt);
+    tip.style.transform = "translate(" + Math.round(left) + "px," + Math.round(top) + "px)";
+  }
+
+  // Tastatur
+  $("chart").addEventListener("keydown", function (e) {
+    var n = view.rows.length, a = state.active == null ? n - 1 : state.active, hit = true;
+    if (e.key === "ArrowLeft") a -= 1; else if (e.key === "ArrowRight") a += 1;
+    else if (e.key === "PageUp") a -= 10; else if (e.key === "PageDown") a += 10;
+    else if (e.key === "Home") a = 0; else if (e.key === "End") a = n - 1;
+    else if (e.key === "Escape") { state.active = null; state.strip = null; showTip(); return; }
+    else hit = false;
+    if (!hit) return;
+    e.preventDefault(); state.strip = null; state.active = Math.max(0, Math.min(n - 1, a)); showTip();
+  });
+  $("chart").addEventListener("blur", function () { state.active = null; showTip(); });
+
+  // ---------- Tabellen ----------
+  function drawTable() {
+    var box = $("tableview"); box.textContent = "";
+    var wrap = h("div", "tablewrap", box), t = h("table", "", wrap);
+    var head = h("tr", "", h("thead", "", t));
+    h("th", "", head, "Datum");
+    P.forEach(function (p) { var th = h("th", "p-" + p.k, head); h("i", "dot", th); th.appendChild(document.createTextNode(p.n)); });
+    h("th", "", head, "Befragte"); h("th", "txt", head, "Zeitraum");
+    var tb = h("tbody", "", t);
+    rangeRows().slice().reverse().forEach(function (d) {
+      var tr = h("tr", d.el ? "elec" : "", tb);
+      h("td", "", tr, fmt(d.t));
+      d.v.forEach(function (v) { h("td", "num", tr, pct(v)); });
+      h("td", "num", tr, d.el ? "" : fnum(d.n));
+      h("td", "txt", tr, d.el ? "Bundestagswahl (Ergebnis)" : (d.per || ""));
+    });
+  }
+  function drawGovTable() {
+    var t = $("govtable"); t.textContent = "";
+    var hr = h("tr", "", h("thead", "", t));
+    ["Kabinett", "Koalition", "Bundeskanzler(in)", "Amtszeit"].forEach(function (x) { h("th", "", hr, x); });
+    var tb = h("tbody", "", t);
+    G.slice().reverse().forEach(function (g) {
+      var now = g.e > TMAX + 365 * 86400000;
+      var tr = h("tr", now ? "now" : "", tb);
+      var c1 = h("td", "", tr, g.cab);
+      if (now) h("span", "pill", c1, "aktuell");
+      var c2 = h("td", "", tr);
+      g.ph.forEach(function (p, i) {
+        var line = h("div", "cell-co", c2);
+        p.co.forEach(function (k) { var s = h("span", "p-" + k, line); h("i", "dot", s); s.appendChild(document.createTextNode(PBY[k].n)); });
+        var nm = COALNAME[p.co.join(",")];
+        if (nm || p.nm) h("span", "small", line, "(" + (p.nm || nm) + (g.ph.length > 1 ? ", ab " + fmt(p.f) : "") + ")");
+        if (g.ph.length > 1 && i === 0) line.style.marginBottom = "2px";
+      });
+      var c3 = h("td", "", tr), s3 = h("span", "cell-co p-" + g.wp, c3), s3b = h("span", "", s3);
+      h("i", "dot", s3b); s3b.appendChild(document.createTextNode(g.who + " (" + PBY[g.wp].n + ")"));
+      h("td", "", tr, fmt(g.f) + " – " + (now ? "heute" : fmt(g.e)));
+    });
+  }
+
+  var LONGMON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  function longDate(t) { var d = new Date(t); return d.getUTCDate() + ". " + LONGMON[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
+  function drawGovHero() {
+    var g = G[G.length - 1], ph = g.ph[g.ph.length - 1], A = GOV.aktuell || {};
+    $("gov-eyebrow").textContent = "Bundesregierung heute · Stand " + LONGMON[new Date(ts(GOV.stand)).getUTCMonth()] + " " + new Date(ts(GOV.stand)).getUTCFullYear();
+    $("gov-h").textContent = g.cab;
+    var c = $("gov-coal"); c.textContent = "";
+    h("span", "", c, A.koalitionsname || "Koalition");
+    ph.co.forEach(function (k) { var s = h("span", "pp p-" + k, c); h("i", "dot", s); s.appendChild(document.createTextNode(PBY[k].n)); });
+    var f = $("gov-facts"); f.textContent = "";
+    function person(title, name, party, extra) {
+      h("dt", "", f, title);
+      var dd = h("dd", "", f), w = h("span", "who p-" + party, dd);
+      h("i", "dot", w); h("strong", "", w, name);
+      if (extra) h("span", "small", dd, extra);
+    }
+    person(g.title, g.who, g.wp, A.kanzler_zusatz);
+    if (A.vizekanzler) person(A.vizekanzler.titel || "Vizekanzler", A.vizekanzler.name, A.vizekanzler.partei, A.vizekanzler.zusatz);
+    h("dt", "", f, "Im Amt seit");
+    var dd2 = h("dd", "", f); h("strong", "", dd2, longDate(g.f));
+    if (A.seit_zusatz) h("span", "small", dd2, A.seit_zusatz);
+    if (A.zuletzt) { h("dt", "", f, "Zuletzt"); h("span", "", h("dd", "", f), A.zuletzt); }
+    $("f-data").textContent = fmt(TMAX);
+    $("f-gov").textContent = fmt(ts(GOV.stand));
+    var link = $("f-gov-link");
+    if (/^https:\/\//.test(GOV.quelle || "")) { link.href = GOV.quelle; link.textContent = "Wikipedia – " + g.cab; }
+  }
+
+  function drawNote() {
+    $("note").textContent = "Punkte mit Ring: Ergebnisse der Bundestagswahlen. Nicht dargestellt sind PIRATEN (2009–2013), FREIE WÄHLER und Sonstige. Lücken in einer Linie: Die Partei wurde in dieser Umfrage nicht einzeln ausgewiesen (Kleinpartei); das BSW erscheint von Januar 2024 bis September 2025. Der Vorgänger der LINKEN (PDS, später Linke.PDS) läuft in derselben Linie.";
+  }
+
+  function update() {
+    seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
+    var isChart = state.view === "chart";
+    $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
+    if (isChart) drawChart(); else drawTable();
+  }
+
+  seg($("ranges"), RANGES, "range");
+  buildLegend(); drawGovHero(); drawGovTable(); drawNote();
+  update();
+  var lastW = 0;
+  if (window.ResizeObserver) {
+    new ResizeObserver(function (en) {
+      var w = Math.round(en[0].contentRect.width);
+      if (w && w !== lastW) { lastW = w; if (state.view === "chart") drawChart(); }
+    }).observe($("chart"));
+  }
+})();
+</script>
+</body>
+</html>
