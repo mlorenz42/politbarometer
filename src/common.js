@@ -84,12 +84,15 @@
   // labels: Sitzzahl und Anteil dauerhaft über jeder Fraktion einblenden (nicht nur beim Hover).
   function drawHemicycle(container, data, partyName, govKeys, labels) {
     container.textContent = "";
-    var W = 380, H = labels ? 300 : 210, cx = W / 2, cy = H - 12, R = 184;
+    var W = 380, H = 210, cx = W / 2, cy = H - 12;
     var layout = hemicycleSeats(data.gesamt), pts = layout.pts;
-    var dotR = Math.max(1.8, layout.seatR * R * 0.88); // etwas Luft zwischen den Punkten lassen
+    // Bei wenigen Sitzen sind die Punkte (normiert layout.seatR) größer; ohne Gegenrechnung würde ihr
+    // Rand über die Zeichenfläche hinausragen. R so wählen, dass Mittelpunkt-Radius + Punktradius nie
+    // über den verfügbaren Platz hinausgeht (kleiner werdender Radius bei größer werdenden Punkten).
+    var dotScale = 0.88;
+    var R = Math.min(184, (cx - 6) / (1 + dotScale * layout.seatR));
+    var dotR = Math.max(1.8, layout.seatR * R * dotScale); // etwas Luft zwischen den Punkten lassen
     var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", height: "auto", "aria-hidden": "true" });
-    var xy = pts.map(function (p) { return { x: cx + p.x * R, y: cy + p.y * R }; }); // einmal für alle Punkte
-    var cand = []; // Beschriftungs-Kandidaten, erst nach allen Punkten gezeichnet (s. u.)
     var i = 0;
     data.reihenfolge.forEach(function (k) {
       var n = data.sitze[k] || 0;
@@ -97,45 +100,29 @@
       var isGov = govKeys.indexOf(k) >= 0;
       var g = el("g", { style: "fill:var(--s-" + k + ",var(--ink2))" + (isGov ? "" : ";opacity:.42") }, svg);
       el("title", {}, g, partyName(k) + ": " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? " · Regierung" : ""));
-      var minY = Infinity, topXs = [];
+      var sumX = 0, sumY = 0, cnt = 0;
       for (var s = 0; s < n; s++, i++) {
-        var p = xy[i]; if (!p) continue;
-        el("circle", { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: dotR.toFixed(2) }, g);
-        // Höchsten eigenen Punkt merken (nicht die Winkelmitte: bei einer sehr breiten Fraktion,
-        // die bis nah an den Scheitel reicht, läge die Beschriftung sonst mitten in den eigenen Punkten).
-        if (p.y < minY - 0.5) { minY = p.y; topXs = [p.x]; } else if (p.y < minY + 0.5) topXs.push(p.x);
+        var p = pts[i]; if (!p) continue;
+        var px = cx + p.x * R, py = cy + p.y * R;
+        el("circle", { cx: px.toFixed(1), cy: py.toFixed(1), r: dotR.toFixed(2) }, g);
+        sumX += px; sumY += py; cnt++;
       }
-      if (labels && topXs.length) cand.push({ n: n, lx: topXs.reduce(function (a, b) { return a + b; }, 0) / topXs.length, minY: minY });
-    });
-    if (labels && cand.length) {
-      // "Deckenhöhe" an jeder Stelle über alle Fraktionen hinweg (nicht nur die eigene), sonst kann eine
-      // Nachbarfraktion mit höher reichenden Punkten die Beschriftung verdecken.
-      var win = dotR * 2.4;
-      cand.forEach(function (c) {
-        var ceilY = c.minY;
-        xy.forEach(function (q) { if (q.y < ceilY && Math.abs(q.x - c.lx) < win) ceilY = q.y; });
-        c.ceilY = ceilY;
-      });
-      // Liegen mehrere Beschriftungen (der Breite nach) zu dicht nebeneinander, weichen sie stufenweise
-      // höher aus – bei vielen kleinen Fraktionen dicht beieinander reicht eine einzelne Ausweichstufe
-      // nicht immer (klassisches Greedy-Färben: jede Beschriftung nimmt die niedrigste freie Stufe).
-      var byX = cand.slice().sort(function (a, b) { return a.lx - b.lx; });
-      var tiers = [];
-      byX.forEach(function (c) {
-        var t = 0;
-        while (t < 6 && (tiers[t] || (tiers[t] = [])).some(function (x) { return Math.abs(x - c.lx) < 32; })) t++;
-        tiers[t].push(c.lx); c.tier = t;
-      });
-      cand.forEach(function (c) {
-        var ly = c.ceilY - dotR - 13 - c.tier * 23; // >= Höhe einer zweizeiligen Beschriftung, sonst verschränken sich Stufen
-        var lx = Math.max(16, Math.min(W - 16, c.lx)).toFixed(1); // sonst ragen Randfraktionen über den Rand
-        var anchor = c.lx < cx - R * 0.3 ? "start" : c.lx > cx + R * 0.3 ? "end" : "middle";
-        var share = c.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
-        var t = el("text", { x: lx, y: ly.toFixed(1), "text-anchor": anchor, style: "font-variant-numeric:tabular-nums" }, svg);
-        el("tspan", { x: lx, dy: "0", style: "font-size:10.5px;font-weight:650;fill:var(--ink)" }, t, String(c.n));
+      // Beschriftung auf den Schwerpunkt der eigenen Punkte setzen (nicht oberhalb): der liegt bei einem
+      // Sektor immer innerhalb der eigenen Fläche, unabhängig davon, wie breit oder wie weit außen die
+      // Fraktion sitzt, und kollidiert deshalb nicht mit Nachbarfraktionen. Ein heller Rand um den Text
+      // (paint-order: stroke) hält ihn über jeder Punktfarbe lesbar; die Beschriftung selbst bleibt daher
+      // außerhalb der ggf. abgedunkelten Gruppe "g" angehängt.
+      if (labels && cnt) {
+        var lx = (sumX / cnt).toFixed(1), ly = sumY / cnt;
+        var share = n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
+        var t = el("text", {
+          x: lx, y: (ly - 5).toFixed(1), "text-anchor": "middle",
+          style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round",
+        }, svg);
+        el("tspan", { x: lx, dy: "0", style: "font-size:10.5px;font-weight:650;fill:var(--ink)" }, t, String(n));
         el("tspan", { x: lx, dy: "11", style: "font-size:9px;fill:var(--ink2)" }, t, pctTxt);
-      });
-    }
+      }
+    });
     container.appendChild(svg);
   }
 
@@ -153,6 +140,19 @@
     });
   }
 
+  // Kürzel der stärksten Fraktion (meiste Sitze).
+  function leadingParty(data) {
+    var best = null, max = -1;
+    data.reihenfolge.forEach(function (k) { var n = data.sitze[k] || 0; if (n > max) { max = n; best = k; } });
+    return best;
+  }
+  // Färbt "elem" dezent in der Farbe der stärksten Fraktion ein (color-mix mit der Kartenfläche).
+  function tintByLeadingParty(elem, data) {
+    if (!elem) return;
+    var k = leadingParty(data);
+    elem.style.background = k ? "color-mix(in srgb, var(--s-" + k + ", var(--ink2)) 13%, var(--surface))" : "";
+  }
+
   // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional.
   function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys) {
     if (infoEl) {
@@ -160,6 +160,51 @@
       infoEl.textContent = data.regierung.cab + ": " + data.regierung.sitze + " von " + data.gesamt +
         " Sitzen · Mehrheit ab " + majority + " · Stand " + fmt(ts(SITZE.stand));
     }
-    if (hemiEl) drawHemicycle(hemiEl, data, partyName, govKeys, true);
+    if (hemiEl) { drawHemicycle(hemiEl, data, partyName, govKeys, true); tintByLeadingParty(hemiEl.closest(".card"), data); }
     if (legendEl) drawSeatLegend(legendEl, data, partyName, govKeys);
+  }
+
+  // Rendert das Halbkreisdiagramm in "container" als PNG und stößt den Download an. CSS-Variablen
+  // (--s-cdu usw.) werden dabei auf feste Werte aufgelöst, da ein eigenständiges SVG die Vorlagen-
+  // eigenen Custom Properties sonst nicht kennt; außerdem bekommt es einen echten Hintergrund
+  // (Kartenfläche), sonst wäre das PNG transparent.
+  function downloadHemicyclePNG(container, filename) {
+    var live = container.querySelector("svg");
+    if (!live) return;
+    var clone = live.cloneNode(true);
+    var liveAll = live.querySelectorAll("*"), cloneAll = clone.querySelectorAll("*");
+    for (var i = 0; i < liveAll.length; i++) {
+      var cs = getComputedStyle(liveAll[i]), ce = cloneAll[i];
+      if (cs.fill && cs.fill !== "none") ce.setAttribute("fill", cs.fill);
+      if (cs.opacity && cs.opacity !== "1") ce.setAttribute("opacity", cs.opacity);
+      if (cs.stroke && cs.stroke !== "none") {
+        ce.setAttribute("stroke", cs.stroke); ce.setAttribute("stroke-width", cs.strokeWidth);
+        ce.setAttribute("stroke-linejoin", cs.strokeLinejoin); ce.setAttribute("paint-order", cs.paintOrder);
+      }
+      if (ce.tagName === "text" || ce.tagName === "tspan") { ce.setAttribute("font-size", cs.fontSize); ce.setAttribute("font-weight", cs.fontWeight); }
+      // Das style-Attribut enthält noch var(--…)-Referenzen, die ein eigenständiges SVG nicht auflösen
+      // kann (fällt sonst z. B. bei fill auf Schwarz zurück) – jetzt durch die Attribute oben ersetzt.
+      ce.removeAttribute("style");
+    }
+    var vb = clone.getAttribute("viewBox").split(" ").map(Number);
+    var bg = el("rect", { x: 0, y: 0, width: vb[2], height: vb[3], fill: getComputedStyle(document.documentElement).getPropertyValue("--surface").trim() || "#fff" });
+    clone.insertBefore(bg, clone.firstChild);
+    clone.setAttribute("font-family", "system-ui, -apple-system, 'Segoe UI', sans-serif");
+    clone.removeAttribute("width"); clone.removeAttribute("height");
+    var scale = 3; // schärfer als die Bildschirmauflösung
+    var svgUrl = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" }));
+    var img = new Image();
+    img.onload = function () {
+      var canvas = document.createElement("canvas");
+      canvas.width = vb[2] * scale; canvas.height = vb[3] * scale;
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(svgUrl);
+      canvas.toBlob(function (blob) {
+        var a = document.createElement("a"), url = URL.createObjectURL(blob);
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      });
+    };
+    img.src = svgUrl;
   }

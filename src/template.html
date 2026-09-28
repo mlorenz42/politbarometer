@@ -31,8 +31,13 @@
   </section>
 
   <section class="card" aria-labelledby="seats-h">
-    <h2 id="seats-h">Sitzverteilung im Bundestag</h2>
-    <p class="rangeinfo" id="seats-info"></p>
+    <div class="bar">
+      <div>
+        <h2 id="seats-h">Sitzverteilung im Bundestag</h2>
+        <p class="rangeinfo" id="seats-info"></p>
+      </div>
+      <button type="button" class="dl-btn" id="seats-download">Diagramm als PNG</button>
+    </div>
     <div class="seats-wrap">
       <div class="hemicycle" id="seats-chart" role="img" aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
       <ul class="seats-legend" id="seats-legend"></ul>
@@ -604,6 +609,10 @@
     $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
     if (isChart) drawChart(); else drawTable();
   }
+
+  $("seats-download").addEventListener("click", function () {
+    downloadHemicyclePNG($("seats-chart"), "sitzverteilung-bundestag-" + SITZE.stand + ".png");
+  });
 
   buildSelect();
   buildLegend(); drawGovHero(); drawSeats(); drawGovTable(); drawNote();

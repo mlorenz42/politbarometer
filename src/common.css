@@ -185,6 +185,8 @@ td.txt, th.txt { text-align: left; }
 .seats-legend li.opp .dot { opacity: .42; }
 .seats-legend li.opp .name { color: var(--ink2); }
 .seats-legend .pill { margin-left: 10px; }
+.dl-btn { font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 1px solid var(--hair); border-radius: 8px; padding: 6px 12px; min-height: 32px; cursor: pointer; flex: none; }
+.dl-btn:hover { background: var(--hover); color: var(--ink); }
 
 /* Raster kleiner Sitzverteilungen (Übersichtsseite) */
 .seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }

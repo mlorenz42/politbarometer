@@ -44,8 +44,13 @@
   </section>
 
   <section class="card" aria-labelledby="seats-h">
-    <h2 id="seats-h">Sitzverteilung im Landtag</h2>
-    <p class="rangeinfo" id="seats-info"></p>
+    <div class="bar">
+      <div>
+        <h2 id="seats-h">Sitzverteilung im Landtag</h2>
+        <p class="rangeinfo" id="seats-info"></p>
+      </div>
+      <button type="button" class="dl-btn" id="seats-download">Diagramm als PNG</button>
+    </div>
     <div class="seats-wrap">
       <div class="hemicycle" id="seats-chart" role="img" aria-label="Sitzverteilung als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
       <ul class="seats-legend" id="seats-legend"></ul>
@@ -758,6 +763,9 @@
   var land = $("land");
   LAENDER.slice().sort(function (a, b) { return a.name < b.name ? -1 : 1; }).forEach(function (l) { h("option", "", land, l.name).value = l.slug; });
   land.addEventListener("change", function () { setLand(land.value); });
+  $("seats-download").addEventListener("click", function () {
+    downloadHemicyclePNG($("seats-chart"), "sitzverteilung-" + S.slug + "-" + SITZE.stand + ".png");
+  });
   $("cabinet").addEventListener("change", function () { setRange($("cabinet").value || "all"); });
   $("inst").addEventListener("change", function () { state.inst = $("inst").value; state.active = null; setRange(state.range); });
   var start = applyHash();

@@ -23,8 +23,13 @@
   </header>
 
   <section class="card" aria-labelledby="bund-h">
-    <h2 id="bund-h">Sitzverteilung im Bundestag</h2>
-    <p class="rangeinfo" id="bund-info"></p>
+    <div class="bar">
+      <div>
+        <h2 id="bund-h">Sitzverteilung im Bundestag</h2>
+        <p class="rangeinfo" id="bund-info"></p>
+      </div>
+      <button type="button" class="dl-btn" id="bund-download">Diagramm als PNG</button>
+    </div>
     <div class="seats-wrap">
       <div class="hemicycle" id="bund-chart" role="img" aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
       <ul class="seats-legend" id="bund-legend"></ul>
@@ -59,6 +64,9 @@
   // ---------- Bundestag ----------
   var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };
   renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien);
+  $("bund-download").addEventListener("click", function () {
+    downloadHemicyclePNG($("bund-chart"), "sitzverteilung-bundestag-" + SITZE.stand + ".png");
+  });
 
   // ---------- Länder ----------
   var grid = $("laender-grid");
@@ -75,6 +83,7 @@
     chart.setAttribute("role", "img");
     chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
     drawHemicycle(chart, data, name, data.regierung.parteien, false); // zu klein für dauerhafte Beschriftung
+    tintByLeadingParty(a, data);
     var info = h("p", "seat-tile-info", a, data.regierung.cab);
     var co = h("span", "cell-co", info);
     data.regierung.parteien.forEach(function (k) {
