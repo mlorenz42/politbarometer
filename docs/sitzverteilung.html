@@ -227,10 +227,14 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   .ctrls .sel select { width: 100%; }
 }
 .lead { color: var(--ink2); margin: 0 0 14px; }
-/* Breiter als die anderen Seiten und größere Kacheln, damit die dauerhafte Beschriftung
-   (Sitzzahl/Anteil) bei 16 Diagrammen gleichzeitig noch lesbar bleibt. */
+/* Breiter als die anderen Seiten, damit vier Länderkacheln pro Zeile (statt drei) noch lesbar
+   Platz für die dauerhafte Beschriftung (Sitzzahl/Anteil) haben – bei 16 Ländern ergibt das ein
+   sauberes 4×4-Raster statt einer angeschnittenen letzten Zeile. */
 .wrap { max-width: 1360px; }
-.seat-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+.seat-grid { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 760px) { .seat-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } }
+/* Der Bundestag bleibt bewusst deutlich größer als die Länderkacheln darunter. */
+#bund-chart { flex: 1 1 520px; max-width: 600px; }
 </style>
 </head>
 <body>
