@@ -377,36 +377,47 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var dotR = Math.max(1.8, layout.seatR * R * dotScale); // etwas Luft zwischen den Punkten lassen
     var labelR = R + dotR + 16; // fester Ring außerhalb aller Punkte, unabhängig vom Winkel
     var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", height: "auto", "aria-hidden": "true" });
-    var i = 0, labelData = [];
+    var i = 0, cum = 0, labelData = [];
     data.reihenfolge.forEach(function (k) {
       var n = data.sitze[k] || 0;
       if (!n) return;
       var isGov = govKeys.indexOf(k) >= 0;
       var g = el("g", { style: "fill:var(--s-" + k + ",var(--ink2))" + (isGov ? "" : ";opacity:.42") }, svg);
       el("title", {}, g, partyName(k) + ": " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? " · Regierung" : ""));
-      var sumA = 0, cnt = 0;
       for (var s = 0; s < n; s++, i++) {
         var p = pts[i]; if (!p) continue;
         var px = cx + p.x * R, py = cy + p.y * R;
         el("circle", { cx: px.toFixed(1), cy: py.toFixed(1), r: dotR.toFixed(2) }, g);
-        sumA += p.a; cnt++;
       }
-      if (cnt) labelData.push({ n: n, theta: sumA / cnt });
+      // Winkel wie bei einem unsichtbaren Wikipedia-Farbkeil: rein proportional zum Sitzanteil (Mitte des
+      // Abschnitts [cum, cum+n] von insgesamt data.gesamt Sitzen auf dem Halbkreis), NICHT der Mittelwert
+      // der tatsächlichen Punktwinkel. Die echten Punkte liegen zeilenweise (verschiedene Zeilen fassen
+      // unterschiedlich viele Sitze), wodurch ihr Mittelwinkel je nach Zufälligkeit der Zeilenaufteilung
+      // leicht daneben liegen und wackeln kann – der Keil-Winkel ist dagegen exakt und deckungsgleich mit
+      // der Fraktionsreihenfolge, unabhängig vom Packungsdetail der Punkte.
+      labelData.push({ n: n, theta: Math.PI * (1 - (cum + n / 2) / data.gesamt) });
+      cum += n;
     });
-    // Beschriftung wie bei Wikipedias Halbkreisdiagrammen: auf dem mittleren Winkel der eigenen Punkte,
-    // aber auf einem Radius außerhalb des gesamten Punktrings (labelR), statt mittendrin. Dadurch gibt es
-    // nie eine Kollision mit Punkten – auch nicht mit denen fremder Fraktionen. Der Winkel wird vor der
-    // x/y-Berechnung geklemmt (nicht erst x danach): eine ganz am Rand sitzende Mini-Fraktion (wenige Sitze
-    // direkt bei 0°/180°) hätte sonst einen Winkel nahe der Horizontalen, aus x UND y gemeinsam geklemmt
-    // würde y nicht angehoben – das Label läge dann auf der eigenen untersten Punktreihe statt darüber.
+    // Beschriftung wie bei Wikipedias Halbkreisdiagrammen: auf dem Keilwinkel der eigenen Fraktion, aber
+    // auf einem Radius außerhalb des gesamten Punktrings (labelR), statt mittendrin. Dadurch gibt es nie
+    // eine Kollision mit Punkten – auch nicht mit denen fremder Fraktionen, WEIL der Winkel selbst nie
+    // verändert wird (er bleibt exakt der Keilwinkel der eigenen Fraktion). Nur der Radius wird bei Bedarf
+    // verkleinert, damit das Label nicht über den linken/rechten Rand der Zeichenfläche hinausragt – ein
+    // Verkleinern des Winkels stattdessen (frühere Version) hätte das Label Richtung Bildmitte verschoben
+    // und dabei über den Keil der Nachbarfraktion gelegt (genau der gemeldete Fehler bei kleinen
+    // Randfraktionen). Bei ganz am Rand (nahe 0°/180°) sitzenden Mini-Fraktionen bleibt der vertikale
+    // Abstand zur eigenen untersten Punktreihe entsprechend klein – wie auch bei Wikipedias Vorbildern,
+    // wo Eck-Beschriftungen knapp neben der Spitze des eigenen Keils stehen statt hoch angehoben zu sein.
     // Alle Labels werden erst gezeichnet, nachdem alle Punkte aller Fraktionen stehen (eigener Durchlauf,
     // nicht verschachtelt mit den Punkt-Gruppen oben): sonst könnte die Punktgruppe einer später gezeich-
     // neten Nachbarfraktion – in der SVG-Zeichenreihenfolge über allem Vorherigen – das Label einer früher
     // gezeichneten Fraktion optisch verdecken, obwohl es außerhalb von deren eigenen Punkten liegt.
     if (labels) labelData.forEach(function (d) {
-      var theta = Math.min(Math.PI - 0.26, Math.max(0.26, d.theta));
-      var lx = Math.max(22, Math.min(W - 22, cx + Math.cos(theta) * labelR)).toFixed(1);
-      var ly = (cy - Math.sin(theta) * labelR).toFixed(1);
+      var theta = d.theta, r = labelR, margin = 22;
+      if (Math.cos(theta) > 1e-6) r = Math.min(r, (W - margin - cx) / Math.cos(theta));
+      else if (Math.cos(theta) < -1e-6) r = Math.min(r, (margin - cx) / Math.cos(theta));
+      var lx = (cx + Math.cos(theta) * r).toFixed(1);
+      var ly = (cy - Math.sin(theta) * r).toFixed(1);
       var share = d.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
       var t = el("text", {
         x: lx, y: ly, "text-anchor": "middle",
