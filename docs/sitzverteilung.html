@@ -227,6 +227,10 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   .ctrls .sel select { width: 100%; }
 }
 .lead { color: var(--ink2); margin: 0 0 14px; }
+/* Breiter als die anderen Seiten und größere Kacheln, damit die dauerhafte Beschriftung
+   (Sitzzahl/Anteil) bei 16 Diagrammen gleichzeitig noch lesbar bleibt. */
+.wrap { max-width: 1360px; }
+.seat-grid { grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
 </style>
 </head>
 <body>
@@ -510,7 +514,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var chart = h("div", "hemicycle", a);
     chart.setAttribute("role", "img");
     chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
-    drawHemicycle(chart, data, name, data.regierung.parteien, false); // zu klein für dauerhafte Beschriftung
+    drawHemicycle(chart, data, name, data.regierung.parteien, true);
     tintByLeadingParty(a, data);
     var info = h("p", "seat-tile-info", a, data.regierung.cab);
     var co = h("span", "cell-co", info);
