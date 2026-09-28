@@ -1,5 +1,8 @@
-name: Daten aktualisieren und Seiten veröffentlichen
+name: Daten aktualisieren
 
+# Nur Datenabruf + Build + Commit. Das Veröffentlichen auf GitHub Pages übernimmt deploy.yml, getriggert
+# durch den Push auf docs/** unten – so lösen reine Vorlagen-/Stil-Änderungen (src/**), bei denen die
+# Rohdaten schon lokal gebaut mitgeschickt werden, keinen unnötigen Neuabruf aller Quellen aus.
 on:
   schedule:
     - cron: "23 5 * * 1" # jeden Montag, 05:23 UTC
@@ -7,18 +10,11 @@ on:
   push:
     branches: [main]
     paths:
-      - "src/**"
       - "scripts/**"
       - ".github/workflows/update.yml"
 
 permissions:
   contents: write # die Action committet geänderte Daten zurück ins Repo
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
 
 jobs:
   build:
@@ -77,22 +73,6 @@ jobs:
             git commit -m "Daten aktualisiert ($(date -u +%F))"
             git push
           fi
-
-      - uses: actions/configure-pages@v6
-
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: docs
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
 
   daten-fehler:
     needs: build

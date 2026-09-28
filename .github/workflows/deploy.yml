@@ -1,0 +1,38 @@
+name: Seiten veröffentlichen
+
+# Reines Deployment auf GitHub Pages, ausgelöst durch jede Änderung an docs/** auf main – egal ob der
+# Push von einem lokal fertig gebauten Commit kommt oder vom "Änderungen committen"-Schritt in update.yml.
+# Ruft dafür keine externen Quellen ab und braucht deshalb nur einen Bruchteil von dessen Laufzeit.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: docs
+
+      - id: deployment
+        uses: actions/deploy-pages@v5
