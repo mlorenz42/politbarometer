@@ -418,6 +418,14 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var dotR = Math.max(1.8, layout.seatR * R * dotScale); // etwas Luft zwischen den Punkten lassen
     var labelR = R + dotR + 16; // fester Ring außerhalb aller Punkte, unabhängig vom Winkel
     var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", height: "auto", "aria-hidden": "true" });
+    container.appendChild(svg); // früh anhängen, damit getBBox() weiter unten zuverlässig funktioniert
+    // Dieselbe Zeichenfläche (W×H in SVG-Einheiten) wird ganz unterschiedlich groß dargestellt – auf der
+    // großen Bund-/Land-Karte mehrere hundert Pixel breit, auf einer der 16 kleinen Übersichtskacheln nur
+    // rund 300px. Ein fester SVG-Font-Size-Wert würde auf den Kacheln entsprechend winzig ankommen (bei
+    // einer Umfrage nachgemessen: ~9px statt ~18px auf der großen Karte). fontScale gleicht das aus, damit
+    // die Beschriftung auf dem Bildschirm überall etwa gleich groß und lesbar ist, unabhängig vom Kontext.
+    var containerPx = container.getBoundingClientRect().width || W;
+    var fontScale = W / containerPx;
     var i = 0, cum = 0, labelData = [];
     data.reihenfolge.forEach(function (k) {
       var n = data.sitze[k] || 0;
@@ -453,21 +461,98 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     // nicht verschachtelt mit den Punkt-Gruppen oben): sonst könnte die Punktgruppe einer später gezeich-
     // neten Nachbarfraktion – in der SVG-Zeichenreihenfolge über allem Vorherigen – das Label einer früher
     // gezeichneten Fraktion optisch verdecken, obwohl es außerhalb von deren eigenen Punkten liegt.
-    if (labels) labelData.forEach(function (d) {
-      var theta = d.theta, r = labelR, margin = 30; // Rand für die (gegenüber vorher größere) Schrift
-      if (Math.cos(theta) > 1e-6) r = Math.min(r, (W - margin - cx) / Math.cos(theta));
-      else if (Math.cos(theta) < -1e-6) r = Math.min(r, (margin - cx) / Math.cos(theta));
-      var lx = (cx + Math.cos(theta) * r).toFixed(1);
-      var ly = (cy - Math.sin(theta) * r).toFixed(1);
-      var share = d.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
-      var t = el("text", {
-        x: lx, y: ly, "text-anchor": "middle",
-        style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round",
-      }, svg);
-      el("tspan", { x: lx, dy: "0", style: "font-size:15px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
-      el("tspan", { x: lx, dy: "14", style: "font-size:13px;fill:var(--ink2)" }, t, pctTxt);
-    });
-    container.appendChild(svg);
+    if (labels) {
+      // Erst an der ungeklemmten Position zeichnen und die tatsächliche Textbreite per getBBox() messen
+      // (statt eines geschätzten Rand-Werts): die Schriftgröße variiert ja mit fontScale, ein fester
+      // Rand-Wert wäre für eine große Karte zu großzügig und für eine kleine Kachel zu knapp.
+      var placed = labelData.map(function (d) {
+        var theta = d.theta;
+        var lx0 = cx + Math.cos(theta) * labelR, ly0 = cy - Math.sin(theta) * labelR;
+        var share = d.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
+        var t = el("text", {
+          x: lx0.toFixed(1), y: ly0.toFixed(1), "text-anchor": "middle",
+          style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);" +
+            "stroke-width:" + (4 * fontScale).toFixed(2) + "px;stroke-linejoin:round",
+        }, svg);
+        var tsNum = el("tspan", { x: lx0.toFixed(1), dy: "0", style: "font-size:" + (15 * fontScale).toFixed(2) + "px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
+        var tsPct = el("tspan", { x: lx0.toFixed(1), dy: (14 * fontScale).toFixed(2), style: "font-size:" + (13 * fontScale).toFixed(2) + "px;fill:var(--ink2)" }, t, pctTxt);
+        var bbox = t.getBBox(), halfW = bbox.width / 2 + 2 * fontScale, rMax = labelR;
+        // y ist die Grundlinie der ERSTEN Zeile, nicht die Mitte des Textblocks: der Block reicht nach oben
+        // nur um die Versalhöhe, nach unten aber über Zeilenabstand + zweite Zeile deutlich weiter. topOff/
+        // botOff halten den tatsächlichen (asymmetrischen) Abstand von y zu Ober-/Unterkante fest, statt
+        // ihn wie eine halbe Höhe zu behandeln – sonst ließe die Rand-/Stapel-Klemmung unten systematisch
+        // zu wenig Puffer (genau der Fehler, durch den ein Label unbemerkt über den unteren Rand ragte).
+        var topOff = ly0 - bbox.y, botOff = (bbox.y + bbox.height) - ly0;
+        if (Math.cos(theta) > 1e-6) rMax = Math.min(rMax, (W - halfW - cx) / Math.cos(theta));
+        else if (Math.cos(theta) < -1e-6) rMax = Math.min(rMax, (halfW - cx) / Math.cos(theta));
+        return { theta: theta, r: rMax, rMax: rMax, halfW: halfW, topOff: topOff, botOff: botOff, t: t, tsNum: tsNum, tsPct: tsPct };
+      });
+      // Bei mehreren sehr kleinen Fraktionen dicht an einer Ecke (z. B. zwei 3-Sitze-Parteien nebeneinander)
+      // reicht der Winkelabstand für die (gegenüber den SVG-Einheiten der Punkte unabhängig skalierte)
+      // Schrift manchmal nicht: die Labels würden sich sonst gegenseitig überlappen. Deshalb hier noch ein
+      // Kollisions-Check zwischen jeweils benachbarten Labels (Winkelreihenfolge = Bildreihenfolge): statt
+      // den Winkel zu ändern (das würde wie bei der Rand-Klemmung oben ins Gebiet der Nachbarfraktion
+      // führen), wird bei Bedarf nur der Radius des zweiten Labels schrittweise vergrößert, bis kein
+      // Überlappen mehr besteht oder der zeichenflächen-sichere Radius erreicht ist.
+      // Gegen ALLE bereits platzierten Labels prüfen, nicht nur das direkt vorherige: bei drei oder mehr
+      // Mini-Fraktionen in derselben Ecke (z. B. drei 1-6-Sitze-Parteien nebeneinander) kann ein Label mit
+      // seinem zweiten Nachbarn kollidieren, nachdem der erste Nachbar schon woanders hingeschoben wurde –
+      // ein reiner Vorgänger-Vergleich hätte das übersehen und das Label unbemerkt über den Rand geschoben.
+      function pos(p) { return p.lx != null ? p : { lx: cx + Math.cos(p.theta) * p.r, ly: cy - Math.sin(p.theta) * p.r }; }
+      for (var pi = 1; pi < placed.length; pi++) {
+        var cur = placed[pi], guard = 0, moved = true;
+        while (moved && guard++ < 60) {
+          moved = false;
+          var cp = pos(cur);
+          for (var pj = 0; pj < pi; pj++) {
+            var other = placed[pj], op = pos(other);
+            var dx = cp.lx - op.lx;
+            var curTop = cp.ly - cur.topOff, curBot = cp.ly + cur.botOff;
+            var otherTop = op.ly - other.topOff, otherBot = op.ly + other.botOff;
+            var vertOverlap = curTop < otherBot - 2 && curBot > otherTop + 2; // 2 SVG-Einheiten Toleranz
+            if (Math.abs(dx) < (other.halfW + cur.halfW) * 0.9 && vertOverlap) {
+              var next = Math.min(cur.r + 3, cur.rMax);
+              if (next === cur.r) {
+                // Zeichenflächen-sicheres Maximum erreicht (typisch: beide Labels an derselben Kante nahe
+                // 0°/180° geklemmt, radiales Verschieben bringt dort kaum noch y-Abstand). Dann direkt
+                // unter/über das kollidierende Label stapeln statt weiter auf dem eigenen Keilwinkel zu
+                // bestehen – bei so dicht gedrängten Mini-Fraktionen ist "lesbar" wichtiger als "exakt auf
+                // dem eigenen Winkel". Bevorzugt in die Richtung, in der cur ohnehin schon liegt; nur wenn
+                // das über den Zeichenflächenrand hinausginge, die andere Richtung nehmen, und als letztes
+                // Sicherheitsnetz danach nochmal hart auf den gültigen Bereich klemmen.
+                var gap = 2;
+                var belowLy = otherBot + gap + cur.topOff, aboveLy = otherTop - gap - cur.botOff;
+                var stackedLy = cp.ly >= op.ly ? belowLy : aboveLy;
+                if (stackedLy + cur.botOff > H - 4) stackedLy = aboveLy;
+                else if (stackedLy - cur.topOff < 4) stackedLy = belowLy;
+                stackedLy = Math.max(4 + cur.topOff, Math.min(H - 4 - cur.botOff, stackedLy));
+                cur.lx = op.lx;
+                cur.ly = stackedLy;
+              } else {
+                cur.r = next;
+              }
+              moved = true; // nach jeder Korrektur von vorne gegen alle prüfen, falls neue Kollision entsteht
+              break;
+            }
+          }
+        }
+      }
+      // Letzte, von der Kollisionsprüfung unabhängige Sicherung: bei einer Fraktion knapp neben 0°/180° mit
+      // sehr kleinem Radius kann die eigene (mit niemandem kollidierende) Position so nah am unteren Rand
+      // liegen, dass allein die Texthöhe über die Zeichenfläche hinausragt – ganz ohne dass ein anderes
+      // Label beteiligt ist. Das oben durchlaufene Kollisions-Pärchen-System greift dann gar nicht erst.
+      placed.forEach(function (p) {
+        var fp = pos(p), ly = fp.ly;
+        if (ly + p.botOff > H - 4) ly = H - 4 - p.botOff;
+        else if (ly - p.topOff < 4) ly = 4 + p.topOff;
+        if (ly !== fp.ly) { p.lx = fp.lx; p.ly = ly; }
+      });
+      placed.forEach(function (p) {
+        var fp = pos(p), lx = fp.lx.toFixed(1), ly = fp.ly.toFixed(1);
+        p.t.setAttribute("x", lx); p.t.setAttribute("y", ly);
+        p.tsNum.setAttribute("x", lx); p.tsPct.setAttribute("x", lx);
+      });
+    }
   }
 
   function drawSeatLegend(container, data, partyName, govKeys) {
