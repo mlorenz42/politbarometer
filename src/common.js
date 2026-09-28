@@ -136,7 +136,7 @@
     // neten Nachbarfraktion – in der SVG-Zeichenreihenfolge über allem Vorherigen – das Label einer früher
     // gezeichneten Fraktion optisch verdecken, obwohl es außerhalb von deren eigenen Punkten liegt.
     if (labels) labelData.forEach(function (d) {
-      var theta = d.theta, r = labelR, margin = 26; // Rand für die (gegenüber vorher größere) Schrift
+      var theta = d.theta, r = labelR, margin = 30; // Rand für die (gegenüber vorher größere) Schrift
       if (Math.cos(theta) > 1e-6) r = Math.min(r, (W - margin - cx) / Math.cos(theta));
       else if (Math.cos(theta) < -1e-6) r = Math.min(r, (margin - cx) / Math.cos(theta));
       var lx = (cx + Math.cos(theta) * r).toFixed(1);
@@ -144,10 +144,10 @@
       var share = d.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
       var t = el("text", {
         x: lx, y: ly, "text-anchor": "middle",
-        style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:3.5px;stroke-linejoin:round",
+        style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round",
       }, svg);
-      el("tspan", { x: lx, dy: "0", style: "font-size:13px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
-      el("tspan", { x: lx, dy: "13", style: "font-size:11px;fill:var(--ink2)" }, t, pctTxt);
+      el("tspan", { x: lx, dy: "0", style: "font-size:15px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
+      el("tspan", { x: lx, dy: "14", style: "font-size:13px;fill:var(--ink2)" }, t, pctTxt);
     });
     container.appendChild(svg);
   }
