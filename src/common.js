@@ -84,7 +84,10 @@
   // labels: Sitzzahl und Anteil dauerhaft über jeder Fraktion einblenden (nicht nur beim Hover).
   function drawHemicycle(container, data, partyName, govKeys, labels) {
     container.textContent = "";
-    var W = 380, H = 210, cx = W / 2, cy = H - 12;
+    // H hat gegenüber dem reinen Halbkreis (Radius bis 184, Fußpunkt bei H-12) bewusst Luft nach oben:
+    // dort sitzt die Beschriftung, wie bei den Wikipedia-Diagrammen üblich, außerhalb des Punktrings statt
+    // mitten in der Punktwolke – das braucht Platz oberhalb des höchsten Sitzes, den es sonst nicht gäbe.
+    var W = 380, H = 250, cx = W / 2, cy = H - 12;
     var layout = hemicycleSeats(data.gesamt), pts = layout.pts;
     // Bei wenigen Sitzen sind die Punkte (normiert layout.seatR) größer; ohne Gegenrechnung würde ihr
     // Rand über die Zeichenfläche hinausragen. R so wählen, dass Mittelpunkt-Radius + Punktradius nie
@@ -92,36 +95,45 @@
     var dotScale = 0.88;
     var R = Math.min(184, (cx - 6) / (1 + dotScale * layout.seatR));
     var dotR = Math.max(1.8, layout.seatR * R * dotScale); // etwas Luft zwischen den Punkten lassen
+    var labelR = R + dotR + 16; // fester Ring außerhalb aller Punkte, unabhängig vom Winkel
     var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", height: "auto", "aria-hidden": "true" });
-    var i = 0;
+    var i = 0, labelData = [];
     data.reihenfolge.forEach(function (k) {
       var n = data.sitze[k] || 0;
       if (!n) return;
       var isGov = govKeys.indexOf(k) >= 0;
       var g = el("g", { style: "fill:var(--s-" + k + ",var(--ink2))" + (isGov ? "" : ";opacity:.42") }, svg);
       el("title", {}, g, partyName(k) + ": " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? " · Regierung" : ""));
-      var sumX = 0, sumY = 0, cnt = 0;
+      var sumA = 0, cnt = 0;
       for (var s = 0; s < n; s++, i++) {
         var p = pts[i]; if (!p) continue;
         var px = cx + p.x * R, py = cy + p.y * R;
         el("circle", { cx: px.toFixed(1), cy: py.toFixed(1), r: dotR.toFixed(2) }, g);
-        sumX += px; sumY += py; cnt++;
+        sumA += p.a; cnt++;
       }
-      // Beschriftung auf den Schwerpunkt der eigenen Punkte setzen (nicht oberhalb): der liegt bei einem
-      // Sektor immer innerhalb der eigenen Fläche, unabhängig davon, wie breit oder wie weit außen die
-      // Fraktion sitzt, und kollidiert deshalb nicht mit Nachbarfraktionen. Ein heller Rand um den Text
-      // (paint-order: stroke) hält ihn über jeder Punktfarbe lesbar; die Beschriftung selbst bleibt daher
-      // außerhalb der ggf. abgedunkelten Gruppe "g" angehängt.
-      if (labels && cnt) {
-        var lx = (sumX / cnt).toFixed(1), ly = sumY / cnt;
-        var share = n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
-        var t = el("text", {
-          x: lx, y: (ly - 5).toFixed(1), "text-anchor": "middle",
-          style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round",
-        }, svg);
-        el("tspan", { x: lx, dy: "0", style: "font-size:10.5px;font-weight:650;fill:var(--ink)" }, t, String(n));
-        el("tspan", { x: lx, dy: "11", style: "font-size:9px;fill:var(--ink2)" }, t, pctTxt);
-      }
+      if (cnt) labelData.push({ n: n, theta: sumA / cnt });
+    });
+    // Beschriftung wie bei Wikipedias Halbkreisdiagrammen: auf dem mittleren Winkel der eigenen Punkte,
+    // aber auf einem Radius außerhalb des gesamten Punktrings (labelR), statt mittendrin. Dadurch gibt es
+    // nie eine Kollision mit Punkten – auch nicht mit denen fremder Fraktionen. Der Winkel wird vor der
+    // x/y-Berechnung geklemmt (nicht erst x danach): eine ganz am Rand sitzende Mini-Fraktion (wenige Sitze
+    // direkt bei 0°/180°) hätte sonst einen Winkel nahe der Horizontalen, aus x UND y gemeinsam geklemmt
+    // würde y nicht angehoben – das Label läge dann auf der eigenen untersten Punktreihe statt darüber.
+    // Alle Labels werden erst gezeichnet, nachdem alle Punkte aller Fraktionen stehen (eigener Durchlauf,
+    // nicht verschachtelt mit den Punkt-Gruppen oben): sonst könnte die Punktgruppe einer später gezeich-
+    // neten Nachbarfraktion – in der SVG-Zeichenreihenfolge über allem Vorherigen – das Label einer früher
+    // gezeichneten Fraktion optisch verdecken, obwohl es außerhalb von deren eigenen Punkten liegt.
+    if (labels) labelData.forEach(function (d) {
+      var theta = Math.min(Math.PI - 0.26, Math.max(0.26, d.theta));
+      var lx = Math.max(22, Math.min(W - 22, cx + Math.cos(theta) * labelR)).toFixed(1);
+      var ly = (cy - Math.sin(theta) * labelR).toFixed(1);
+      var share = d.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
+      var t = el("text", {
+        x: lx, y: ly, "text-anchor": "middle",
+        style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round",
+      }, svg);
+      el("tspan", { x: lx, dy: "0", style: "font-size:10.5px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
+      el("tspan", { x: lx, dy: "11", style: "font-size:9px;fill:var(--ink2)" }, t, pctTxt);
     });
     container.appendChild(svg);
   }
