@@ -74,7 +74,7 @@
     var chart = h("div", "hemicycle", a);
     chart.setAttribute("role", "img");
     chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
-    drawHemicycle(chart, data, name, data.regierung.parteien);
+    drawHemicycle(chart, data, name, data.regierung.parteien, false); // zu klein für dauerhafte Beschriftung
     var info = h("p", "seat-tile-info", a, data.regierung.cab);
     var co = h("span", "cell-co", info);
     data.regierung.parteien.forEach(function (k) {

@@ -81,12 +81,15 @@
 
   // data: { gesamt, regierung:{cab,sitze}, reihenfolge:[Kürzel …], sitze:{Kürzel: Zahl} }
   // partyName(k) benennt ein Kürzel; govKeys sind die Kürzel der aktuellen Regierungsparteien.
-  function drawHemicycle(container, data, partyName, govKeys) {
+  // labels: Sitzzahl und Anteil dauerhaft über jeder Fraktion einblenden (nicht nur beim Hover).
+  function drawHemicycle(container, data, partyName, govKeys, labels) {
     container.textContent = "";
-    var W = 380, H = 210, cx = W / 2, cy = H - 12, R = H - 26;
+    var W = 380, H = labels ? 300 : 210, cx = W / 2, cy = H - 12, R = 184;
     var layout = hemicycleSeats(data.gesamt), pts = layout.pts;
     var dotR = Math.max(1.8, layout.seatR * R * 0.88); // etwas Luft zwischen den Punkten lassen
     var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", height: "auto", "aria-hidden": "true" });
+    var xy = pts.map(function (p) { return { x: cx + p.x * R, y: cy + p.y * R }; }); // einmal für alle Punkte
+    var cand = []; // Beschriftungs-Kandidaten, erst nach allen Punkten gezeichnet (s. u.)
     var i = 0;
     data.reihenfolge.forEach(function (k) {
       var n = data.sitze[k] || 0;
@@ -94,11 +97,45 @@
       var isGov = govKeys.indexOf(k) >= 0;
       var g = el("g", { style: "fill:var(--s-" + k + ",var(--ink2))" + (isGov ? "" : ";opacity:.42") }, svg);
       el("title", {}, g, partyName(k) + ": " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? " · Regierung" : ""));
+      var minY = Infinity, topXs = [];
       for (var s = 0; s < n; s++, i++) {
-        var p = pts[i]; if (!p) continue;
-        el("circle", { cx: (cx + p.x * R).toFixed(1), cy: (cy + p.y * R).toFixed(1), r: dotR.toFixed(2) }, g);
+        var p = xy[i]; if (!p) continue;
+        el("circle", { cx: p.x.toFixed(1), cy: p.y.toFixed(1), r: dotR.toFixed(2) }, g);
+        // Höchsten eigenen Punkt merken (nicht die Winkelmitte: bei einer sehr breiten Fraktion,
+        // die bis nah an den Scheitel reicht, läge die Beschriftung sonst mitten in den eigenen Punkten).
+        if (p.y < minY - 0.5) { minY = p.y; topXs = [p.x]; } else if (p.y < minY + 0.5) topXs.push(p.x);
       }
+      if (labels && topXs.length) cand.push({ n: n, lx: topXs.reduce(function (a, b) { return a + b; }, 0) / topXs.length, minY: minY });
     });
+    if (labels && cand.length) {
+      // "Deckenhöhe" an jeder Stelle über alle Fraktionen hinweg (nicht nur die eigene), sonst kann eine
+      // Nachbarfraktion mit höher reichenden Punkten die Beschriftung verdecken.
+      var win = dotR * 2.4;
+      cand.forEach(function (c) {
+        var ceilY = c.minY;
+        xy.forEach(function (q) { if (q.y < ceilY && Math.abs(q.x - c.lx) < win) ceilY = q.y; });
+        c.ceilY = ceilY;
+      });
+      // Liegen mehrere Beschriftungen (der Breite nach) zu dicht nebeneinander, weichen sie stufenweise
+      // höher aus – bei vielen kleinen Fraktionen dicht beieinander reicht eine einzelne Ausweichstufe
+      // nicht immer (klassisches Greedy-Färben: jede Beschriftung nimmt die niedrigste freie Stufe).
+      var byX = cand.slice().sort(function (a, b) { return a.lx - b.lx; });
+      var tiers = [];
+      byX.forEach(function (c) {
+        var t = 0;
+        while (t < 6 && (tiers[t] || (tiers[t] = [])).some(function (x) { return Math.abs(x - c.lx) < 32; })) t++;
+        tiers[t].push(c.lx); c.tier = t;
+      });
+      cand.forEach(function (c) {
+        var ly = c.ceilY - dotR - 13 - c.tier * 23; // >= Höhe einer zweizeiligen Beschriftung, sonst verschränken sich Stufen
+        var lx = Math.max(16, Math.min(W - 16, c.lx)).toFixed(1); // sonst ragen Randfraktionen über den Rand
+        var anchor = c.lx < cx - R * 0.3 ? "start" : c.lx > cx + R * 0.3 ? "end" : "middle";
+        var share = c.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
+        var t = el("text", { x: lx, y: ly.toFixed(1), "text-anchor": anchor, style: "font-variant-numeric:tabular-nums" }, svg);
+        el("tspan", { x: lx, dy: "0", style: "font-size:10.5px;font-weight:650;fill:var(--ink)" }, t, String(c.n));
+        el("tspan", { x: lx, dy: "11", style: "font-size:9px;fill:var(--ink2)" }, t, pctTxt);
+      });
+    }
     container.appendChild(svg);
   }
 
@@ -123,6 +160,6 @@
       infoEl.textContent = data.regierung.cab + ": " + data.regierung.sitze + " von " + data.gesamt +
         " Sitzen · Mehrheit ab " + majority + " · Stand " + fmt(ts(SITZE.stand));
     }
-    if (hemiEl) drawHemicycle(hemiEl, data, partyName, govKeys);
+    if (hemiEl) drawHemicycle(hemiEl, data, partyName, govKeys, true);
     if (legendEl) drawSeatLegend(legendEl, data, partyName, govKeys);
   }
