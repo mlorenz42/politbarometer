@@ -182,7 +182,9 @@ td.txt, th.txt { text-align: left; }
 
 /* Sitzverteilung */
 .seats-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 32px; align-items: center; }
-.hemicycle { flex: 1 1 280px; min-width: 220px; max-width: 420px; }
+/* max-width proportional zur breiteren Zeichenfläche (500 statt 380 SVG-Einheiten breit, s. common.js) –
+   sonst würden Punkte und Schrift beim Skalieren auf dieselbe Kartenbreite kleiner wirken als zuvor. */
+.hemicycle { flex: 1 1 320px; min-width: 220px; max-width: 550px; }
 .hemicycle svg { display: block; width: 100%; height: auto; }
 .hemicycle svg circle { stroke: var(--surface); stroke-width: 0.6; }
 .seats-legend { flex: 0 1 240px; min-width: 200px; max-width: 240px; list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; align-content: center; }
@@ -403,7 +405,10 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     // H hat gegenüber dem reinen Halbkreis (Radius bis 184, Fußpunkt bei H-12) bewusst Luft nach oben:
     // dort sitzt die Beschriftung, wie bei den Wikipedia-Diagrammen üblich, außerhalb des Punktrings statt
     // mitten in der Punktwolke – das braucht Platz oberhalb des höchsten Sitzes, den es sonst nicht gäbe.
-    var W = 380, H = 250, cx = W / 2, cy = H - 12;
+    // W hat aus demselben Grund gegenüber dem reinen Halbkreis (Durchmesser bis 368) Luft links und rechts:
+    // ohne die fiele die Beschriftung der äußersten Fraktionen (nahe 0°/180°) in den Punktring zurück, weil
+    // dort für sie schlicht kein Platz mehr zwischen Punktrand und Zeichenflächenrand übrig wäre.
+    var W = 500, H = 250, cx = W / 2, cy = H - 12;
     var layout = hemicycleSeats(data.gesamt), pts = layout.pts;
     // Bei wenigen Sitzen sind die Punkte (normiert layout.seatR) größer; ohne Gegenrechnung würde ihr
     // Rand über die Zeichenfläche hinausragen. R so wählen, dass Mittelpunkt-Radius + Punktradius nie
@@ -449,7 +454,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     // neten Nachbarfraktion – in der SVG-Zeichenreihenfolge über allem Vorherigen – das Label einer früher
     // gezeichneten Fraktion optisch verdecken, obwohl es außerhalb von deren eigenen Punkten liegt.
     if (labels) labelData.forEach(function (d) {
-      var theta = d.theta, r = labelR, margin = 22;
+      var theta = d.theta, r = labelR, margin = 26; // Rand für die (gegenüber vorher größere) Schrift
       if (Math.cos(theta) > 1e-6) r = Math.min(r, (W - margin - cx) / Math.cos(theta));
       else if (Math.cos(theta) < -1e-6) r = Math.min(r, (margin - cx) / Math.cos(theta));
       var lx = (cx + Math.cos(theta) * r).toFixed(1);
@@ -457,10 +462,10 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       var share = d.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
       var t = el("text", {
         x: lx, y: ly, "text-anchor": "middle",
-        style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:3px;stroke-linejoin:round",
+        style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);stroke-width:3.5px;stroke-linejoin:round",
       }, svg);
-      el("tspan", { x: lx, dy: "0", style: "font-size:10.5px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
-      el("tspan", { x: lx, dy: "11", style: "font-size:9px;fill:var(--ink2)" }, t, pctTxt);
+      el("tspan", { x: lx, dy: "0", style: "font-size:13px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
+      el("tspan", { x: lx, dy: "13", style: "font-size:11px;fill:var(--ink2)" }, t, pctTxt);
     });
     container.appendChild(svg);
   }
