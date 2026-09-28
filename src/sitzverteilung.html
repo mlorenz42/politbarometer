@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sitzverteilung im Bundestag und in allen 16 Landtagen auf einen Blick, als Halbkreisdiagramme.">
+<title>Sitzverteilung</title>
+<style>
+/*COMMON_CSS*/
+.lead { color: var(--ink2); margin: 0 0 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="nav" aria-label="Seiten">
+      <a href="index.html">Bundestag</a>
+      <a href="laender.html">Bundesländer</a>
+      <a href="sitzverteilung.html" aria-current="page">Sitzverteilung</a>
+    </nav>
+    <h1>Sitzverteilung</h1>
+    <p class="sub">Bundestag und alle 16 Landtage auf einen Blick. Regierungsparteien sind voll eingefärbt und mit „Regierung“ markiert, die Opposition blasser.</p>
+  </header>
+
+  <section class="card" aria-labelledby="bund-h">
+    <h2 id="bund-h">Sitzverteilung im Bundestag</h2>
+    <p class="rangeinfo" id="bund-info"></p>
+    <div class="seats-wrap">
+      <div class="hemicycle" id="bund-chart" role="img" aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
+      <ul class="seats-legend" id="bund-legend"></ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="laender-h">
+    <h2 id="laender-h">Sitzverteilung in den Ländern</h2>
+    <p class="lead">Anklicken führt zum jeweiligen Land mit Umfrageverlauf und Details.</p>
+    <div class="seat-grid" id="laender-grid"></div>
+  </section>
+
+  <footer>
+    <p>Sitzverteilung: <a href="https://de.wikipedia.org/wiki/Deutscher_Bundestag" target="_blank" rel="noopener">Wikipedia – Deutscher Bundestag</a> und die Artikel der 16 Landtage, zuletzt abgeglichen am <span id="f-stand"></span>.</p>
+    <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  /*COMMON_JS*/
+  var SITZE = /*SITZE*/{};
+  var LAENDER = /*LAENDER*/[]; // [{slug, name, union}], nur die für diese Seite nötigen Angaben
+  var LABEL = { cdu: "CDU", spd: "SPD", gru: "GRÜNE", fdp: "FDP", lin: "LINKE", afd: "AfD", bsw: "BSW", fw: "FW", pir: "PIRATEN", ssw: "SSW" };
+
+  function partyName(data, k, union) {
+    if (k === "cdu") return union;
+    return LABEL[k] || (data.parteien && data.parteien[k]) || k;
+  }
+
+  // ---------- Bundestag ----------
+  var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };
+  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien);
+
+  // ---------- Länder ----------
+  var grid = $("laender-grid");
+  LAENDER.slice().sort(function (a, b) { return a.name < b.name ? -1 : 1; }).forEach(function (L) {
+    var data = SITZE.laender[L.slug];
+    if (!data) return;
+    var name = function (k) { return partyName(data, k, L.union); };
+    var a = h("a", "seat-tile", grid);
+    a.href = "laender.html#land=" + L.slug;
+    var head = h("div", "seat-tile-head", a);
+    h("span", "seat-tile-name", head, L.name);
+    h("span", "seat-tile-n", head, data.regierung.sitze + "/" + data.gesamt);
+    var chart = h("div", "hemicycle", a);
+    chart.setAttribute("role", "img");
+    chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
+    drawHemicycle(chart, data, name, data.regierung.parteien);
+    var info = h("p", "seat-tile-info", a, data.regierung.cab);
+    var co = h("span", "cell-co", info);
+    data.regierung.parteien.forEach(function (k) {
+      var s = h("span", "p-" + k, co);
+      h("i", "dot", s);
+      s.appendChild(document.createTextNode(name(k)));
+    });
+  });
+
+  $("f-stand").textContent = fmt(ts(SITZE.stand));
+})();
+</script>
+</body>
+</html>

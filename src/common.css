@@ -185,6 +185,18 @@ td.txt, th.txt { text-align: left; }
 .seats-legend li.opp .dot { opacity: .42; }
 .seats-legend li.opp .name { color: var(--ink2); }
 .seats-legend .pill { margin-left: 10px; }
+
+/* Raster kleiner Sitzverteilungen (Übersichtsseite) */
+.seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.seat-tile { display: block; background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 14px 14px 12px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.seat-tile:hover { border-color: var(--ink2); }
+.seat-tile-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.seat-tile-name { font-weight: 650; font-size: 14px; color: var(--ink); }
+.seat-tile-n { font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seat-tile .hemicycle { max-width: none; }
+.seat-tile-info { margin: 6px 0 0; font-size: 12px; color: var(--ink2); display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; }
+.seat-tile-info .cell-co { gap: 2px 8px; }
+.seat-tile-info .cell-co i { width: 7px; height: 7px; }
 footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
 @media (max-width: 720px) {

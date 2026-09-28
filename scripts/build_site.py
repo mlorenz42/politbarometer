@@ -48,6 +48,26 @@ def load_sitze() -> dict:
     return json.loads((ROOT / "data" / "sitze.json").read_text(encoding="utf-8"))
 
 
+def load_land_meta() -> list:
+    meta = json.loads((ROOT / "data" / "laender.json").read_text(encoding="utf-8"))
+    return [{"slug": l["slug"], "name": l["name"], "union": "CSU" if l["slug"] == "bayern" else "CDU"} for l in meta]
+
+
+def build_sitzverteilung(sitze: dict) -> int:
+    laender_meta = load_land_meta()
+    template = (ROOT / "src" / "sitzverteilung.html").read_text(encoding="utf-8")
+    for marker in ("/*SITZE*/{}", "/*LAENDER*/[]", "/*COMMON_CSS*/", "/*COMMON_JS*/"):
+        if template.count(marker) != 1:
+            print("Platzhalter %s im Sitzverteilung-Template nicht genau einmal vorhanden." % marker, file=sys.stderr)
+            return 1
+    out = template.replace("/*SITZE*/{}", embed(sitze)).replace("/*LAENDER*/[]", embed(laender_meta))
+    out = out.replace("/*COMMON_CSS*/", (ROOT / "src" / "common.css").read_text(encoding="utf-8").rstrip("\n"))
+    out = out.replace("/*COMMON_JS*/", (ROOT / "src" / "common.js").read_text(encoding="utf-8").rstrip("\n"))
+    (ROOT / "docs" / "sitzverteilung.html").write_text(out, encoding="utf-8")
+    print("docs/sitzverteilung.html: %d Länder, %d KB" % (len(laender_meta), len(out) // 1024))
+    return 0
+
+
 # ---------- Länderseite ----------
 # Reihenfolge der Werte je Umfrage: dargestellte Parteien, dann SSW, NPD, BIW, Sonstige
 LAND_PLOTTED = [("cdu", "CDU/CSU"), ("spd", "SPD"), ("gru", "GRÜNE"), ("fdp", "FDP"), ("lin", "LINKE"),
@@ -125,7 +145,8 @@ def main() -> int:
     target.parent.mkdir(exist_ok=True)
     target.write_text(out, encoding="utf-8")
     print("docs/index.html: %d Umfragezeilen, %d Kabinette, %d KB" % (len(rows), len(gov["kabinette"]), len(out) // 1024))
-    return build_laender(sitze)
+    code = build_laender(sitze)
+    return code or build_sitzverteilung(sitze)
 
 
 if __name__ == "__main__":

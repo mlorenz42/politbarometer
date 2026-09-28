@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Sitzverteilung im Bundestag und in allen 16 Landtagen auf einen Blick, als Halbkreisdiagramme.">
+<title>Sitzverteilung</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --hair: rgba(11, 11, 11, 0.10);
+  --hover: rgba(11, 11, 11, 0.05);
+  --band-a: #efeee9;
+  --band-b: #e6e5de;
+  --s-cdu: #4b4b4b;
+  --s-spd: #e34948;
+  --s-gru: #008300;
+  --s-fdp: #eda100;
+  --s-lin: #e87ba4;
+  --s-afd: #2a78d6;
+  --s-bsw: #4a3aa7;
+  --s-fw: #eb6834;
+  --s-pir: #1baf7a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --hair: rgba(255, 255, 255, 0.10);
+    --hover: rgba(255, 255, 255, 0.07);
+    --band-a: #262624;
+    --band-b: #302f2d;
+    --s-cdu: #949494;
+    --s-spd: #e66767;
+    --s-gru: #008300;
+    --s-fdp: #c98500;
+    --s-lin: #d55181;
+    --s-afd: #3987e5;
+    --s-bsw: #9085e9;
+    --s-fw: #d95926;
+    --s-pir: #199e70;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #ffffff;
+  --ink2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --hair: rgba(255, 255, 255, 0.10);
+  --hover: rgba(255, 255, 255, 0.07);
+  --band-a: #262624;
+  --band-b: #302f2d;
+  --s-cdu: #949494;
+  --s-spd: #e66767;
+  --s-gru: #008300;
+  --s-fdp: #c98500;
+  --s-lin: #d55181;
+  --s-afd: #3987e5;
+  --s-bsw: #9085e9;
+  --s-fw: #d95926;
+  --s-pir: #199e70;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding-inline: 16px;
+  padding-block: 32px 56px;
+}
+.wrap { max-width: 1040px; margin-inline: auto; display: flex; flex-direction: column; gap: 32px; }
+h1, h2, p, dl, dd { margin: 0; }
+h1 { font-size: clamp(26px, 4.4vw, 36px); line-height: 1.1; font-weight: 650; letter-spacing: -0.015em; text-wrap: balance; }
+h2 { font-size: 16px; line-height: 1.3; font-weight: 650; }
+.sub { color: var(--ink2); max-width: 64ch; margin-top: 8px; text-wrap: pretty; }
+a { color: inherit; text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--s-afd); outline-offset: 2px; border-radius: 4px; }
+
+.p-cdu { --c: var(--s-cdu); } .p-spd { --c: var(--s-spd); } .p-gru { --c: var(--s-gru); }
+.p-fdp { --c: var(--s-fdp); } .p-lin { --c: var(--s-lin); } .p-afd { --c: var(--s-afd); } .p-bsw { --c: var(--s-bsw); }
+.p-fw { --c: var(--s-fw); } .p-pir { --c: var(--s-pir); } [class*="p-x-"] { --c: var(--ink2); } /* Parteien ohne eigene Farbe */
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+
+/* Regierung heute */
+.gov { border-block: 1px solid var(--hair); padding-block: 22px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink2); margin-bottom: 8px; }
+.gov h2 { font-size: clamp(28px, 5vw, 44px); line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
+.coal { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; color: var(--ink2); }
+.coal .pp { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 20px; align-content: center; }
+.facts dt { color: var(--ink2); }
+.facts dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.facts dd strong { font-weight: 650; font-size: 15px; }
+.facts .who { display: inline-flex; align-items: center; gap: 6px; }
+.small { color: var(--ink2); font-size: 12.5px; }
+
+/* Diagramm-Karte */
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 14px; }
+.bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.seg { display: inline-flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 0; padding: 6px 12px; min-height: 32px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--hair); }
+.seg button:hover { background: var(--hover); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 600; }
+.rangeinfo { color: var(--ink2); font-size: 12.5px; margin-top: 3px; text-wrap: pretty; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sel { display: inline-block; max-width: 100%; min-width: 0; }
+.sel select { max-width: 100%; font: inherit; font-size: 13px; color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 6px 10px; min-height: 34px; max-width: 100%; cursor: pointer; text-overflow: ellipsis; }
+.sel select:hover { background: var(--hover); }
+.sel select.on { color: var(--ink); font-weight: 600; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.legend .lbl { flex: 0 0 100%; font-size: 12px; color: var(--ink2); }
+.chip .d { font-size: 12.5px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip .d .g { font-size: 10px; margin-right: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px; min-height: 32px; border: 1px solid var(--hair); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.chip:hover { background: var(--hover); }
+.chip .key { width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
+.chip b { font-weight: 650; font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="false"] { color: var(--ink2); }
+.chip[aria-pressed="false"] .key { opacity: 0.3; }
+.chip[aria-pressed="false"] b { opacity: 0.55; }
+.legend .ring { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2); margin-left: 6px; }
+.legend .ring i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); box-shadow: 0 0 0 2px var(--surface); }
+.legend .ring i.hu { width: 16px; height: 1px; border-radius: 0; box-shadow: none; opacity: 0.6; }
+
+.chart { position: relative; touch-action: pan-y; border-radius: 6px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: inherit; }
+.tip { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; min-width: 190px; max-width: 280px; background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.14); font-size: 12.5px; }
+.tip[hidden] { display: none; }
+.tip .th { font-weight: 650; font-size: 13px; }
+.tip .ts { color: var(--ink2); font-size: 12px; margin-top: 1px; }
+.tip ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; }
+.tip li { display: grid; grid-template-columns: 14px 44px minmax(0, 1fr); align-items: center; gap: 6px; }
+.tip li .k { height: 3px; border-radius: 2px; background: var(--c); }
+.tip li .v { font-weight: 700; font-size: 13.5px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.tip li .n { color: var(--ink2); }
+.tip .tg { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hair); color: var(--ink2); font-size: 12px; }
+.tip .tg strong { color: var(--ink); font-weight: 600; }
+
+.tablewrap { max-height: 460px; overflow: auto; border: 1px solid var(--hair); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 7px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--hair); }
+th:first-child, td:first-child { text-align: left; }
+thead th { position: sticky; top: 0; background: var(--surface); font-weight: 650; color: var(--ink2); z-index: 1; }
+thead th .dot { margin-right: 6px; }
+td.num { font-variant-numeric: tabular-nums; }
+tr.elec td { font-weight: 650; background: var(--hover); }
+td.txt, th.txt { text-align: left; }
+.note { font-size: 12px; color: var(--ink2); max-width: 90ch; text-wrap: pretty; }
+
+/* Regierungen */
+.govs h2 { margin-bottom: 4px; }
+.govs .lead { color: var(--ink2); margin-bottom: 12px; }
+.govs .tablewrap { max-height: none; }
+.govs td, .govs th { text-align: left; white-space: normal; }
+.govs tr.now td { background: var(--hover); }
+.pill { display: inline-block; font-size: 11px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--ink2); border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
+.cell-co { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.cell-co span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+/* Sitzverteilung */
+.seats-wrap { display: flex; flex-wrap: wrap; gap: 12px 32px; align-items: center; }
+.hemicycle { flex: 1 1 280px; min-width: 220px; max-width: 420px; }
+.hemicycle svg { display: block; width: 100%; height: auto; }
+.hemicycle svg circle { stroke: var(--surface); stroke-width: 0.6; }
+.seats-legend { flex: 1 1 220px; min-width: 200px; list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; align-content: center; }
+.seats-legend li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.seats-legend .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.seats-legend .name { color: var(--ink); }
+.seats-legend .n { margin-left: auto; font-weight: 650; font-variant-numeric: tabular-nums; color: var(--ink2); white-space: nowrap; }
+.seats-legend li.opp .dot { opacity: .42; }
+.seats-legend li.opp .name { color: var(--ink2); }
+.seats-legend .pill { margin-left: 10px; }
+
+/* Raster kleiner Sitzverteilungen (Übersichtsseite) */
+.seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.seat-tile { display: block; background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 14px 14px 12px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.seat-tile:hover { border-color: var(--ink2); }
+.seat-tile-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.seat-tile-name { font-weight: 650; font-size: 14px; color: var(--ink); }
+.seat-tile-n { font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seat-tile .hemicycle { max-width: none; }
+.seat-tile-info { margin: 6px 0 0; font-size: 12px; color: var(--ink2); display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; }
+.seat-tile-info .cell-co { gap: 2px 8px; }
+.seat-tile-info .cell-co i { width: 7px; height: 7px; }
+footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
+
+@media (max-width: 720px) {
+  .gov { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 14px 12px 12px; }
+  th, td { padding: 7px 9px; }
+}
+
+/* Navigation zwischen den Seiten */
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.nav a { font-size: 13px; padding: 5px 12px; border: 1px solid var(--hair); border-radius: 999px; color: var(--ink2); text-decoration: none; }
+.nav a:hover { background: var(--hover); }
+.nav a[aria-current="page"] { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 600; }
+
+@media (max-width: 720px) {
+  .ctrls { width: 100%; }
+  .ctrls .sel { flex: 1 1 100%; }
+  .ctrls .sel select { width: 100%; }
+}
+.lead { color: var(--ink2); margin: 0 0 14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="nav" aria-label="Seiten">
+      <a href="index.html">Bundestag</a>
+      <a href="laender.html">Bundesländer</a>
+      <a href="sitzverteilung.html" aria-current="page">Sitzverteilung</a>
+    </nav>
+    <h1>Sitzverteilung</h1>
+    <p class="sub">Bundestag und alle 16 Landtage auf einen Blick. Regierungsparteien sind voll eingefärbt und mit „Regierung“ markiert, die Opposition blasser.</p>
+  </header>
+
+  <section class="card" aria-labelledby="bund-h">
+    <h2 id="bund-h">Sitzverteilung im Bundestag</h2>
+    <p class="rangeinfo" id="bund-info"></p>
+    <div class="seats-wrap">
+      <div class="hemicycle" id="bund-chart" role="img" aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
+      <ul class="seats-legend" id="bund-legend"></ul>
+    </div>
+  </section>
+
+  <section aria-labelledby="laender-h">
+    <h2 id="laender-h">Sitzverteilung in den Ländern</h2>
+    <p class="lead">Anklicken führt zum jeweiligen Land mit Umfrageverlauf und Details.</p>
+    <div class="seat-grid" id="laender-grid"></div>
+  </section>
+
+  <footer>
+    <p>Sitzverteilung: <a href="https://de.wikipedia.org/wiki/Deutscher_Bundestag" target="_blank" rel="noopener">Wikipedia – Deutscher Bundestag</a> und die Artikel der 16 Landtage, zuletzt abgeglichen am <span id="f-stand"></span>.</p>
+    <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+    var ts = function (s) { var a = s.split("-"); return Date.UTC(+a[0], +a[1] - 1, +a[2]); };
+  var MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  var p2 = function (n) { return (n < 10 ? "0" : "") + n; };
+  var fmt = function (t) { var d = new Date(t); return p2(d.getUTCDate()) + "." + p2(d.getUTCMonth() + 1) + "." + d.getUTCFullYear(); };
+  var pct = function (v) { return v == null ? "–" : String(v).replace(".", ",") + " %"; };
+  var fnum = function (n) { return n == null ? "" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function h(tag, cls, parent, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function tickList(tmin, tmax, x0, x1) {
+    var span = (tmax - tmin) / 31557600000, ticks = [], y, m;
+    var yearPx = (x1 - x0) / span;
+    var d0 = new Date(tmin), d1 = new Date(tmax);
+    if (span < 4) {
+      for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) for (m = 0; m < 12; m += 3) {
+        var t = Date.UTC(y, m, 1);
+        if (t >= tmin && t <= tmax) ticks.push({ t: t, label: m === 0 ? String(y) : MON[m], major: m === 0 });
+      }
+      if (yearPx < 130) ticks = ticks.filter(function (k) { return k.major || (new Date(k.t).getUTCMonth() === 6); });
+      return ticks;
+    }
+    var steps = [1, 2, 4, 5, 10], step = 10;
+    for (var s = 0; s < steps.length; s++) { if (steps[s] * yearPx >= 54) { step = steps[s]; break; } }
+    for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) {
+      var tt = Date.UTC(y, 0, 1);
+      if (tt >= tmin && tt <= tmax && y % step === 0) ticks.push({ t: tt, label: String(y), major: true });
+    }
+    return ticks;
+  }
+
+  var LONGMON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  function longDate(t) { var d = new Date(t); return d.getUTCDate() + ". " + LONGMON[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
+
+  // ---------- Sitzverteilung (Halbkreisdiagramm) ----------
+  // Konzentrische Reihen im Abstand von zwei Sitzradien (Reihen berühren sich), Sitze innerhalb
+  // einer Reihe im selben Abstand entlang des Bogens (Sitze berühren sich) – der übliche Aufbau
+  // solcher Diagramme. Der Sitzradius wird per Bisektion so gesucht, dass die Kapazität knapp
+  // über n liegt; überzählige Plätze fallen von innen nach außen weg, damit die äußeren Reihen
+  // (wo bei den bekannten Vorbildern traditionell die Regierungsbank sitzt) voll bleiben.
+  // Reihenfolge der Punkte: links (180°) nach rechts (0°), damit Parteien in der übergebenen
+  // Reihenfolge zusammenhängende Blöcke bilden.
+  function hemicycleCapacity(seatR, rInner, rOuter) {
+    var rows = [], r = rInner;
+    while (r <= rOuter + 1e-9) { rows.push(r); r += seatR * 2; }
+    var counts = rows.map(function (rr) { return Math.max(1, Math.floor((Math.PI * rr) / (seatR * 2)) + 1); });
+    return { rows: rows, counts: counts, total: counts.reduce(function (a, b) { return a + b; }, 0) };
+  }
+  function hemicycleSeats(n) {
+    var rInner = 0.30, rOuter = 1, lo = 0.008, hi = 0.28;
+    for (var iter = 0; iter < 30; iter++) {
+      var mid = (lo + hi) / 2;
+      if (hemicycleCapacity(mid, rInner, rOuter).total >= n) lo = mid; else hi = mid;
+    }
+    var cap = hemicycleCapacity(lo, rInner, rOuter), counts = cap.counts.slice();
+    var over = cap.total - n, ri = 0, guard = 0;
+    while (over > 0 && guard++ < 100000) { if (counts[ri] > 1) { counts[ri]--; over--; } ri = (ri + 1) % counts.length; }
+    var pts = [];
+    for (var i = 0; i < cap.rows.length; i++) {
+      var cnt = counts[i], r = cap.rows[i];
+      for (var s = 0; s < cnt; s++) {
+        var t = cnt > 1 ? s / (cnt - 1) : 0.5, a = Math.PI - t * Math.PI;
+        pts.push({ x: Math.cos(a) * r, y: -Math.sin(a) * r, a: a });
+      }
+    }
+    pts.sort(function (p, q) { return q.a - p.a; }); // a = π (links) … 0 (rechts)
+    return { pts: pts, seatR: lo };
+  }
+
+  // data: { gesamt, regierung:{cab,sitze}, reihenfolge:[Kürzel …], sitze:{Kürzel: Zahl} }
+  // partyName(k) benennt ein Kürzel; govKeys sind die Kürzel der aktuellen Regierungsparteien.
+  function drawHemicycle(container, data, partyName, govKeys) {
+    container.textContent = "";
+    var W = 380, H = 210, cx = W / 2, cy = H - 12, R = H - 26;
+    var layout = hemicycleSeats(data.gesamt), pts = layout.pts;
+    var dotR = Math.max(1.8, layout.seatR * R * 0.88); // etwas Luft zwischen den Punkten lassen
+    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", height: "auto", "aria-hidden": "true" });
+    var i = 0;
+    data.reihenfolge.forEach(function (k) {
+      var n = data.sitze[k] || 0;
+      if (!n) return;
+      var isGov = govKeys.indexOf(k) >= 0;
+      var g = el("g", { style: "fill:var(--s-" + k + ",var(--ink2))" + (isGov ? "" : ";opacity:.42") }, svg);
+      el("title", {}, g, partyName(k) + ": " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? " · Regierung" : ""));
+      for (var s = 0; s < n; s++, i++) {
+        var p = pts[i]; if (!p) continue;
+        el("circle", { cx: (cx + p.x * R).toFixed(1), cy: (cy + p.y * R).toFixed(1), r: dotR.toFixed(2) }, g);
+      }
+    });
+    container.appendChild(svg);
+  }
+
+  function drawSeatLegend(container, data, partyName, govKeys) {
+    container.textContent = "";
+    data.reihenfolge.forEach(function (k) {
+      var n = data.sitze[k] || 0;
+      if (!n) return;
+      var isGov = govKeys.indexOf(k) >= 0;
+      var li = h("li", isGov ? "" : "opp", container);
+      h("span", "dot", li).style.background = "var(--s-" + k + ",var(--ink2))";
+      h("span", "name", li, partyName(k));
+      h("span", "n", li, n + " Sitz" + (n === 1 ? "" : "e"));
+      if (isGov) h("span", "pill", li, "Regierung");
+    });
+  }
+
+  // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional.
+  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys) {
+    if (infoEl) {
+      var majority = Math.floor(data.gesamt / 2) + 1;
+      infoEl.textContent = data.regierung.cab + ": " + data.regierung.sitze + " von " + data.gesamt +
+        " Sitzen · Mehrheit ab " + majority + " · Stand " + fmt(ts(SITZE.stand));
+    }
+    if (hemiEl) drawHemicycle(hemiEl, data, partyName, govKeys);
+    if (legendEl) drawSeatLegend(legendEl, data, partyName, govKeys);
+  }
+  var SITZE = {"stand":"2026-09-28","bund":{"quelle":"https://de.wikipedia.org/wiki/Deutscher_Bundestag","gesamt":630,"regierung":{"cab":"Kabinett Merz","sitze":328,"parteien":["cdu","spd"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":120,"gru":85,"cdu":208,"afd":150,"lin":64,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"laender":{"baden-wuerttemberg":{"quelle":"https://de.wikipedia.org/wiki/Landtag_von_Baden-W%C3%BCrttemberg","gesamt":157,"regierung":{"cab":"Kabinett Özdemir","sitze":112,"parteien":["gru","cdu"]},"reihenfolge":["spd","gru","cdu","afd"],"sitze":{"spd":10,"gru":56,"cdu":56,"afd":35},"parteien":{}},"bayern":{"quelle":"https://de.wikipedia.org/wiki/Bayerischer_Landtag","gesamt":203,"regierung":{"cab":"Kabinett Söder III","sitze":122,"parteien":["cdu","fw"]},"reihenfolge":["spd","gru","fw","cdu","afd"],"sitze":{"spd":17,"gru":32,"cdu":85,"fw":37,"afd":32},"parteien":{}},"berlin":{"quelle":"https://de.wikipedia.org/wiki/Abgeordnetenhaus_von_Berlin","gesamt":159,"regierung":{"cab":"Senat Wegner","sitze":88,"parteien":["cdu","spd"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"lin":20,"gru":33,"spd":36,"cdu":52,"afd":16,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"brandenburg":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Brandenburg","gesamt":88,"regierung":{"cab":"Kabinett Woidke V","sitze":46,"parteien":["spd","cdu"]},"reihenfolge":["bsw","spd","cdu","afd","x-unabh"],"sitze":{"bsw":8,"spd":34,"cdu":12,"afd":30,"x-unabh":4},"parteien":{"x-unabh":"Unabh."}},"bremen":{"quelle":"https://de.wikipedia.org/wiki/Bremische_B%C3%BCrgerschaft","gesamt":87,"regierung":{"cab":"Senat Bovenschulte II","sitze":48,"parteien":["spd","gru","lin"]},"reihenfolge":["lin","spd","gru","fdp","cdu","x-bbb","x-biw","x-sonst"],"sitze":{"lin":10,"spd":28,"gru":10,"fdp":5,"cdu":24,"x-bbb":3,"x-biw":6,"x-sonst":1},"parteien":{"x-bbb":"BBB","x-biw":"BIW","x-sonst":"Sonst."}},"hamburg":{"quelle":"https://de.wikipedia.org/wiki/Hamburgische_B%C3%BCrgerschaft","gesamt":121,"regierung":{"cab":"Senat Tschentscher III","sitze":70,"parteien":["spd","gru"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"lin":15,"gru":25,"spd":45,"cdu":26,"afd":9,"x-sonst":1},"parteien":{"x-sonst":"Sonst."}},"hessen":{"quelle":"https://de.wikipedia.org/wiki/Hessischer_Landtag","gesamt":133,"regierung":{"cab":"Kabinett Rhein II","sitze":75,"parteien":["cdu","spd"]},"reihenfolge":["spd","gru","fdp","cdu","afd","x-sonst"],"sitze":{"spd":23,"gru":22,"fdp":8,"cdu":52,"afd":25,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"mecklenburg-vorpommern":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Mecklenburg-Vorpommern","gesamt":79,"regierung":{"cab":"Kabinett Schwesig II","sitze":43,"parteien":["spd","lin"]},"reihenfolge":["lin","spd","gru","cdu","fdp","afd","x-sonst"],"sitze":{"spd":34,"lin":9,"cdu":12,"afd":14,"gru":4,"fdp":3,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"niedersachsen":{"quelle":"https://de.wikipedia.org/wiki/Nieders%C3%A4chsischer_Landtag","gesamt":146,"regierung":{"cab":"Kabinett Lies","sitze":81,"parteien":["spd","gru"]},"reihenfolge":["spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":57,"gru":24,"cdu":47,"afd":16,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"nrw":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Nordrhein-Westfalen","gesamt":195,"regierung":{"cab":"Kabinett Wüst II","sitze":115,"parteien":["cdu","gru"]},"reihenfolge":["spd","gru","fdp","cdu","afd"],"sitze":{"spd":56,"gru":39,"cdu":76,"fdp":12,"afd":12},"parteien":{}},"rheinland-pfalz":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Rheinland-Pfalz","gesamt":105,"regierung":{"cab":"Kabinett Schnieder","sitze":71,"parteien":["cdu","spd"]},"reihenfolge":["spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":32,"gru":10,"cdu":39,"afd":23,"x-sonst":1},"parteien":{"x-sonst":"Sonst."}},"saarland":{"quelle":"https://de.wikipedia.org/wiki/Landtag_des_Saarlandes","gesamt":51,"regierung":{"cab":"Kabinett Rehlinger","sitze":29,"parteien":["spd"]},"reihenfolge":["spd","cdu","afd"],"sitze":{"spd":29,"cdu":19,"afd":3},"parteien":{}},"sachsen":{"quelle":"https://de.wikipedia.org/wiki/S%C3%A4chsischer_Landtag","gesamt":120,"regierung":{"cab":"Kabinett Kretschmer III","sitze":51,"parteien":["cdu","spd"]},"reihenfolge":["lin","bsw","spd","gru","x-sonst","cdu","afd"],"sitze":{"lin":6,"bsw":14,"spd":10,"gru":7,"x-sonst":2,"cdu":41,"afd":40},"parteien":{"x-sonst":"Sonst."}},"sachsen-anhalt":{"quelle":"https://de.wikipedia.org/wiki/Landtag_von_Sachsen-Anhalt","gesamt":97,"regierung":{"cab":"Kabinett Schulze","sitze":56,"parteien":["cdu","spd","fdp"]},"reihenfolge":["lin","gru","spd","cdu","fdp","afd","x-sonst"],"sitze":{"lin":11,"gru":6,"spd":9,"cdu":40,"fdp":7,"afd":22,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"schleswig-holstein":{"quelle":"https://de.wikipedia.org/wiki/Schleswig-Holsteinischer_Landtag","gesamt":69,"regierung":{"cab":"Kabinett Günther II","sitze":48,"parteien":["cdu","gru"]},"reihenfolge":["spd","gru","ssw","fdp","cdu"],"sitze":{"spd":12,"gru":14,"ssw":4,"fdp":5,"cdu":34},"parteien":{}},"thueringen":{"quelle":"https://de.wikipedia.org/wiki/Th%C3%BCringer_Landtag","gesamt":88,"regierung":{"cab":"Kabinett Voigt","sitze":39,"parteien":["cdu","spd","x-th-ringen-gerecht"]},"reihenfolge":["lin","spd","x-th-ringen-gerecht","x-unabh","cdu","afd"],"sitze":{"lin":12,"spd":6,"x-th-ringen-gerecht":10,"x-unabh":5,"cdu":23,"afd":32},"parteien":{"x-th-ringen-gerecht":"Thüringen.Gerecht","x-unabh":"Unabh."}}}};
+  var LAENDER = [{"slug":"baden-wuerttemberg","name":"Baden-Württemberg","union":"CDU"},{"slug":"bayern","name":"Bayern","union":"CSU"},{"slug":"berlin","name":"Berlin","union":"CDU"},{"slug":"brandenburg","name":"Brandenburg","union":"CDU"},{"slug":"bremen","name":"Bremen","union":"CDU"},{"slug":"hamburg","name":"Hamburg","union":"CDU"},{"slug":"hessen","name":"Hessen","union":"CDU"},{"slug":"mecklenburg-vorpommern","name":"Mecklenburg- Vorpommern","union":"CDU"},{"slug":"niedersachsen","name":"Niedersachsen","union":"CDU"},{"slug":"nrw","name":"Nordrhein-Westfalen","union":"CDU"},{"slug":"rheinland-pfalz","name":"Rheinland-Pfalz","union":"CDU"},{"slug":"saarland","name":"Saarland","union":"CDU"},{"slug":"sachsen","name":"Sachsen","union":"CDU"},{"slug":"sachsen-anhalt","name":"Sachsen-Anhalt","union":"CDU"},{"slug":"schleswig-holstein","name":"Schleswig-Holstein","union":"CDU"},{"slug":"thueringen","name":"Thüringen","union":"CDU"}]; // [{slug, name, union}], nur die für diese Seite nötigen Angaben
+  var LABEL = { cdu: "CDU", spd: "SPD", gru: "GRÜNE", fdp: "FDP", lin: "LINKE", afd: "AfD", bsw: "BSW", fw: "FW", pir: "PIRATEN", ssw: "SSW" };
+
+  function partyName(data, k, union) {
+    if (k === "cdu") return union;
+    return LABEL[k] || (data.parteien && data.parteien[k]) || k;
+  }
+
+  // ---------- Bundestag ----------
+  var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };
+  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien);
+
+  // ---------- Länder ----------
+  var grid = $("laender-grid");
+  LAENDER.slice().sort(function (a, b) { return a.name < b.name ? -1 : 1; }).forEach(function (L) {
+    var data = SITZE.laender[L.slug];
+    if (!data) return;
+    var name = function (k) { return partyName(data, k, L.union); };
+    var a = h("a", "seat-tile", grid);
+    a.href = "laender.html#land=" + L.slug;
+    var head = h("div", "seat-tile-head", a);
+    h("span", "seat-tile-name", head, L.name);
+    h("span", "seat-tile-n", head, data.regierung.sitze + "/" + data.gesamt);
+    var chart = h("div", "hemicycle", a);
+    chart.setAttribute("role", "img");
+    chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
+    drawHemicycle(chart, data, name, data.regierung.parteien);
+    var info = h("p", "seat-tile-info", a, data.regierung.cab);
+    var co = h("span", "cell-co", info);
+    data.regierung.parteien.forEach(function (k) {
+      var s = h("span", "p-" + k, co);
+      h("i", "dot", s);
+      s.appendChild(document.createTextNode(name(k)));
+    });
+  });
+
+  $("f-stand").textContent = fmt(ts(SITZE.stand));
+})();
+</script>
+</body>
+</html>

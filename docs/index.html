@@ -193,6 +193,18 @@ td.txt, th.txt { text-align: left; }
 .seats-legend li.opp .dot { opacity: .42; }
 .seats-legend li.opp .name { color: var(--ink2); }
 .seats-legend .pill { margin-left: 10px; }
+
+/* Raster kleiner Sitzverteilungen (Übersichtsseite) */
+.seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.seat-tile { display: block; background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 14px 14px 12px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.seat-tile:hover { border-color: var(--ink2); }
+.seat-tile-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.seat-tile-name { font-weight: 650; font-size: 14px; color: var(--ink); }
+.seat-tile-n { font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seat-tile .hemicycle { max-width: none; }
+.seat-tile-info { margin: 6px 0 0; font-size: 12px; color: var(--ink2); display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; }
+.seat-tile-info .cell-co { gap: 2px 8px; }
+.seat-tile-info .cell-co i { width: 7px; height: 7px; }
 footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
 @media (max-width: 720px) {
@@ -220,6 +232,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     <nav class="nav" aria-label="Seiten">
       <a href="index.html" aria-current="page">Bundestag</a>
       <a href="laender.html">Bundesländer</a>
+      <a href="sitzverteilung.html">Sitzverteilung</a>
     </nav>
     <h1>Politbarometer seit 1998</h1>
     <p class="sub">Sonntagsfrage der Forschungsgruppe Wahlen: Stimmenanteile der Parteien in Prozent, dazu die jeweilige Bundesregierung.</p>
@@ -420,7 +433,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
   var OPEN_END = "2100-01-01"; // laufende Amtszeit (in der JSON: to = null)
   var GOV = {"stand":"2026-09-28","quelle":"https://de.wikipedia.org/wiki/Liste_der_deutschen_Bundesregierungen","aktuell":{"koalitionsname":"Schwarz-rote Koalition","kanzler_zusatz":"CDU · die Union stellt den Kanzler","vizekanzler":{"titel":"Vizekanzler","name":"Lars Klingbeil","partei":"spd","zusatz":"SPD · leitet zugleich das Bundesministerium der Finanzen"},"seit_zusatz":"Wahl im Bundestag nach der Bundestagswahl vom 23. Februar 2025","zuletzt":"Kabinettsumbildung im Juli 2026"},"kabinette":[{"name":"Kohl V","cab":"Kabinett Kohl V","title":"Bundeskanzler","who":"Helmut Kohl","wp":"cdu","from":"1994-11-17","to":"1998-10-27","ph":[{"from":"1994-11-17","to":"1998-10-27","co":["cdu","fdp"]}]},{"name":"Schröder I","cab":"Kabinett Schröder I","title":"Bundeskanzler","who":"Gerhard Schröder","wp":"spd","from":"1998-10-27","to":"2002-10-22","ph":[{"from":"1998-10-27","to":"2002-10-22","co":["spd","gru"]}]},{"name":"Schröder II","cab":"Kabinett Schröder II","title":"Bundeskanzler","who":"Gerhard Schröder","wp":"spd","from":"2002-10-22","to":"2005-11-22","ph":[{"from":"2002-10-22","to":"2005-11-22","co":["spd","gru"]}]},{"name":"Merkel I","cab":"Kabinett Merkel I","title":"Bundeskanzlerin","who":"Angela Merkel","wp":"cdu","from":"2005-11-22","to":"2009-10-28","ph":[{"from":"2005-11-22","to":"2009-10-28","co":["cdu","spd"]}]},{"name":"Merkel II","cab":"Kabinett Merkel II","title":"Bundeskanzlerin","who":"Angela Merkel","wp":"cdu","from":"2009-10-28","to":"2013-12-17","ph":[{"from":"2009-10-28","to":"2013-12-17","co":["cdu","fdp"]}]},{"name":"Merkel III","cab":"Kabinett Merkel III","title":"Bundeskanzlerin","who":"Angela Merkel","wp":"cdu","from":"2013-12-17","to":"2018-03-14","ph":[{"from":"2013-12-17","to":"2018-03-14","co":["cdu","spd"]}]},{"name":"Merkel IV","cab":"Kabinett Merkel IV","title":"Bundeskanzlerin","who":"Angela Merkel","wp":"cdu","from":"2018-03-14","to":"2021-12-08","ph":[{"from":"2018-03-14","to":"2021-12-08","co":["cdu","spd"]}]},{"name":"Scholz","cab":"Kabinett Scholz","title":"Bundeskanzler","who":"Olaf Scholz","wp":"spd","from":"2021-12-08","to":"2025-05-06","ph":[{"from":"2021-12-08","to":"2024-11-07","co":["spd","gru","fdp"]},{"from":"2024-11-07","to":"2025-05-06","co":["spd","gru"],"nm":"ohne FDP"}]},{"name":"Merz","cab":"Kabinett Merz","title":"Bundeskanzler","who":"Friedrich Merz","wp":"cdu","from":"2025-05-06","to":null,"ph":[{"from":"2025-05-06","to":null,"co":["cdu","spd"]}]}]};
-  var SITZE = {"stand":"2026-09-28","bund":{"quelle":"https://de.wikipedia.org/wiki/Deutscher_Bundestag","gesamt":630,"regierung":{"cab":"Kabinett Merz","sitze":328},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":120,"gru":85,"cdu":208,"afd":150,"lin":64,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}}};
+  var SITZE = {"stand":"2026-09-28","bund":{"quelle":"https://de.wikipedia.org/wiki/Deutscher_Bundestag","gesamt":630,"regierung":{"cab":"Kabinett Merz","sitze":328,"parteien":["cdu","spd"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":120,"gru":85,"cdu":208,"afd":150,"lin":64,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}}};
   var G = GOV.kabinette.map(function (g) {
     return {
       name: g.name, cab: g.cab, title: g.title, who: g.who, wp: g.wp, from: g.from, to: g.to || OPEN_END,

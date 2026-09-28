@@ -139,7 +139,7 @@ def parse_one(title: str, text: str, canonical: str, gov_source: dict) -> dict:
     return {
         "quelle": "https://de.wikipedia.org/wiki/" + urllib.parse.quote(canonical.replace(" ", "_")),
         "gesamt": sum(seats.values()),
-        "regierung": {"cab": cab_name, "sitze": stated_total},
+        "regierung": {"cab": cab_name, "sitze": stated_total, "parteien": coalition},
         "reihenfolge": order,
         "sitze": seats,
         "parteien": registry,

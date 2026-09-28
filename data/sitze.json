@@ -5,7 +5,8 @@
   "gesamt": 630,
   "regierung": {
    "cab": "Kabinett Merz",
-   "sitze": 328
+   "sitze": 328,
+   "parteien": ["cdu", "spd"]
   },
   "reihenfolge": ["lin", "spd", "gru", "cdu", "afd", "x-sonst"],
   "sitze": {
@@ -26,7 +27,8 @@
    "gesamt": 157,
    "regierung": {
     "cab": "Kabinett Özdemir",
-    "sitze": 112
+    "sitze": 112,
+    "parteien": ["gru", "cdu"]
    },
    "reihenfolge": ["spd", "gru", "cdu", "afd"],
    "sitze": {
@@ -42,7 +44,8 @@
    "gesamt": 203,
    "regierung": {
     "cab": "Kabinett Söder III",
-    "sitze": 122
+    "sitze": 122,
+    "parteien": ["cdu", "fw"]
    },
    "reihenfolge": ["spd", "gru", "fw", "cdu", "afd"],
    "sitze": {
@@ -59,7 +62,8 @@
    "gesamt": 159,
    "regierung": {
     "cab": "Senat Wegner",
-    "sitze": 88
+    "sitze": 88,
+    "parteien": ["cdu", "spd"]
    },
    "reihenfolge": ["lin", "spd", "gru", "cdu", "afd", "x-sonst"],
    "sitze": {
@@ -79,7 +83,8 @@
    "gesamt": 88,
    "regierung": {
     "cab": "Kabinett Woidke V",
-    "sitze": 46
+    "sitze": 46,
+    "parteien": ["spd", "cdu"]
    },
    "reihenfolge": ["bsw", "spd", "cdu", "afd", "x-unabh"],
    "sitze": {
@@ -98,7 +103,8 @@
    "gesamt": 87,
    "regierung": {
     "cab": "Senat Bovenschulte II",
-    "sitze": 48
+    "sitze": 48,
+    "parteien": ["spd", "gru", "lin"]
    },
    "reihenfolge": ["lin", "spd", "gru", "fdp", "cdu", "x-bbb", "x-biw", "x-sonst"],
    "sitze": {
@@ -122,7 +128,8 @@
    "gesamt": 121,
    "regierung": {
     "cab": "Senat Tschentscher III",
-    "sitze": 70
+    "sitze": 70,
+    "parteien": ["spd", "gru"]
    },
    "reihenfolge": ["lin", "spd", "gru", "cdu", "afd", "x-sonst"],
    "sitze": {
@@ -142,7 +149,8 @@
    "gesamt": 133,
    "regierung": {
     "cab": "Kabinett Rhein II",
-    "sitze": 75
+    "sitze": 75,
+    "parteien": ["cdu", "spd"]
    },
    "reihenfolge": ["spd", "gru", "fdp", "cdu", "afd", "x-sonst"],
    "sitze": {
@@ -162,7 +170,8 @@
    "gesamt": 79,
    "regierung": {
     "cab": "Kabinett Schwesig II",
-    "sitze": 43
+    "sitze": 43,
+    "parteien": ["spd", "lin"]
    },
    "reihenfolge": ["lin", "spd", "gru", "cdu", "fdp", "afd", "x-sonst"],
    "sitze": {
@@ -183,7 +192,8 @@
    "gesamt": 146,
    "regierung": {
     "cab": "Kabinett Lies",
-    "sitze": 81
+    "sitze": 81,
+    "parteien": ["spd", "gru"]
    },
    "reihenfolge": ["spd", "gru", "cdu", "afd", "x-sonst"],
    "sitze": {
@@ -202,7 +212,8 @@
    "gesamt": 195,
    "regierung": {
     "cab": "Kabinett Wüst II",
-    "sitze": 115
+    "sitze": 115,
+    "parteien": ["cdu", "gru"]
    },
    "reihenfolge": ["spd", "gru", "fdp", "cdu", "afd"],
    "sitze": {
@@ -219,7 +230,8 @@
    "gesamt": 105,
    "regierung": {
     "cab": "Kabinett Schnieder",
-    "sitze": 71
+    "sitze": 71,
+    "parteien": ["cdu", "spd"]
    },
    "reihenfolge": ["spd", "gru", "cdu", "afd", "x-sonst"],
    "sitze": {
@@ -238,7 +250,8 @@
    "gesamt": 51,
    "regierung": {
     "cab": "Kabinett Rehlinger",
-    "sitze": 29
+    "sitze": 29,
+    "parteien": ["spd"]
    },
    "reihenfolge": ["spd", "cdu", "afd"],
    "sitze": {
@@ -253,7 +266,8 @@
    "gesamt": 120,
    "regierung": {
     "cab": "Kabinett Kretschmer III",
-    "sitze": 51
+    "sitze": 51,
+    "parteien": ["cdu", "spd"]
    },
    "reihenfolge": ["lin", "bsw", "spd", "gru", "x-sonst", "cdu", "afd"],
    "sitze": {
@@ -274,7 +288,8 @@
    "gesamt": 97,
    "regierung": {
     "cab": "Kabinett Schulze",
-    "sitze": 56
+    "sitze": 56,
+    "parteien": ["cdu", "spd", "fdp"]
    },
    "reihenfolge": ["lin", "gru", "spd", "cdu", "fdp", "afd", "x-sonst"],
    "sitze": {
@@ -295,7 +310,8 @@
    "gesamt": 69,
    "regierung": {
     "cab": "Kabinett Günther II",
-    "sitze": 48
+    "sitze": 48,
+    "parteien": ["cdu", "gru"]
    },
    "reihenfolge": ["spd", "gru", "ssw", "fdp", "cdu"],
    "sitze": {
@@ -312,7 +328,8 @@
    "gesamt": 88,
    "regierung": {
     "cab": "Kabinett Voigt",
-    "sitze": 39
+    "sitze": 39,
+    "parteien": ["cdu", "spd", "x-th-ringen-gerecht"]
    },
    "reihenfolge": ["lin", "spd", "x-th-ringen-gerecht", "x-unabh", "cdu", "afd"],
    "sitze": {
