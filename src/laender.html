@@ -42,6 +42,15 @@
     <dl class="facts" id="gov-facts"></dl>
   </section>
 
+  <section class="card" aria-labelledby="seats-h">
+    <h2 id="seats-h">Sitzverteilung im Landtag</h2>
+    <p class="rangeinfo" id="seats-info"></p>
+    <div class="seats-wrap">
+      <div class="hemicycle" id="seats-chart" role="img" aria-label="Sitzverteilung als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
+      <ul class="seats-legend" id="seats-legend"></ul>
+    </div>
+  </section>
+
   <section class="card" aria-labelledby="ch-h">
     <div class="bar">
       <div>
@@ -83,6 +92,7 @@
   /*COMMON_JS*/
   var LAENDER = /*LAENDER*/[];
   var GOV = /*GOV*/{};
+  var SITZE = /*SITZE*/{};
 
   var DAY = 86400000, OPEN_END = "2100-01-01";
   // Dargestellte Parteien in der Reihenfolge der Spalten 6 bis 14 jeder Zeile; danach SSW, NPD, BIW, Sonstige
@@ -95,7 +105,7 @@
 
   function partyName(k) {
     if (k === "cdu") return S.union;
-    return LABEL[k] || (GOV.parteien && GOV.parteien[k]) || k;
+    return LABEL[k] || (GOV.parteien && GOV.parteien[k]) || (S.seats && S.seats.parteien && S.seats.parteien[k]) || k;
   }
   function coalText(co) { return co.map(partyName).join(" + "); }
 
@@ -126,7 +136,7 @@
       rows: rows, polls: polls, elections: rows.filter(function (r) { return r.el; }).map(function (r) { return r.t; }),
       first: rows[0].t, last: polls.length ? polls[polls.length - 1].t : rows[rows.length - 1].t,
       insts: Object.keys(instCount).sort(function (a, b) { return instCount[b] - instCount[a] || (a < b ? -1 : 1); }).map(function (k) { return { name: k, n: instCount[k] }; }),
-      G: G, chancellors: chancellors, gov: g
+      G: G, chancellors: chancellors, gov: g, seats: SITZE.laender && SITZE.laender[L.slug]
     };
   }
   var PREPARED = {};
@@ -691,6 +701,23 @@
     if (/^https:\/\//.test(GOV.quelle || "")) link.href = GOV.quelle;
   }
 
+  // "Landtagswahl"/"Bürgerschaftswahl" verlieren beim Abschneiden von "wahl" ein Fugen-s, das bei
+  // "Abgeordnetenhauswahl" aber zum Wortstamm gehört ("Haus") – deshalb eine feste Zuordnung statt Raten.
+  var CHAMBER = {
+    "Landtagswahl": { noun: "Landtag", prep: "im " }, "Bürgerschaftswahl": { noun: "Bürgerschaft", prep: "in der " },
+    "Abgeordnetenhauswahl": { noun: "Abgeordnetenhaus", prep: "im " }
+  };
+  function chamberName() {
+    var c = CHAMBER[S.wahl] || { noun: S.wahl.replace(/wahl$/, ""), prep: "im " };
+    return c.prep + c.noun;
+  }
+  function drawSeats() {
+    $("seats-h").textContent = "Sitzverteilung " + chamberName();
+    if (!S.seats) { $("seats-info").textContent = ""; $("seats-chart").textContent = ""; $("seats-legend").textContent = ""; return; }
+    var ph = S.G[S.G.length - 1].ph, govKeys = ph[ph.length - 1].co;
+    renderSeats($("seats-chart"), $("seats-legend"), $("seats-info"), S.seats, partyName, govKeys);
+  }
+
   function drawNote() {
     var trendNote = "Punkte: einzelne Umfragen, Linien: gewichteter gleitender Mittelwert (± " + TREND_DAYS + " Tage, innerhalb einer Wahlperiode; bei Lücken über " + GAP_DAYS + " Tage unterbrochen). ";
     var electionNote = "Verbindungslinien: nur die Wahlergebnisse selbst, keine Umfragen. ";
@@ -721,7 +748,7 @@
     buildSelects();
     state.range = q ? rangeFromQuery(q) : "all";
     $("land").value = slug;
-    buildLegend(); drawGovHero(); drawGovTable();
+    buildLegend(); drawGovHero(); drawSeats(); drawGovTable();
     syncControls(); writeHash(); update();
   }
 

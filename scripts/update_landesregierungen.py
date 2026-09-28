@@ -30,7 +30,8 @@ import sys
 import urllib.parse
 from pathlib import Path
 
-from wikitext import MONTHS, Mismatch, expand, first_link_name, german_date, infobox, parse_wikitable, plain, wikitext, wikitexts
+from wikitext import (MONTHS, PARTY_LABEL, Mismatch, expand, first_link_name, german_date, infobox, parse_wikitable,
+                       party_key, plain, wikitext, wikitexts)
 
 ROOT = Path(__file__).resolve().parent.parent
 JSON_PATH = ROOT / "data" / "landesregierungen.json"
@@ -49,43 +50,12 @@ LAENDER = [
     ("sachsen", "Sachsen", "Landtagswahl"), ("sachsen-anhalt", "Sachsen-Anhalt", "Landtagswahl"),
     ("schleswig-holstein", "Schleswig-Holstein", "Landtagswahl"), ("thueringen", "Thüringen", "Landtagswahl"),
 ]
-# Kürzel, die die Seite kennt, samt Anzeigename. Alle anderen Parteien erscheinen als "x-<name>" in "parteien".
-LABEL = {"cdu": "CDU", "spd": "SPD", "gru": "GRÜNE", "fdp": "FDP", "lin": "LINKE", "afd": "AfD", "bsw": "BSW",
-         "fw": "FW", "ssw": "SSW", "pir": "PIRATEN"}
 warnings: list = []
 
 
 def warn(message: str) -> None:
     warnings.append(message)
     print(("::warning::" if os.environ.get("GITHUB_ACTIONS") else "Warnung: ") + message, file=sys.stderr)
-
-
-# ---------- Parteien ----------
-def party_key(token: str, registry: dict) -> str:
-    t = token.strip().lower()
-    if re.fullmatch(r"cdu|csu|union", t):
-        return "cdu"
-    if t == "spd":
-        return "spd"
-    if "grün" in t or t in ("gal", "al", "b’90/grüne", "b'90/grüne") or t.startswith("bündnis 90"):
-        return "gru"
-    if "fdp" in t or t in ("dps", "fdp/dps", "fdp/dvp"):
-        return "fdp"
-    if "linke" in t or "pds" in t:
-        return "lin"
-    if t == "afd":
-        return "afd"
-    if t == "bsw":
-        return "bsw"
-    if t in ("fw", "freie wähler", "bvb/fw") or t.startswith("freie wähler"):
-        return "fw"
-    if t == "ssw":
-        return "ssw"
-    if "piraten" in t:
-        return "pir"
-    key = "x-" + re.sub(r"[^a-z0-9]+", "-", t).strip("-")
-    registry[key] = token.strip()
-    return key
 
 
 def split_parties(text: str, registry: dict) -> list:
@@ -127,7 +97,7 @@ def coalition_phases(raw: str, start: str, end, title: str, registry: dict) -> l
             raise Mismatch("%s: Koalitionswechsel nicht lesbar: %s" % (title, plain(raw)))
         phases = [{"from": start, "to": boundary, "co": keys, "coalition": coalition, "nm": None},
                   {"from": boundary, "to": end, "co": rest, "coalition": coalition,
-                   "nm": "ohne " + " und ".join(LABEL.get(k) or registry[k] for k in keys if k in left)}]
+                   "nm": "ohne " + " und ".join(PARTY_LABEL.get(k) or registry[k] for k in keys if k in left)}]
     return phases
 
 

@@ -27,6 +27,7 @@ jobs:
       regierung: ${{ steps.regierung.outcome }}
       landtage: ${{ steps.landtage.outcome }}
       landesregierungen: ${{ steps.landesregierungen.outcome }}
+      sitze: ${{ steps.sitze.outcome }}
     steps:
       - uses: actions/checkout@v7
 
@@ -55,6 +56,12 @@ jobs:
         id: landesregierungen
         continue-on-error: true
         run: python scripts/update_landesregierungen.py
+
+      # Braucht aktuelle Regierungsdaten (die beiden Schritte oben) zum Gegenprüfen, läuft deshalb danach.
+      - name: Sitzverteilung aus Wikipedia abrufen
+        id: sitze
+        continue-on-error: true
+        run: python scripts/update_sitze.py
 
       - name: Seiten bauen
         run: python scripts/build_site.py
@@ -89,13 +96,14 @@ jobs:
 
   daten-fehler:
     needs: build
-    if: needs.build.outputs.regierung == 'failure' || needs.build.outputs.landtage == 'failure' || needs.build.outputs.landesregierungen == 'failure'
+    if: needs.build.outputs.regierung == 'failure' || needs.build.outputs.landtage == 'failure' || needs.build.outputs.landesregierungen == 'failure' || needs.build.outputs.sitze == 'failure'
     runs-on: ubuntu-latest
     steps:
       - env:
           REGIERUNG: ${{ needs.build.outputs.regierung }}
           LANDTAGE: ${{ needs.build.outputs.landtage }}
           LANDESREGIERUNGEN: ${{ needs.build.outputs.landesregierungen }}
+          SITZE: ${{ needs.build.outputs.sitze }}
         run: |
-          echo "::error::Nicht alle Daten konnten aktualisiert werden (Bundesregierung: $REGIERUNG, Landtagsumfragen: $LANDTAGE, Landesregierungen: $LANDESREGIERUNGEN). Details stehen in den Schritten des Jobs 'build'. Veröffentlicht wurde mit den zuletzt gültigen Daten."
+          echo "::error::Nicht alle Daten konnten aktualisiert werden (Bundesregierung: $REGIERUNG, Landtagsumfragen: $LANDTAGE, Landesregierungen: $LANDESREGIERUNGEN, Sitzverteilung: $SITZE). Details stehen in den Schritten des Jobs 'build'. Veröffentlicht wurde mit den zuletzt gültigen Daten."
           exit 1

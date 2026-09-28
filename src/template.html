@@ -29,6 +29,15 @@
     <dl class="facts" id="gov-facts"></dl>
   </section>
 
+  <section class="card" aria-labelledby="seats-h">
+    <h2 id="seats-h">Sitzverteilung im Bundestag</h2>
+    <p class="rangeinfo" id="seats-info"></p>
+    <div class="seats-wrap">
+      <div class="hemicycle" id="seats-chart" role="img" aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
+      <ul class="seats-legend" id="seats-legend"></ul>
+    </div>
+  </section>
+
   <section class="card" aria-labelledby="ch-h">
     <div class="bar">
       <div>
@@ -79,6 +88,7 @@
 
   var OPEN_END = "2100-01-01"; // laufende Amtszeit (in der JSON: to = null)
   var GOV = /*GOV*/{};
+  var SITZE = /*SITZE*/{};
   var G = GOV.kabinette.map(function (g) {
     return {
       name: g.name, cab: g.cab, title: g.title, who: g.who, wp: g.wp, from: g.from, to: g.to || OPEN_END,
@@ -563,6 +573,15 @@
     if (/^https:\/\//.test(GOV.quelle || "")) link.href = GOV.quelle;
   }
 
+  function seatPartyName(k) {
+    return (PBY[k] && PBY[k].n) || (SITZE.bund && SITZE.bund.parteien && SITZE.bund.parteien[k]) || k;
+  }
+  function drawSeats() {
+    if (!SITZE.bund) return; // z. B. während eines lokalen Testbaus ohne data/sitze.json
+    var govKeys = G[G.length - 1].ph[G[G.length - 1].ph.length - 1].co;
+    renderSeats($("seats-chart"), $("seats-legend"), $("seats-info"), SITZE.bund, seatPartyName, govKeys);
+  }
+
   function bswNote() {
     var rows = DATA.filter(function (d) { return d.v[6] != null && !d.el; });
     if (!rows.length) return "";
@@ -586,7 +605,7 @@
   }
 
   buildSelect();
-  buildLegend(); drawGovHero(); drawGovTable(); drawNote();
+  buildLegend(); drawGovHero(); drawSeats(); drawGovTable(); drawNote();
   var q0 = parseHash();
   state.kind = kindFromQuery(q0);
   seg($("kinds"), KINDS, "kind");

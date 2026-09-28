@@ -4,19 +4,22 @@ Interaktive Grafiken zum Verlauf der Sonntagsfrage: im ZDF-Politbarometer (Forsc
 
 **Live:** https://mlorenz42.github.io/politbarometer/ (Bundestag) und https://mlorenz42.github.io/politbarometer/laender.html (Bundesländer)
 
-**Bundestag:** CDU/CSU, SPD, Grüne, FDP, Linke (früher PDS), AfD und BSW im Politbarometer der Forschungsgruppe Wahlen seit 1998, dazu die Ergebnisse der Bundestagswahlen, die 5-%-Hürde und die jeweilige Bundesregierung. Zeiträume und Parteien lassen sich umschalten, alle Werte gibt es auch als Tabelle. Der Verlauf lässt sich auf „Seit <Jahr>“ in 5-Jahres-Schritten (Schaltflächen für 2010 und 2020, alle Schritte in der Auswahlliste), seit einer beliebigen Bundestagswahl, auf ein einzelnes Kabinett (z. B. „Kabinett Scholz“) oder eine Kanzlerschaft über mehrere Kabinette (z. B. Angela Merkel) eingrenzen, entweder über die Auswahlliste oder per Klick auf das Regierungsband über dem Diagramm. Unter der Überschrift zeigen die Parteien-Schaltflächen für den gewählten Zeitraum den Stand der letzten Umfrage und die Veränderung seit der ersten Umfrage in Prozentpunkten (bei „Seit der Bundestagswahl …“ gegenüber dem Wahlergebnis). Ohne Vergleichswert steht „–“, etwa bei der AfD in einem Zeitraum, der vor ihrer Gründung beginnt. Zusätzlich lässt sich die Art der Daten auf „Nur Umfragen“ oder „Nur Wahlergebnisse“ eingrenzen; Letzteres verbindet nur die acht Bundestagswahl-Ergebnisse zu einer Linie über die ganze Zeitspanne. Die Auswahl steht in der Adresse und lässt sich teilen, etwa `https://mlorenz42.github.io/politbarometer/#wahl=2025`, `#kabinett=Scholz`, `#zeitraum=y2010`, `#kanzlerschaft=Angela%20Merkel` oder `#art=wahlergebnisse`.
+**Bundestag:** CDU/CSU, SPD, Grüne, FDP, Linke (früher PDS), AfD und BSW im Politbarometer der Forschungsgruppe Wahlen seit 1998, dazu die Ergebnisse der Bundestagswahlen, die 5-%-Hürde, die jeweilige Bundesregierung und die aktuelle Sitzverteilung im Bundestag als Halbkreisdiagramm. Zeiträume und Parteien lassen sich umschalten, alle Werte gibt es auch als Tabelle. Der Verlauf lässt sich auf „Seit <Jahr>“ in 5-Jahres-Schritten (Schaltflächen für 2010 und 2020, alle Schritte in der Auswahlliste), seit einer beliebigen Bundestagswahl, auf ein einzelnes Kabinett (z. B. „Kabinett Scholz“) oder eine Kanzlerschaft über mehrere Kabinette (z. B. Angela Merkel) eingrenzen, entweder über die Auswahlliste oder per Klick auf das Regierungsband über dem Diagramm. Unter der Überschrift zeigen die Parteien-Schaltflächen für den gewählten Zeitraum den Stand der letzten Umfrage und die Veränderung seit der ersten Umfrage in Prozentpunkten (bei „Seit der Bundestagswahl …“ gegenüber dem Wahlergebnis). Ohne Vergleichswert steht „–“, etwa bei der AfD in einem Zeitraum, der vor ihrer Gründung beginnt. Zusätzlich lässt sich die Art der Daten auf „Nur Umfragen“ oder „Nur Wahlergebnisse“ eingrenzen; Letzteres verbindet nur die acht Bundestagswahl-Ergebnisse zu einer Linie über die ganze Zeitspanne. Die Auswahl steht in der Adresse und lässt sich teilen, etwa `https://mlorenz42.github.io/politbarometer/#wahl=2025`, `#kabinett=Scholz`, `#zeitraum=y2010`, `#kanzlerschaft=Angela%20Merkel` oder `#art=wahlergebnisse`.
 
-**Bundesländer:** Sonntagsfrage zu den Landtagswahlen aller 16 Länder. Man wählt das Land (Standard ist das mit der jüngsten Umfrage), sieht die aktuelle Landesregierung samt Regierungschef, den nächsten Wahltermin und den Verlauf. Weil hier viele Institute befragen, zeigt das Diagramm jede Umfrage als Punkt und darüber einen gewichteten gleitenden Mittelwert (± 45 Tage, getrennt je Wahlperiode, bei Lücken über 150 Tage unterbrochen). Filter: seit einer Wahl, Amtszeit eines Regierungschefs, einzelnes Kabinett, einzelnes Institut sowie „Nur Umfragen“ oder „Nur Wahlergebnisse“ (verbindet dann nur die Wahlergebnisse selbst, ohne Trend; der Institutsfilter ist in diesem Modus ausgegraut, weil Wahlergebnisse kein Institut haben). Die Schaltflächen der Parteien zeigen den Durchschnitt der jüngsten Umfragen und die Veränderung gegenüber dem Wahlergebnis bzw. den ersten Umfragen. Adressen wie `laender.html#land=bayern&wahl=2023&institut=INSA` oder `laender.html#land=bayern&art=wahlergebnisse`.
+**Bundesländer:** Sonntagsfrage zu den Landtagswahlen aller 16 Länder. Man wählt das Land (Standard ist das mit der jüngsten Umfrage), sieht die aktuelle Landesregierung samt Regierungschef, den nächsten Wahltermin, die aktuelle Sitzverteilung im Landtag (bzw. in der Bürgerschaft/im Abgeordnetenhaus) und den Verlauf. Weil hier viele Institute befragen, zeigt das Diagramm jede Umfrage als Punkt und darüber einen gewichteten gleitenden Mittelwert (± 45 Tage, getrennt je Wahlperiode, bei Lücken über 150 Tage unterbrochen). Filter: seit einer Wahl, Amtszeit eines Regierungschefs, einzelnes Kabinett, einzelnes Institut sowie „Nur Umfragen“ oder „Nur Wahlergebnisse“ (verbindet dann nur die Wahlergebnisse selbst, ohne Trend; der Institutsfilter ist in diesem Modus ausgegraut, weil Wahlergebnisse kein Institut haben). Die Schaltflächen der Parteien zeigen den Durchschnitt der jüngsten Umfragen und die Veränderung gegenüber dem Wahlergebnis bzw. den ersten Umfragen. Adressen wie `laender.html#land=bayern&wahl=2023&institut=INSA` oder `laender.html#land=bayern&art=wahlergebnisse`.
 
 ## So funktioniert es
 
 ```
-wahlrecht.de (Politbarometer) ─► scripts/update_data.py ─────────► data/politbarometer.csv ─┐
-Wikipedia (Bundesregierung) ───► scripts/update_regierungen.py ──► data/regierungen.json ───┼─► scripts/build_site.py ─► docs/index.html
-                                                                                            │
-wahlrecht.de (Landtage) ───────► scripts/update_landtage.py ─────► data/landtage.csv ───────┤   (Bundestag)
-                                                                  data/laender.json ────────┤
-Wikipedia (Ministerpräsidenten) ► scripts/update_landesregierungen.py ► data/landesregierungen.json ─► docs/laender.html
+wahlrecht.de (Politbarometer) ─► scripts/update_data.py ─────────► data/politbarometer.csv ──┐
+Wikipedia (Bundesregierung) ───► scripts/update_regierungen.py ──► data/regierungen.json ────┤
+                                                                                              │
+wahlrecht.de (Landtage) ───────► scripts/update_landtage.py ─────► data/landtage.csv ─────────┼─► scripts/build_site.py ─┬─► docs/index.html (Bundestag)
+                                                                  data/laender.json ──────────┤                        └─► docs/laender.html (Bundesländer)
+Wikipedia (Ministerpräsidenten) ► scripts/update_landesregierungen.py ► data/landesregierungen.json ┤
+                                                                                              │
+Wikipedia (Sitzverteilung, 17 Artikel) ► scripts/update_sitze.py ────► data/sitze.json ───────┘
+    (gleicht dabei die beiden Regierungsdateien ab, läuft deshalb nach ihnen)
 ```
 
 Die GitHub Action [`update.yml`](.github/workflows/update.yml) läuft jeden Montag, ruft die aktuelle Politbarometer-Seite, die 16 Länderseiten und die Wikipedia-Artikel ab, führt neue Umfragen in die CSV ein, baut die Seite neu und veröffentlicht sie. Gibt es keine neuen Daten, entsteht kein Commit. Sie lässt sich auch manuell starten (Actions-Tab, „Run workflow“) und läuft bei Änderungen an Skripten, Template oder Workflow.
@@ -42,6 +45,12 @@ Das Feld „Zuletzt“ (Kabinettsumbildung) ist eine Best-Effort-Ableitung aus d
 
 Die Grafik zeigt je Land bis zu acht Parteien mit mindestens 3,5 % in fünf oder mehr Umfragen. Kleine Parteien wie SSW, NPD oder BIW stehen nur in der Tabelle unter „Sonstige“ bzw. in `data/landtage.csv` (Spalten `SSW`, `NPD`, `BIW`, `weitere`).
 
+## Sitzverteilung
+
+Bundestag und jeder Landtag haben einen dauerhaften Wikipedia-Artikel („Deutscher Bundestag“, „Bayerischer Landtag“ …), der nach jeder Wahl aktualisiert wird und in seiner Infobox zwei zusammenhängende Angaben trägt: die Sitze je Partei (Vorlage `{{Sitzverteilung|…}}`, inklusive der von den Wikipedia-Autoren gewählten Reihenfolge im politischen Spektrum) und einen Link auf das amtierende Kabinett als „Regierung (n Sitze)“. `scripts/update_sitze.py` liest alle 17 Artikel in einer einzigen Anfrage, prüft das verlinkte Kabinett gegen `data/regierungen.json` bzw. `data/landesregierungen.json` (die deshalb vor diesem Skript aktuell sein müssen) und die Sitze seiner Koalitionsparteien gegen die genannte Zahl, und schreibt `data/sitze.json`. Scheitert das für den Bundestag oder eines der Länder, bricht der ganze Lauf ab und lässt die JSON unberührt – wie bei den anderen `update_*.py`-Skripten lieber gar nicht veröffentlichen als eine Datei mit teils veralteten Ständen.
+
+Auf beiden Seiten zeigt ein Halbkreisdiagramm die Sitze als einzelne Punkte, in Parteifarbe und von links nach rechts im politischen Spektrum angeordnet (Reihen und Sitze berühren sich, wie bei den bekannten Sitzverteilungsgrafiken). Regierungsparteien erscheinen in voller Farbe und mit der Markierung „Regierung“ in der Liste daneben, Oppositionsparteien blasser. Parteien, die die Grafik nicht kennt (z. B. „Unabh.“ oder lokale Kleinparteien), erscheinen grau, mit ihrem echten Namen in der Liste.
+
 ## Lokal ausprobieren
 
 Benötigt wird nur Python 3.9 oder neuer, keine weiteren Pakete.
@@ -52,6 +61,7 @@ python3 scripts/update_data.py --full   # zusätzlich alle Archivseiten 1998–2
 python3 scripts/update_regierungen.py   # Regierungsdaten aus Wikipedia (--dry-run zeigt nur die Änderungen)
 python3 scripts/update_landtage.py       # Landtagsumfragen (16 Seiten, dauert etwa eine halbe Minute)
 python3 scripts/update_landesregierungen.py   # Landesregierungen aus Wikipedia
+python3 scripts/update_sitze.py         # Sitzverteilung aus Wikipedia (läuft nach den beiden Regierungsdateien)
 python3 scripts/build_site.py           # docs/index.html und docs/laender.html neu erzeugen
 open docs/index.html
 ```
@@ -59,7 +69,7 @@ open docs/index.html
 ## Daten und Quellen
 
 - Umfragedaten: [wahlrecht.de](https://www.wahlrecht.de/umfragen/politbarometer.htm), Politbarometer der Forschungsgruppe Wahlen, und [Umfragen zu Landtagswahlen](https://www.wahlrecht.de/umfragen/landtage/) (mehrere Institute, jeweils mit Auftraggeber und Feldzeit). Wahlrecht.de ist ein ehrenamtlich betriebener Informationsdienst und nennt keine ausdrückliche Lizenz für die Daten. Bitte die Quelle nennen und die Originalseiten verlinken. Das Skript ruft nur eine Seite pro Lauf ab.
-- Regierungsdaten: deutschsprachige Wikipedia (Kabinettsartikel, Liste der deutschen Bundesregierungen und Liste der Ministerpräsidenten der deutschen Länder, [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/deed.de)).
+- Regierungsdaten und Sitzverteilung: deutschsprachige Wikipedia (Kabinettsartikel, Liste der deutschen Bundesregierungen, Liste der Ministerpräsidenten der deutschen Länder sowie die Artikel zu Bundestag und den 16 Landtagen, [CC BY-SA](https://creativecommons.org/licenses/by-sa/4.0/deed.de)).
 - Angegeben ist jeweils das Veröffentlichungsdatum der Umfrage. Die CSV enthält auch FW, PIRATEN und Sonstige, die Grafik zeigt sie nicht. Fehlt ein Wert, wurde die Partei in dieser Umfrage nicht einzeln ausgewiesen.
 
 Die Spalte `election` markiert Zeilen, die kein Umfragewert, sondern das Ergebnis einer Bundestagswahl sind.

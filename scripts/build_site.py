@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Baut docs/index.html aus src/template.html, data/politbarometer.csv und data/regierungen.json.
+"""Baut docs/index.html und docs/laender.html aus den src/-Vorlagen und den data/*.json/csv-Dateien
+(Umfragen, Regierungen, Landtagsumfragen, Landesregierungen, Sitzverteilung).
 
 Die Seite ist eigenständig (keine Nachladeanfragen): Umfragewerte und Regierungsdaten
 werden direkt ins HTML eingebettet. Die Ausgabe ist deterministisch, damit ein Lauf
@@ -43,6 +44,10 @@ def embed(obj) -> str:
     return json.dumps(obj, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
 
+def load_sitze() -> dict:
+    return json.loads((ROOT / "data" / "sitze.json").read_text(encoding="utf-8"))
+
+
 # ---------- Länderseite ----------
 # Reihenfolge der Werte je Umfrage: dargestellte Parteien, dann SSW, NPD, BIW, Sonstige
 LAND_PLOTTED = [("cdu", "CDU/CSU"), ("spd", "SPD"), ("gru", "GRÜNE"), ("fdp", "FDP"), ("lin", "LINKE"),
@@ -82,14 +87,16 @@ def load_landtage() -> tuple:
     return out, gov
 
 
-def build_laender() -> int:
+def build_laender(sitze: dict) -> int:
     laender, gov = load_landtage()
     template = (ROOT / "src" / "laender.html").read_text(encoding="utf-8")
-    for marker in ("/*LAENDER*/[]", "/*GOV*/{}", "/*COMMON_CSS*/", "/*COMMON_JS*/"):
+    for marker in ("/*LAENDER*/[]", "/*GOV*/{}", "/*SITZE*/{}", "/*COMMON_CSS*/", "/*COMMON_JS*/"):
         if template.count(marker) != 1:
             print("Platzhalter %s im Länder-Template nicht genau einmal vorhanden." % marker, file=sys.stderr)
             return 1
+    sitze_land = {"stand": sitze["stand"], "laender": sitze["laender"]}
     out = template.replace("/*LAENDER*/[]", embed(laender)).replace("/*GOV*/{}", embed(gov))
+    out = out.replace("/*SITZE*/{}", embed(sitze_land))
     out = out.replace("/*COMMON_CSS*/", (ROOT / "src" / "common.css").read_text(encoding="utf-8").rstrip("\n"))
     out = out.replace("/*COMMON_JS*/", (ROOT / "src" / "common.js").read_text(encoding="utf-8").rstrip("\n"))
     (ROOT / "docs" / "laender.html").write_text(out, encoding="utf-8")
@@ -103,19 +110,22 @@ def main() -> int:
         print("Nur %d Umfragezeilen, das sieht nicht plausibel aus." % len(rows), file=sys.stderr)
         return 1
     gov = json.loads((ROOT / "data" / "regierungen.json").read_text(encoding="utf-8"))
+    sitze = load_sitze()
     template = (ROOT / "src" / "template.html").read_text(encoding="utf-8")
-    for marker in ("/*DATA*/[]", "/*GOV*/{}"):
+    for marker in ("/*DATA*/[]", "/*GOV*/{}", "/*SITZE*/{}"):
         if template.count(marker) != 1:
             print("Platzhalter %s im Template nicht genau einmal vorhanden." % marker, file=sys.stderr)
             return 1
+    sitze_bund = {"stand": sitze["stand"], "bund": sitze["bund"]}
     out = template.replace("/*DATA*/[]", embed(rows)).replace("/*GOV*/{}", embed(gov))
+    out = out.replace("/*SITZE*/{}", embed(sitze_bund))
     out = out.replace("/*COMMON_CSS*/", (ROOT / "src" / "common.css").read_text(encoding="utf-8").rstrip("\n"))
     out = out.replace("/*COMMON_JS*/", (ROOT / "src" / "common.js").read_text(encoding="utf-8").rstrip("\n"))
     target = ROOT / "docs" / "index.html"
     target.parent.mkdir(exist_ok=True)
     target.write_text(out, encoding="utf-8")
     print("docs/index.html: %d Umfragezeilen, %d Kabinette, %d KB" % (len(rows), len(gov["kabinette"]), len(out) // 1024))
-    return build_laender()
+    return build_laender(sitze)
 
 
 if __name__ == "__main__":

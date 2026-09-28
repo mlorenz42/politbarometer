@@ -92,16 +92,79 @@ def german_date(s: str):
     return "%s-%02d-%02d" % (m.group(3), MONTHS.index(m.group(2)) + 1, int(m.group(1)))
 
 
-def infobox(text: str, title: str) -> dict:
-    m = re.search(r"\{\{Infobox Regierung[ \t]*\n(.*?)\n\}\}", text, re.S)
-    if not m:
-        raise Mismatch("%s: Infobox nicht gefunden" % title)
-    box = {}
-    for line in m.group(1).split("\n"):
+def template_body(text: str, name: str):
+    """Rohtext zwischen "{{name" und der zugehörigen schließenden "}}", klammertiefen-bewusst
+    (eine Infobox kann selbst weitere {{…}}-Vorlagen enthalten, die ebenfalls mit "}}" enden –
+    ein einfacher, nicht-gieriger Regex-Abschluss am ersten "}}" würde dort zu früh aufhören)."""
+    marker = "{{" + name
+    i = text.find(marker)
+    if i < 0:
+        return None
+    i += len(marker)
+    depth, j, n = 1, i, len(text)
+    while j < n and depth > 0:
+        two = text[j:j + 2]
+        if two == "{{":
+            depth += 1; j += 2
+        elif two == "}}":
+            depth -= 1; j += 2
+        else:
+            j += 1
+    return text[i:j - 2] if depth == 0 else None
+
+
+def infobox(text: str, title: str, name: str = "Infobox Regierung") -> dict:
+    """Feld -> Wert der obersten Ebene einer Infobox. Ein Feldwert darf über mehrere Zeilen gehen
+    (bis zur nächsten Zeile, die selbst mit "|…=" ein neues Feld beginnt); das deckt auch reinen
+    Fließtext wie ein "Sitzverteilung ="-Feld ab, dessen Wert erst in der Folgezeile beginnt."""
+    body = template_body(text, name)
+    if body is None:
+        raise Mismatch("%s: %s nicht gefunden" % (title, name))
+    box: dict = {}
+    key = None
+    for line in body.split("\n"):
         mm = re.match(r"\|[ \t]*([^=|]+?)[ \t]*=[ \t]*(.*)$", line)
         if mm:
-            box[mm.group(1)] = mm.group(2).strip()
-    return box
+            key = mm.group(1)
+            box[key] = mm.group(2)
+        elif key is not None:
+            box[key] += "\n" + line
+    return {k: v.strip() for k, v in box.items()}
+
+
+# ---------- Parteien ----------
+# Kürzel, die die Grafik kennt, samt Anzeigename. Alle anderen Parteien erhalten ein "x-<name>"-Kürzel
+# und werden in einer eigenen Registry gesammelt (grau dargestellt, siehe common.css ".p-x-*").
+PARTY_LABEL = {"cdu": "CDU", "spd": "SPD", "gru": "GRÜNE", "fdp": "FDP", "lin": "LINKE", "afd": "AfD",
+               "bsw": "BSW", "fw": "FW", "ssw": "SSW", "pir": "PIRATEN"}
+
+
+def party_key(token: str, registry: dict) -> str:
+    """Erkennt eine Partei aus ihrem (oft uneinheitlich geschriebenen) Namen in der Wikipedia."""
+    t = re.sub(r"\s*\([^)]*\)", "", token).strip().lower()  # Landeskürzel abstreifen, z. B. "FW(BY)" -> "fw"
+    if re.fullmatch(r"cdu|csu|union", t):
+        return "cdu"
+    if t == "spd":
+        return "spd"
+    if "grün" in t or t in ("gal", "al", "b’90/grüne", "b'90/grüne") or t.startswith("bündnis 90"):
+        return "gru"
+    if "fdp" in t or t in ("dps", "fdp/dps", "fdp/dvp"):
+        return "fdp"
+    if "linke" in t or "pds" in t:
+        return "lin"
+    if t == "afd":
+        return "afd"
+    if t == "bsw":
+        return "bsw"
+    if t in ("fw", "freie wähler", "bvb/fw") or t.startswith("freie wähler"):
+        return "fw"
+    if t == "ssw":
+        return "ssw"
+    if "piraten" in t:
+        return "pir"
+    key = "x-" + re.sub(r"[^a-z0-9]+", "-", t).strip("-")
+    registry[key] = token.strip()
+    return key
 
 
 def split_top(s: str, seps: tuple) -> list:
