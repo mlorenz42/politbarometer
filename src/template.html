@@ -38,6 +38,7 @@
       <div class="ctrls">
         <div class="seg" id="ranges" role="group" aria-label="Zeitraum"></div>
         <label class="sel"><span class="sr">Nach Jahr, Bundestagswahl, Kanzlerschaft oder Kabinett filtern</span><select id="cabinet"></select></label>
+        <div class="seg" id="kinds" role="group" aria-label="Art der Daten"></div>
         <div class="seg" id="views" role="group" aria-label="Ansicht"></div>
       </div>
     </div>
@@ -94,7 +95,8 @@
   for (var yr = Math.floor(FIRST_YEAR / 5) * 5 + 5; yr < LAST_YEAR; yr += 5) YEAR_STEPS.push(yr);
   var RANGES = [{ id: "all", label: "Alles" }].concat(YEAR_STEPS.filter(function (y) { return y % 10 === 0 && y >= FIRST_YEAR + 5; })
     .map(function (y) { return { id: "y" + y, label: "Seit " + y }; }));
-  var state = { range: "all", view: "chart", on: {}, active: null, strip: null };
+  var KINDS = [{ id: "all", label: "Alle" }, { id: "poll", label: "Nur Umfragen" }, { id: "election", label: "Nur Wahlergebnisse" }];
+  var state = { range: "all", kind: "all", view: "chart", on: {}, active: null, strip: null };
   var CHANCELLORS = []; // aufeinanderfolgende Kabinette desselben Kanzlers
   G.forEach(function (g, i) {
     var last = CHANCELLORS[CHANCELLORS.length - 1];
@@ -115,6 +117,7 @@
       b.setAttribute("aria-pressed", state[key] === it.id ? "true" : "false");
       b.addEventListener("click", function () {
         if (key === "range") { setRange(it.id); return; }
+        if (key === "kind") { setKind(it.id); return; }
         state[key] = it.id; state.active = null; state.strip = null;
         seg(container, items, key); update();
       });
@@ -170,22 +173,33 @@
     s.addEventListener("change", function () { setRange(s.value || "all"); });
   }
 
-  function rangeToHash(id) {
-    var m = /^(cab|kz|wahl):(\d+)$/.exec(id);
-    if (m && m[1] === "wahl") return "#wahl=" + yearOf(ELECTIONS[+m[2]]);
-    if (m && m[1] === "cab") return "#kabinett=" + encodeURIComponent(G[+m[2]].name);
-    if (m && m[1] === "kz") return "#kanzlerschaft=" + encodeURIComponent(CHANCELLORS[+m[2]].who);
-    return id === "all" ? "" : "#zeitraum=" + id;
+  // Adresse trägt Zeitraum und Art nebeneinander, z. B. "#kabinett=Scholz&art=wahlergebnisse"
+  function hashOf() {
+    var parts = [], m = /^(cab|kz|wahl):(\d+)$/.exec(state.range);
+    if (m && m[1] === "wahl") parts.push("wahl=" + yearOf(ELECTIONS[+m[2]]));
+    else if (m && m[1] === "cab") parts.push("kabinett=" + encodeURIComponent(G[+m[2]].name));
+    else if (m && m[1] === "kz") parts.push("kanzlerschaft=" + encodeURIComponent(CHANCELLORS[+m[2]].who));
+    else if (state.range !== "all") parts.push("zeitraum=" + state.range);
+    if (state.kind !== "all") parts.push("art=" + (state.kind === "poll" ? "umfragen" : "wahlergebnisse"));
+    return parts.length ? "#" + parts.join("&") : "";
   }
-  function hashToRange() {
-    var m = /^#(kabinett|kanzlerschaft|zeitraum|wahl)=(.+)$/.exec(location.hash);
-    if (!m) return "all";
-    var v = decodeURIComponent(m[2]), i;
-    if (m[1] === "zeitraum") return YEAR_STEPS.some(function (y) { return "y" + y === v; }) ? v : "all";
-    if (m[1] === "wahl") { for (i = 0; i < ELECTIONS.length; i++) if (String(yearOf(ELECTIONS[i])) === v) return "wahl:" + i; }
-    else if (m[1] === "kabinett") { for (i = 0; i < G.length; i++) if (G[i].name === v) return "cab:" + i; }
-    else { for (i = 0; i < CHANCELLORS.length; i++) if (CHANCELLORS[i].who === v && CHANCELLORS[i].to > CHANCELLORS[i].from) return "kz:" + i; }
-    return "all";
+  function writeHash() {
+    try { history.replaceState(null, "", location.pathname + location.search + hashOf()); } catch (e) { /* z. B. file:// oder eingebettet */ }
+  }
+  function parseHash() {
+    var q = {};
+    location.hash.replace(/^#/, "").split("&").forEach(function (kv) { var a = kv.split("="); if (a[0]) q[a[0]] = decodeURIComponent(a.slice(1).join("=")); });
+    return q;
+  }
+  function rangeFromQuery(q) {
+    var i;
+    if (q.kabinett) for (i = 0; i < G.length; i++) if (G[i].name === q.kabinett) return "cab:" + i;
+    if (q.kanzlerschaft) for (i = 0; i < CHANCELLORS.length; i++) if (CHANCELLORS[i].who === q.kanzlerschaft && CHANCELLORS[i].to > CHANCELLORS[i].from) return "kz:" + i;
+    if (q.wahl) for (i = 0; i < ELECTIONS.length; i++) if (String(yearOf(ELECTIONS[i])) === q.wahl) return "wahl:" + i;
+    return YEAR_STEPS.some(function (y) { return "y" + y === q.zeitraum; }) ? q.zeitraum : "all";
+  }
+  function kindFromQuery(q) {
+    return q.art === "umfragen" ? "poll" : q.art === "wahlergebnisse" ? "election" : "all";
   }
 
   function setRange(id) {
@@ -193,7 +207,13 @@
     seg($("ranges"), RANGES, "range");
     // Voreinstellungen mit eigener Schaltfläche werden dort hervorgehoben, nicht in der Auswahlliste
     var s = $("cabinet"); s.value = /^(cab|kz|wahl|y\d{4})/.test(id) && !RANGES.some(function (r) { return r.id === id; }) ? id : ""; s.className = s.value ? "on" : "";
-    try { history.replaceState(null, "", location.pathname + location.search + rangeToHash(id)); } catch (e) { /* z. B. file:// oder eingebettet */ }
+    writeHash();
+    update();
+  }
+  function setKind(id) {
+    state.kind = id; state.active = null; state.strip = null;
+    seg($("kinds"), KINDS, "kind");
+    writeHash();
     update();
   }
 
@@ -214,7 +234,7 @@
   function updateLegend(rows) {
     if (!rows.length) return;
     var first = rows[0], last = rows[rows.length - 1];
-    legendLabel.textContent = "Letzte Umfrage " + dateLbl(last) + " · Veränderung seit " + dateLbl(first) + " in Prozentpunkten";
+    legendLabel.textContent = "Letzter Wert " + dateLbl(last) + " · Veränderung seit " + dateLbl(first) + " in Prozentpunkten";
     P.forEach(function (p, i) {
       var a = pick(rows, i, false), b = pick(rows, i, true), ref = legendRefs[i], title;
       ref.v.textContent = b ? pct(b.v) : "–";
@@ -265,7 +285,10 @@
   var view = null;
   function rangeRows() {
     var rd = rangeDef();
-    return DATA.filter(function (d) { return d.t >= rd.tmin && d.t <= rd.tmax; });
+    var rows = DATA.filter(function (d) { return d.t >= rd.tmin && d.t <= rd.tmax; });
+    if (state.kind === "poll") return rows.filter(function (d) { return !d.el; });
+    if (state.kind === "election") return rows.filter(function (d) { return d.el; });
+    return rows;
   }
   function drawChart() {
     var box = $("chart");
@@ -328,6 +351,9 @@
     });
 
     // Linien
+    if (!rows.length) {
+      el("text", { x: (x0 + x1) / 2, y: (y0 + y1) / 2, "text-anchor": "middle", style: "fill:var(--ink2);font-size:14px" }, svg, "Keine Daten im gewählten Zeitraum");
+    }
     var ends = [];
     P.forEach(function (p, pi) {
       if (!state.on[p.k]) return;
@@ -552,7 +578,8 @@
     seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
     var isChart = state.view === "chart";
     var rows = rangeRows();
-    $("rangeinfo").textContent = rangeDef().info + " · " + rows.filter(function (d) { return !d.el; }).length + " Umfragen";
+    var count = state.kind === "election" ? rows.length + " Wahlergebnisse" : rows.filter(function (d) { return !d.el; }).length + " Umfragen";
+    $("rangeinfo").textContent = rangeDef().info + " · " + count;
     updateLegend(rows);
     $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
     if (isChart) drawChart(); else drawTable();
@@ -560,7 +587,10 @@
 
   buildSelect();
   buildLegend(); drawGovHero(); drawGovTable(); drawNote();
-  setRange(hashToRange());
+  var q0 = parseHash();
+  state.kind = kindFromQuery(q0);
+  seg($("kinds"), KINDS, "kind");
+  setRange(rangeFromQuery(q0));
   var lastW = 0;
   if (window.ResizeObserver) {
     new ResizeObserver(function (en) {

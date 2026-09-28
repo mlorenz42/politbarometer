@@ -51,6 +51,7 @@
       <div class="ctrls">
         <div class="seg" id="ranges" role="group" aria-label="Zeitraum"></div>
         <label class="sel"><span class="sr">Seit einer Wahl, nach Amtszeit oder nach Kabinett filtern</span><select id="cabinet"></select></label>
+        <div class="seg" id="kinds" role="group" aria-label="Art der Daten"></div>
         <label class="sel inst"><span class="sr">Nach Umfrageinstitut filtern</span><select id="inst"></select></label>
         <div class="seg" id="views" role="group" aria-label="Ansicht"></div>
       </div>
@@ -88,7 +89,8 @@
   var PK = ["cdu", "spd", "gru", "fdp", "lin", "afd", "bsw", "fw", "pir"];
   var LABEL = { cdu: "CDU", spd: "SPD", gru: "GRÜNE", fdp: "FDP", lin: "LINKE", afd: "AfD", bsw: "BSW", fw: "FW", pir: "PIRATEN", ssw: "SSW" };
   var TREND_DAYS = 45, GAP_DAYS = 150;
-  var state = { land: null, range: "all", inst: "", view: "chart", on: {}, active: null, strip: null };
+  var state = { land: null, range: "all", kind: "all", inst: "", view: "chart", on: {}, active: null, strip: null };
+  function kindsList() { return [{ id: "all", label: "Alle" }, { id: "poll", label: "Nur Umfragen" }, { id: "election", label: "Nur " + S.wahl + "ergebnisse" }]; }
   var S = null, view = null, trendCache = {};
 
   function partyName(k) {
@@ -162,7 +164,10 @@
   }
   function rangeRows() {
     var rd = rangeDef();
-    return S.rows.filter(function (d) { return d.t >= rd.tmin && d.t <= rd.tmax && (d.el || !state.inst || d.inst === state.inst); });
+    var rows = S.rows.filter(function (d) { return d.t >= rd.tmin && d.t <= rd.tmax && (d.el || !state.inst || d.inst === state.inst); });
+    if (state.kind === "poll") return rows.filter(function (d) { return !d.el; });
+    if (state.kind === "election") return rows.filter(function (d) { return d.el; });
+    return rows;
   }
 
   function buildSelects() {
@@ -193,6 +198,7 @@
     else if (m && m[1] === "wahl") parts.push("wahl=" + yearOf(S.elections[+m[2]]));
     else if (state.range !== "all") parts.push("zeitraum=" + state.range);
     if (state.inst) parts.push("institut=" + encodeURIComponent(state.inst));
+    if (state.kind !== "all") parts.push("art=" + (state.kind === "poll" ? "umfragen" : "wahlergebnisse"));
     return "#" + parts.join("&");
   }
   function applyHash() {
@@ -208,6 +214,9 @@
     if (q.wahl) for (i = 0; i < S.elections.length; i++) if (String(yearOf(S.elections[i])) === q.wahl) return "wahl:" + i;
     return q.zeitraum === "last" ? "last" : "all";
   }
+  function kindFromQuery(q) {
+    return q && q.art === "umfragen" ? "poll" : q && q.art === "wahlergebnisse" ? "election" : "all";
+  }
   function defaultLand() { // das Land mit der jüngsten Umfrage
     var best = LAENDER[0], bt = "";
     LAENDER.forEach(function (l) { var d = l.rows[0][0]; l.rows.forEach(function (r) { if (r[0] > d) d = r[0]; }); if (d > bt) { bt = d; best = l; } });
@@ -222,6 +231,7 @@
       b.setAttribute("aria-pressed", state[key] === it.id ? "true" : "false");
       b.addEventListener("click", function () {
         if (key === "range") { setRange(it.id); return; }
+        if (key === "kind") { setKind(it.id); return; }
         state[key] = it.id; state.active = null; state.strip = null;
         seg(container, items, key); update();
       });
@@ -231,10 +241,16 @@
     state.range = id; state.active = null; state.strip = null;
     syncControls(); writeHash(); update();
   }
+  function setKind(id) {
+    state.kind = id; state.active = null; state.strip = null;
+    syncControls(); writeHash(); update();
+  }
   function syncControls() {
     seg($("ranges"), RANGES, "range");
+    seg($("kinds"), kindsList(), "kind");
     var s = $("cabinet"); s.value = /^(cab|kz|wahl):/.test(state.range) ? state.range : ""; s.className = s.value ? "on" : "";
     var t = $("inst"); t.value = state.inst; t.className = state.inst ? "on" : "";
+    t.disabled = state.kind === "election"; // Wahlergebnisse haben kein Institut, der Filter wäre wirkungslos
   }
   function writeHash() { try { history.replaceState(null, "", location.pathname + location.search + hashOf()); } catch (e) { /* z. B. file:// */ } }
 
@@ -280,6 +296,15 @@
   }
   var numDe = function (x) { return String(x).replace(".", ","); };
   var range3 = function (a) { return fmt(a.t0) + (a.t1 !== a.t0 ? " – " + fmt(a.t1) : ""); };
+  // Nächstes Wahlergebnis mit Wert für Partei i, mit etwas Toleranz für Parteien, die noch nicht antraten (z. B. AfD vor 2013)
+  function pickRow(rows, i, fromEnd) {
+    var n = rows.length;
+    for (var k = 0; k < Math.min(3, n); k++) {
+      var r = rows[fromEnd ? n - 1 - k : k];
+      if (r.v[i] != null) return r;
+    }
+    return null;
+  }
 
   var legendLabel = null, legendRefs = {};
   function buildLegend() {
@@ -303,6 +328,36 @@
     var hu = h("span", "ring", lg); h("i", "hu", hu); h("span", "", hu, "5-%-Hürde");
   }
   function updateLegend(rows) {
+    if (state.kind === "election") {
+      if (!rows.length) {
+        legendLabel.textContent = "Keine " + S.wahl + "en im gewählten Zeitraum";
+        S.keys.forEach(function (k) { legendRefs[k].b.hidden = false; legendRefs[k].v.textContent = "–"; legendRefs[k].d.textContent = ""; legendRefs[k].b.title = partyName(k) + " ein- oder ausblenden"; });
+        return;
+      }
+      var lastR = rows[rows.length - 1], firstR = rows[0];
+      legendLabel.textContent = "Letztes Ergebnis " + fmt(lastR.t) + " · Veränderung seit " + fmt(firstR.t) + " in Prozentpunkten";
+      S.keys.forEach(function (k) {
+        var i = PK.indexOf(k), ref = legendRefs[k], b = pickRow(rows, i, true), a = pickRow(rows, i, false);
+        ref.b.hidden = !b;
+        ref.v.textContent = b ? pct(b.v[i]) : "–";
+        ref.d.textContent = "";
+        var title;
+        if (!b) title = partyName(k) + ": beim letzten Ergebnis nicht ausgewiesen.";
+        else if (!a || a.t >= b.t) {
+          h("span", "", ref.d, "–"); h("span", "sr", ref.d, " kein Vergleichswert");
+          title = partyName(k) + ": " + pct(b.v[i]) + " am " + fmt(b.t) + ". Kein Vergleichswert, die Partei wurde beim ersten Ergebnis im Zeitraum nicht ausgewiesen.";
+        } else {
+          var d = Math.round((b.v[i] - a.v[i]) * 10) / 10;
+          var text = d > 0 ? "+" + numDe(d) : d < 0 ? "−" + numDe(-d) : "±0";
+          h("span", "g", ref.d, d > 0 ? "▲" : d < 0 ? "▼" : "▪").setAttribute("aria-hidden", "true");
+          ref.d.appendChild(document.createTextNode(text));
+          h("span", "sr", ref.d, " Prozentpunkte");
+          title = partyName(k) + ": " + pct(b.v[i]) + " am " + fmt(b.t) + ", zuvor " + pct(a.v[i]) + " am " + fmt(a.t) + " (" + text + " Prozentpunkte).";
+        }
+        ref.b.title = title + " Klicken zum Ein- oder Ausblenden.";
+      });
+      return;
+    }
     var polls = rows.filter(function (r) { return !r.el; });
     if (!polls.length) {
       legendLabel.textContent = "Keine Umfragen im gewählten Zeitraum";
@@ -345,13 +400,15 @@
     var m = { t: 54, r: narrow ? 12 : 84, b: 30, l: narrow ? 36 : 44 };
     var x0 = m.l, x1 = W - m.r, y0 = m.t, y1 = H - m.b;
     var rd = rangeDef(), tmin = rd.tmin, tmax = Math.max(rd.tmax, rd.tmin + 30 * DAY);
+    var electionOnly = state.kind === "election";
     var polls = rows.filter(function (r) { return !r.el; });
+    var basis = electionOnly ? rows : polls; // welche Werte über "keys" (Legende/Tooltip) und die Leer-Prüfung entscheiden
     var vmax = 0;
     rows.forEach(function (d) { S.keys.forEach(function (k) { var v = d.v[PK.indexOf(k)]; if (v != null && v > vmax) vmax = v; }); });
     var ymax = Math.max(30, Math.ceil(vmax / 10) * 10);
     var X = function (t) { return x0 + (t - tmin) / (tmax - tmin) * (x1 - x0); };
     var Y = function (v) { return y1 - v / ymax * (y1 - y0); };
-    var keys = S.keys.filter(function (k) { return polls.some(function (p) { return p.v[PK.indexOf(k)] != null; }); });
+    var keys = S.keys.filter(function (k) { return basis.some(function (p) { return p.v[PK.indexOf(k)] != null; }); });
     view = { rows: rows, X: X, Y: Y, x0: x0, x1: x1, y0: y0, y1: y1, W: W, H: H, tmin: tmin, tmax: tmax, keys: keys };
     var old = box.querySelector("svg"); if (old) old.remove();
     var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
@@ -399,34 +456,43 @@
       });
     });
 
-    if (!polls.length) {
-      el("text", { x: (x0 + x1) / 2, y: (y0 + y1) / 2, "text-anchor": "middle", style: "fill:var(--ink2);font-size:14px" }, svg, "Keine Umfragen im gewählten Zeitraum");
+    if (!basis.length) {
+      el("text", { x: (x0 + x1) / 2, y: (y0 + y1) / 2, "text-anchor": "middle", style: "fill:var(--ink2);font-size:14px" }, svg,
+        electionOnly ? "Keine " + S.wahl + "en im gewählten Zeitraum" : "Keine Umfragen im gewählten Zeitraum");
       view.overlay = null; view.svg = svg; showTip(); return;
     }
 
-    // Einzelne Umfragen als Punkte (dezent), Trend als Linie
-    var trend = trendFor(), ends = [];
+    // Ohne Umfragen (nur Wahlergebnisse): die Ergebnisse direkt verbinden, kein Trend nötig.
+    // Sonst: einzelne Umfragen als Punkte (dezent), Trend als Linie.
+    var trend = electionOnly ? {} : trendFor(), ends = [];
     S.keys.forEach(function (k) {
       if (!state.on[k]) return;
-      var i = PK.indexOf(k), col = "var(--s-" + k + ")";
-      var dots = el("g", { style: "fill:" + col + ";opacity:.32" }, svg);
-      polls.forEach(function (p) { if (p.v[i] != null) el("circle", { cx: X(p.t).toFixed(1), cy: Y(p.v[i]).toFixed(1), r: 2.6 }, dots); });
-      var seg = [], last = null;
-      var flush = function () {
-        if (seg.length > 1) el("path", { d: "M" + seg.join("L"), fill: "none", style: "stroke:" + col + ";stroke-width:2;stroke-linejoin:round;stroke-linecap:round" }, svg);
-        else if (seg.length === 1) { var q = seg[0].split(" "); el("circle", { cx: q[0], cy: q[1], r: 2.5, style: "fill:" + col }, svg); }
-        seg = [];
-      };
-      (trend[k] || []).forEach(function (pt) {
-        if (pt.t < tmin || pt.t > tmax) return;
-        if (pt.brk) flush();
-        seg.push(X(pt.t).toFixed(1) + " " + Y(pt.v).toFixed(1)); last = pt;
-      });
-      flush();
+      var i = PK.indexOf(k), col = "var(--s-" + k + ")", lastT = null, lastV = null;
+      if (electionOnly) {
+        var pts = [];
+        rows.forEach(function (d) { if (d.v[i] != null) { pts.push(X(d.t).toFixed(1) + " " + Y(d.v[i]).toFixed(1)); lastT = d.t; lastV = d.v[i]; } });
+        if (pts.length > 1) el("path", { d: "M" + pts.join("L"), fill: "none", style: "stroke:" + col + ";stroke-width:2;stroke-linejoin:round;stroke-linecap:round" }, svg);
+        else if (pts.length === 1) { var q0 = pts[0].split(" "); el("circle", { cx: q0[0], cy: q0[1], r: 2.5, style: "fill:" + col }, svg); }
+      } else {
+        var dots = el("g", { style: "fill:" + col + ";opacity:.32" }, svg);
+        polls.forEach(function (p) { if (p.v[i] != null) el("circle", { cx: X(p.t).toFixed(1), cy: Y(p.v[i]).toFixed(1), r: 2.6 }, dots); });
+        var seg = [];
+        var flush = function () {
+          if (seg.length > 1) el("path", { d: "M" + seg.join("L"), fill: "none", style: "stroke:" + col + ";stroke-width:2;stroke-linejoin:round;stroke-linecap:round" }, svg);
+          else if (seg.length === 1) { var q = seg[0].split(" "); el("circle", { cx: q[0], cy: q[1], r: 2.5, style: "fill:" + col }, svg); }
+          seg = [];
+        };
+        (trend[k] || []).forEach(function (pt) {
+          if (pt.t < tmin || pt.t > tmax) return;
+          if (pt.brk) flush();
+          seg.push(X(pt.t).toFixed(1) + " " + Y(pt.v).toFixed(1)); lastT = pt.t; lastV = pt.v;
+        });
+        flush();
+      }
       rows.forEach(function (d) { if (d.el && d.v[i] != null) el("circle", { cx: X(d.t), cy: Y(d.v[i]), r: 4.5, style: "fill:" + col + ";stroke:var(--surface);stroke-width:2" }, svg); });
-      if (last) {
-        el("circle", { cx: X(last.t), cy: Y(last.v), r: 4, style: "fill:" + col + ";stroke:var(--surface);stroke-width:2" }, svg);
-        if (tmax - last.t < 120 * DAY) ends.push({ y: Y(last.v), n: partyName(k) });
+      if (lastT != null) {
+        el("circle", { cx: X(lastT), cy: Y(lastV), r: 4, style: "fill:" + col + ";stroke:var(--surface);stroke-width:2" }, svg);
+        if (tmax - lastT < 120 * DAY) ends.push({ y: Y(lastV), n: partyName(k) });
       }
     });
     if (!narrow) {
@@ -626,14 +692,20 @@
   }
 
   function drawNote() {
-    $("note").textContent = "Punkte: einzelne Umfragen, Linien: gewichteter gleitender Mittelwert (± " + TREND_DAYS + " Tage, innerhalb einer Wahlperiode; bei Lücken über " + GAP_DAYS + " Tage unterbrochen). Punkte mit Ring: Ergebnisse der " + S.wahl + "en. Nicht dargestellt sind kleine Parteien wie SSW, NPD oder BIW, sie stehen in der Tabelle unter „Sonstige“. Ein Strich bedeutet: nicht ausgewiesen.";
+    var trendNote = "Punkte: einzelne Umfragen, Linien: gewichteter gleitender Mittelwert (± " + TREND_DAYS + " Tage, innerhalb einer Wahlperiode; bei Lücken über " + GAP_DAYS + " Tage unterbrochen). ";
+    var electionNote = "Verbindungslinien: nur die Wahlergebnisse selbst, keine Umfragen. ";
+    $("note").textContent = (state.kind === "election" ? electionNote : state.kind === "poll" ? "" : trendNote) +
+      "Punkte mit Ring: Ergebnisse der " + S.wahl + "en. Nicht dargestellt sind kleine Parteien wie SSW, NPD oder BIW, sie stehen in der Tabelle unter „Sonstige“. Ein Strich bedeutet: nicht ausgewiesen.";
   }
 
   function update() {
     seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
-    var rows = rangeRows(), polls = rows.filter(function (d) { return !d.el; });
-    $("rangeinfo").textContent = rangeDef().info + " · " + polls.length + " Umfragen" + (state.inst ? " (" + state.inst + ")" : "");
+    var rows = rangeRows();
+    var count = state.kind === "election" ? rows.length + " " + S.wahl + "ergebnisse"
+      : rows.filter(function (d) { return !d.el; }).length + " Umfragen" + (state.inst ? " (" + state.inst + ")" : "");
+    $("rangeinfo").textContent = rangeDef().info + " · " + count;
     updateLegend(rows);
+    drawNote();
     var isChart = state.view === "chart";
     $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
     if (isChart) drawChart(rows); else drawTable(rows);
@@ -642,13 +714,14 @@
   function setLand(slug, q) {
     S = stateOf(slug);
     state.land = slug; state.inst = (q && q.institut && S.insts.some(function (x) { return x.name === q.institut; })) ? q.institut : "";
+    state.kind = kindFromQuery(q);
     state.on = {}; S.keys.forEach(function (k) { state.on[k] = true; });
     state.active = null; state.strip = null;
     state.range = "all";
     buildSelects();
     state.range = q ? rangeFromQuery(q) : "all";
     $("land").value = slug;
-    buildLegend(); drawGovHero(); drawGovTable(); drawNote();
+    buildLegend(); drawGovHero(); drawGovTable();
     syncControls(); writeHash(); update();
   }
 
