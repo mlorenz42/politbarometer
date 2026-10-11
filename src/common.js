@@ -264,14 +264,19 @@
     elem.style.background = k ? "color-mix(in srgb, var(--s-" + k + ", var(--ink2)) 13%, var(--surface))" : "";
   }
 
-  // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional.
-  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys) {
+  // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional. filename
+  // gesetzt → Export-Pfeil-Button wird mit angelegt (bei jedem Aufruf neu, s. addExportButton).
+  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys, filename) {
     if (infoEl) {
       var majority = Math.floor(data.gesamt / 2) + 1;
       infoEl.textContent = data.regierung.cab + ": " + data.regierung.sitze + " von " + data.gesamt +
         " Sitzen · Mehrheit ab " + majority + " · Stand " + fmt(ts(SITZE.stand));
     }
-    if (hemiEl) { drawHemicycle(hemiEl, data, partyName, govKeys, true); tintByLeadingParty(hemiEl.closest(".card"), data); }
+    if (hemiEl) {
+      drawHemicycle(hemiEl, data, partyName, govKeys, true);
+      tintByLeadingParty(hemiEl.closest(".card"), data);
+      if (filename) addExportButton(hemiEl, filename);
+    }
     if (legendEl) drawSeatLegend(legendEl, data, partyName, govKeys);
   }
 
@@ -318,4 +323,24 @@
       });
     };
     img.src = svgUrl;
+  }
+
+  // Kleiner Pfeil-Button oben rechts über dem Diagramm, nur bei Hover/Fokus sichtbar (wie der PNG-Export
+  // im finanzen-auswertung-Projekt) – ersetzt den bisherigen dauerhaft sichtbaren Text-Button und lässt
+  // sich dadurch pro Diagramm einsetzen, auch bei den 16 kleinen Kacheln. "container" ist das .hemicycle-
+  // Element; bei mehrfachem Aufruf (z. B. Länderwechsel auf derselben Seite) wird ein vorheriger Button
+  // entfernt statt sich zu duplizieren. stopPropagation/preventDefault, weil eine Kachel selbst ein Link
+  // zur Länderseite ist – ein Klick auf den Button soll nicht dorthin navigieren.
+  function addExportButton(container, filename) {
+    var old = container.querySelector(".dl-icon");
+    if (old) old.remove();
+    var btn = h("button", "dl-icon", container, "⤓");
+    btn.type = "button";
+    btn.title = "Diagramm als Bild (PNG) speichern";
+    btn.setAttribute("aria-label", "Diagramm als Bild speichern");
+    btn.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      downloadHemicyclePNG(container, filename);
+    });
   }

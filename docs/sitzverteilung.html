@@ -184,7 +184,7 @@ td.txt, th.txt { text-align: left; }
 .seats-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 32px; align-items: center; }
 /* max-width proportional zur breiteren Zeichenfläche (500 statt 380 SVG-Einheiten breit, s. common.js) –
    sonst würden Punkte und Schrift beim Skalieren auf dieselbe Kartenbreite kleiner wirken als zuvor. */
-.hemicycle { flex: 1 1 320px; min-width: 220px; max-width: 550px; }
+.hemicycle { position: relative; flex: 1 1 320px; min-width: 220px; max-width: 550px; }
 .hemicycle svg { display: block; width: 100%; height: auto; }
 .hemicycle svg circle { stroke: var(--surface); stroke-width: 0.6; }
 .seats-legend { flex: 0 1 240px; min-width: 200px; max-width: 240px; list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; align-content: center; }
@@ -195,8 +195,15 @@ td.txt, th.txt { text-align: left; }
 .seats-legend li.opp .dot { opacity: .42; }
 .seats-legend li.opp .name { color: var(--ink2); }
 .seats-legend .pill { margin-left: 10px; }
-.dl-btn { font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 1px solid var(--hair); border-radius: 8px; padding: 6px 12px; min-height: 32px; cursor: pointer; flex: none; }
-.dl-btn:hover { background: var(--hover); color: var(--ink); }
+/* Export-Pfeil: nur bei Hover/Fokus sichtbar, statt eines dauerhaften Text-Buttons (wie im
+   finanzen-auswertung-Projekt) – dadurch pro Diagramm einsetzbar, auch auf den kleinen Kacheln. */
+.dl-icon {
+  position: absolute; top: -4px; right: 0; padding: 3px 8px; font: inherit; font-size: 1rem; line-height: 1;
+  color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 6px;
+  cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s;
+}
+.hemicycle:hover .dl-icon, .dl-icon:focus-visible { opacity: 1; }
+.dl-icon:hover { background: var(--hover); color: var(--ink); }
 
 /* Raster kleiner Sitzverteilungen (Übersichtsseite) */
 .seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
@@ -257,7 +264,6 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
         <h2 id="bund-h">Sitzverteilung im Bundestag</h2>
         <p class="rangeinfo" id="bund-info"></p>
       </div>
-      <button type="button" class="dl-btn" id="bund-download">Diagramm als PNG</button>
     </div>
     <div class="seats-wrap">
       <div class="hemicycle" id="bund-chart" role="img" aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm, Parteien von links nach rechts im politischen Spektrum. Die Sitzzahlen stehen auch in der Liste rechts daneben."></div>
@@ -546,14 +552,19 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     elem.style.background = k ? "color-mix(in srgb, var(--s-" + k + ", var(--ink2)) 13%, var(--surface))" : "";
   }
 
-  // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional.
-  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys) {
+  // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional. filename
+  // gesetzt → Export-Pfeil-Button wird mit angelegt (bei jedem Aufruf neu, s. addExportButton).
+  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys, filename) {
     if (infoEl) {
       var majority = Math.floor(data.gesamt / 2) + 1;
       infoEl.textContent = data.regierung.cab + ": " + data.regierung.sitze + " von " + data.gesamt +
         " Sitzen · Mehrheit ab " + majority + " · Stand " + fmt(ts(SITZE.stand));
     }
-    if (hemiEl) { drawHemicycle(hemiEl, data, partyName, govKeys, true); tintByLeadingParty(hemiEl.closest(".card"), data); }
+    if (hemiEl) {
+      drawHemicycle(hemiEl, data, partyName, govKeys, true);
+      tintByLeadingParty(hemiEl.closest(".card"), data);
+      if (filename) addExportButton(hemiEl, filename);
+    }
     if (legendEl) drawSeatLegend(legendEl, data, partyName, govKeys);
   }
 
@@ -601,6 +612,26 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     };
     img.src = svgUrl;
   }
+
+  // Kleiner Pfeil-Button oben rechts über dem Diagramm, nur bei Hover/Fokus sichtbar (wie der PNG-Export
+  // im finanzen-auswertung-Projekt) – ersetzt den bisherigen dauerhaft sichtbaren Text-Button und lässt
+  // sich dadurch pro Diagramm einsetzen, auch bei den 16 kleinen Kacheln. "container" ist das .hemicycle-
+  // Element; bei mehrfachem Aufruf (z. B. Länderwechsel auf derselben Seite) wird ein vorheriger Button
+  // entfernt statt sich zu duplizieren. stopPropagation/preventDefault, weil eine Kachel selbst ein Link
+  // zur Länderseite ist – ein Klick auf den Button soll nicht dorthin navigieren.
+  function addExportButton(container, filename) {
+    var old = container.querySelector(".dl-icon");
+    if (old) old.remove();
+    var btn = h("button", "dl-icon", container, "⤓");
+    btn.type = "button";
+    btn.title = "Diagramm als Bild (PNG) speichern";
+    btn.setAttribute("aria-label", "Diagramm als Bild speichern");
+    btn.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      downloadHemicyclePNG(container, filename);
+    });
+  }
   var SITZE = {"stand":"2026-10-05","bund":{"quelle":"https://de.wikipedia.org/wiki/Deutscher_Bundestag","gesamt":630,"regierung":{"cab":"Kabinett Merz","sitze":328,"parteien":["cdu","spd"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":120,"gru":85,"cdu":208,"afd":150,"lin":64,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"laender":{"baden-wuerttemberg":{"quelle":"https://de.wikipedia.org/wiki/Landtag_von_Baden-W%C3%BCrttemberg","gesamt":157,"regierung":{"cab":"Kabinett Özdemir","sitze":112,"parteien":["gru","cdu"]},"reihenfolge":["spd","gru","cdu","afd"],"sitze":{"spd":10,"gru":56,"cdu":56,"afd":35},"parteien":{}},"bayern":{"quelle":"https://de.wikipedia.org/wiki/Bayerischer_Landtag","gesamt":203,"regierung":{"cab":"Kabinett Söder III","sitze":122,"parteien":["cdu","fw"]},"reihenfolge":["spd","gru","fw","cdu","afd"],"sitze":{"spd":17,"gru":32,"cdu":85,"fw":37,"afd":32},"parteien":{}},"berlin":{"quelle":"https://de.wikipedia.org/wiki/Abgeordnetenhaus_von_Berlin","gesamt":159,"regierung":{"cab":"Senat Wegner","sitze":88,"parteien":["cdu","spd"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"lin":20,"gru":33,"spd":36,"cdu":52,"afd":16,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"brandenburg":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Brandenburg","gesamt":88,"regierung":{"cab":"Kabinett Woidke V","sitze":46,"parteien":["spd","cdu"]},"reihenfolge":["bsw","spd","cdu","afd","x-unabh"],"sitze":{"bsw":8,"spd":34,"cdu":12,"afd":30,"x-unabh":4},"parteien":{"x-unabh":"Unabh."}},"bremen":{"quelle":"https://de.wikipedia.org/wiki/Bremische_B%C3%BCrgerschaft","gesamt":87,"regierung":{"cab":"Senat Bovenschulte II","sitze":48,"parteien":["spd","gru","lin"]},"reihenfolge":["lin","spd","gru","fdp","cdu","x-bbb","x-biw","x-sonst"],"sitze":{"lin":10,"spd":28,"gru":10,"fdp":5,"cdu":24,"x-bbb":3,"x-biw":6,"x-sonst":1},"parteien":{"x-bbb":"BBB","x-biw":"BIW","x-sonst":"Sonst."}},"hamburg":{"quelle":"https://de.wikipedia.org/wiki/Hamburgische_B%C3%BCrgerschaft","gesamt":121,"regierung":{"cab":"Senat Tschentscher III","sitze":70,"parteien":["spd","gru"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"lin":15,"gru":25,"spd":45,"cdu":26,"afd":9,"x-sonst":1},"parteien":{"x-sonst":"Sonst."}},"hessen":{"quelle":"https://de.wikipedia.org/wiki/Hessischer_Landtag","gesamt":133,"regierung":{"cab":"Kabinett Rhein II","sitze":75,"parteien":["cdu","spd"]},"reihenfolge":["spd","gru","fdp","cdu","afd","x-sonst"],"sitze":{"spd":23,"gru":22,"fdp":8,"cdu":52,"afd":25,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"mecklenburg-vorpommern":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Mecklenburg-Vorpommern","gesamt":79,"regierung":{"cab":"Kabinett Schwesig II","sitze":43,"parteien":["spd","lin"]},"reihenfolge":["lin","spd","gru","cdu","fdp","afd","x-sonst"],"sitze":{"spd":34,"lin":9,"cdu":12,"afd":14,"gru":4,"fdp":3,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"niedersachsen":{"quelle":"https://de.wikipedia.org/wiki/Nieders%C3%A4chsischer_Landtag","gesamt":146,"regierung":{"cab":"Kabinett Lies","sitze":81,"parteien":["spd","gru"]},"reihenfolge":["spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":57,"gru":24,"cdu":47,"afd":16,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"nrw":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Nordrhein-Westfalen","gesamt":195,"regierung":{"cab":"Kabinett Wüst II","sitze":115,"parteien":["cdu","gru"]},"reihenfolge":["spd","gru","fdp","cdu","afd"],"sitze":{"spd":56,"gru":39,"cdu":76,"fdp":12,"afd":12},"parteien":{}},"rheinland-pfalz":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Rheinland-Pfalz","gesamt":105,"regierung":{"cab":"Kabinett Schnieder","sitze":71,"parteien":["cdu","spd"]},"reihenfolge":["spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":32,"gru":10,"cdu":39,"afd":23,"x-sonst":1},"parteien":{"x-sonst":"Sonst."}},"saarland":{"quelle":"https://de.wikipedia.org/wiki/Landtag_des_Saarlandes","gesamt":51,"regierung":{"cab":"Kabinett Rehlinger","sitze":29,"parteien":["spd"]},"reihenfolge":["spd","cdu","afd"],"sitze":{"spd":29,"cdu":19,"afd":3},"parteien":{}},"sachsen":{"quelle":"https://de.wikipedia.org/wiki/S%C3%A4chsischer_Landtag","gesamt":120,"regierung":{"cab":"Kabinett Kretschmer III","sitze":51,"parteien":["cdu","spd"]},"reihenfolge":["lin","bsw","spd","gru","x-sonst","cdu","afd"],"sitze":{"lin":6,"bsw":14,"spd":10,"gru":7,"x-sonst":2,"cdu":41,"afd":40},"parteien":{"x-sonst":"Sonst."}},"sachsen-anhalt":{"quelle":"https://de.wikipedia.org/wiki/Landtag_von_Sachsen-Anhalt","gesamt":97,"regierung":{"cab":"Kabinett Schulze","sitze":56,"parteien":["cdu","spd","fdp"]},"reihenfolge":["lin","gru","spd","cdu","fdp","afd","x-sonst"],"sitze":{"lin":11,"gru":6,"spd":9,"cdu":40,"fdp":7,"afd":22,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"schleswig-holstein":{"quelle":"https://de.wikipedia.org/wiki/Schleswig-Holsteinischer_Landtag","gesamt":69,"regierung":{"cab":"Kabinett Günther II","sitze":48,"parteien":["cdu","gru"]},"reihenfolge":["spd","gru","ssw","fdp","cdu"],"sitze":{"spd":12,"gru":14,"ssw":4,"fdp":5,"cdu":34},"parteien":{}},"thueringen":{"quelle":"https://de.wikipedia.org/wiki/Th%C3%BCringer_Landtag","gesamt":88,"regierung":{"cab":"Kabinett Voigt","sitze":39,"parteien":["cdu","spd","x-th-ringen-gerecht"]},"reihenfolge":["lin","spd","x-th-ringen-gerecht","x-unabh","cdu","afd"],"sitze":{"lin":12,"spd":6,"x-th-ringen-gerecht":10,"x-unabh":5,"cdu":23,"afd":32},"parteien":{"x-th-ringen-gerecht":"Thüringen.Gerecht","x-unabh":"Unabh."}}}};
   var LAENDER = [{"slug":"baden-wuerttemberg","name":"Baden-Württemberg","union":"CDU"},{"slug":"bayern","name":"Bayern","union":"CSU"},{"slug":"berlin","name":"Berlin","union":"CDU"},{"slug":"brandenburg","name":"Brandenburg","union":"CDU"},{"slug":"bremen","name":"Bremen","union":"CDU"},{"slug":"hamburg","name":"Hamburg","union":"CDU"},{"slug":"hessen","name":"Hessen","union":"CDU"},{"slug":"mecklenburg-vorpommern","name":"Mecklenburg- Vorpommern","union":"CDU"},{"slug":"niedersachsen","name":"Niedersachsen","union":"CDU"},{"slug":"nrw","name":"Nordrhein-Westfalen","union":"CDU"},{"slug":"rheinland-pfalz","name":"Rheinland-Pfalz","union":"CDU"},{"slug":"saarland","name":"Saarland","union":"CDU"},{"slug":"sachsen","name":"Sachsen","union":"CDU"},{"slug":"sachsen-anhalt","name":"Sachsen-Anhalt","union":"CDU"},{"slug":"schleswig-holstein","name":"Schleswig-Holstein","union":"CDU"},{"slug":"thueringen","name":"Thüringen","union":"CDU"}]; // [{slug, name, union}], nur die für diese Seite nötigen Angaben
   var LABEL = { cdu: "CDU", spd: "SPD", gru: "GRÜNE", fdp: "FDP", lin: "LINKE", afd: "AfD", bsw: "BSW", fw: "FW", pir: "PIRATEN", ssw: "SSW" };
@@ -612,10 +643,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
   // ---------- Bundestag ----------
   var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };
-  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien);
-  $("bund-download").addEventListener("click", function () {
-    downloadHemicyclePNG($("bund-chart"), "sitzverteilung-bundestag-" + SITZE.stand + ".png");
-  });
+  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien, "sitzverteilung-bundestag-" + SITZE.stand + ".png");
 
   // ---------- Länder ----------
   var grid = $("laender-grid");
@@ -633,6 +661,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
     drawHemicycle(chart, data, name, data.regierung.parteien, true);
     tintByLeadingParty(a, data);
+    addExportButton(chart, "sitzverteilung-" + L.slug + "-" + SITZE.stand + ".png");
     var info = h("p", "seat-tile-info", a, data.regierung.cab);
     var co = h("span", "cell-co", info);
     data.regierung.parteien.forEach(function (k) {

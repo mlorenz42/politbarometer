@@ -176,7 +176,7 @@ td.txt, th.txt { text-align: left; }
 .seats-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 32px; align-items: center; }
 /* max-width proportional zur breiteren Zeichenfläche (500 statt 380 SVG-Einheiten breit, s. common.js) –
    sonst würden Punkte und Schrift beim Skalieren auf dieselbe Kartenbreite kleiner wirken als zuvor. */
-.hemicycle { flex: 1 1 320px; min-width: 220px; max-width: 550px; }
+.hemicycle { position: relative; flex: 1 1 320px; min-width: 220px; max-width: 550px; }
 .hemicycle svg { display: block; width: 100%; height: auto; }
 .hemicycle svg circle { stroke: var(--surface); stroke-width: 0.6; }
 .seats-legend { flex: 0 1 240px; min-width: 200px; max-width: 240px; list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; align-content: center; }
@@ -187,8 +187,15 @@ td.txt, th.txt { text-align: left; }
 .seats-legend li.opp .dot { opacity: .42; }
 .seats-legend li.opp .name { color: var(--ink2); }
 .seats-legend .pill { margin-left: 10px; }
-.dl-btn { font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 1px solid var(--hair); border-radius: 8px; padding: 6px 12px; min-height: 32px; cursor: pointer; flex: none; }
-.dl-btn:hover { background: var(--hover); color: var(--ink); }
+/* Export-Pfeil: nur bei Hover/Fokus sichtbar, statt eines dauerhaften Text-Buttons (wie im
+   finanzen-auswertung-Projekt) – dadurch pro Diagramm einsetzbar, auch auf den kleinen Kacheln. */
+.dl-icon {
+  position: absolute; top: -4px; right: 0; padding: 3px 8px; font: inherit; font-size: 1rem; line-height: 1;
+  color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 6px;
+  cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s;
+}
+.hemicycle:hover .dl-icon, .dl-icon:focus-visible { opacity: 1; }
+.dl-icon:hover { background: var(--hover); color: var(--ink); }
 
 /* Raster kleiner Sitzverteilungen (Übersichtsseite) */
 .seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
