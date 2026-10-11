@@ -417,6 +417,9 @@
     });
     view.overlay.addEventListener("pointerleave", function (e) { if (e.pointerType === "mouse") { state.active = null; state.strip = null; showTip(); } });
     showTip();
+
+    addExportButton(box, "umfragewerte-bundestag-" + new Date().toISOString().slice(0, 10) + ".png",
+      "Umfrageverlauf Bundestag", chartLegendItems($("legend")));
   }
 
   function nearest(t) {
@@ -584,7 +587,7 @@
   function drawSeats() {
     if (!SITZE.bund) return; // z. B. während eines lokalen Testbaus ohne data/sitze.json
     var govKeys = G[G.length - 1].ph[G[G.length - 1].ph.length - 1].co;
-    renderSeats($("seats-chart"), $("seats-legend"), $("seats-info"), SITZE.bund, seatPartyName, govKeys, "sitzverteilung-bundestag-" + SITZE.stand + ".png");
+    renderSeats($("seats-chart"), $("seats-legend"), $("seats-info"), SITZE.bund, seatPartyName, govKeys, "sitzverteilung-bundestag-" + SITZE.stand + ".png", "Sitzverteilung im Bundestag");
   }
 
   function bswNote() {

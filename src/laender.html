@@ -532,6 +532,9 @@
       if (pt.py < view.y0 - 4) setRange("cab:" + S.G.indexOf(govAt(Math.min(Math.max(pt.t, view.tmin), view.tmax))));
     });
     showTip();
+
+    addExportButton(box, "umfragewerte-" + S.slug + "-" + new Date().toISOString().slice(0, 10) + ".png",
+      S.name + " – Umfrageverlauf", chartLegendItems($("legend")));
   }
 
   function pointerPos(e) {
@@ -720,7 +723,7 @@
     $("seats-h").textContent = "Sitzverteilung " + chamberName();
     if (!S.seats) { $("seats-info").textContent = ""; $("seats-chart").textContent = ""; $("seats-legend").textContent = ""; return; }
     var ph = S.G[S.G.length - 1].ph, govKeys = ph[ph.length - 1].co;
-    renderSeats($("seats-chart"), $("seats-legend"), $("seats-info"), S.seats, partyName, govKeys, "sitzverteilung-" + S.slug + "-" + SITZE.stand + ".png");
+    renderSeats($("seats-chart"), $("seats-legend"), $("seats-info"), S.seats, partyName, govKeys, "sitzverteilung-" + S.slug + "-" + SITZE.stand + ".png", S.name + " – Sitzverteilung " + chamberName());
   }
 
   function drawNote() {

@@ -70,7 +70,7 @@
 
   // ---------- Bundestag ----------
   var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };
-  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien, "sitzverteilung-bundestag-" + SITZE.stand + ".png");
+  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien, "sitzverteilung-bundestag-" + SITZE.stand + ".png", "Sitzverteilung im Bundestag");
 
   // ---------- Länder ----------
   var grid = $("laender-grid");
@@ -88,7 +88,7 @@
     chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
     drawHemicycle(chart, data, name, data.regierung.parteien, true);
     tintByLeadingParty(a, data);
-    addExportButton(chart, "sitzverteilung-" + L.slug + "-" + SITZE.stand + ".png");
+    addExportButton(chart, "sitzverteilung-" + L.slug + "-" + SITZE.stand + ".png", L.name + " – Sitzverteilung", seatLegendItems(data, name, data.regierung.parteien));
     var info = h("p", "seat-tile-info", a, data.regierung.cab);
     var co = h("span", "cell-co", info);
     data.regierung.parteien.forEach(function (k) {

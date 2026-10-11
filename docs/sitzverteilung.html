@@ -202,7 +202,7 @@ td.txt, th.txt { text-align: left; }
   color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 6px;
   cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s;
 }
-.hemicycle:hover .dl-icon, .dl-icon:focus-visible { opacity: 1; }
+.hemicycle:hover .dl-icon, .chart:hover .dl-icon, .dl-icon:focus-visible { opacity: 1; }
 .dl-icon:hover { background: var(--hover); color: var(--ink); }
 
 /* Raster kleiner Sitzverteilungen (Übersichtsseite) */
@@ -553,8 +553,10 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   }
 
   // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional. filename
-  // gesetzt → Export-Pfeil-Button wird mit angelegt (bei jedem Aufruf neu, s. addExportButton).
-  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys, filename) {
+  // gesetzt → Export-Pfeil-Button wird mit angelegt (bei jedem Aufruf neu, s. addExportButton); title ist
+  // dessen Bildüberschrift (muss den Namen des Parlaments/Bundeslands enthalten – im Dateinamen allein
+  // sieht man ihn beim Betrachten des Bildes ja nicht).
+  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys, filename, title) {
     if (infoEl) {
       var majority = Math.floor(data.gesamt / 2) + 1;
       infoEl.textContent = data.regierung.cab + ": " + data.regierung.sitze + " von " + data.gesamt +
@@ -563,16 +565,66 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     if (hemiEl) {
       drawHemicycle(hemiEl, data, partyName, govKeys, true);
       tintByLeadingParty(hemiEl.closest(".card"), data);
-      if (filename) addExportButton(hemiEl, filename);
+      if (filename) addExportButton(hemiEl, filename, title, seatLegendItems(data, partyName, govKeys));
     }
     if (legendEl) drawSeatLegend(legendEl, data, partyName, govKeys);
   }
 
-  // Rendert das Halbkreisdiagramm in "container" als PNG und stößt den Download an. CSS-Variablen
-  // (--s-cdu usw.) werden dabei auf feste Werte aufgelöst, da ein eigenständiges SVG die Vorlagen-
-  // eigenen Custom Properties sonst nicht kennt; außerdem bekommt es einen echten Hintergrund
-  // (Kartenfläche), sonst wäre das PNG transparent.
-  function downloadHemicyclePNG(container, filename) {
+  // Farbe einer Partei als aufgelöster Wert (Hex/RGB), nicht die CSS-Variable selbst – ein eigenständiges
+  // Canvas kennt var(--s-xxx) nicht. Gleicher Fallback wie bei den Live-Diagrammen (var(--s-KEY,var(--ink2))).
+  function partyColor(k) {
+    var root = getComputedStyle(document.documentElement);
+    return root.getPropertyValue("--s-" + k).trim() || root.getPropertyValue("--ink2").trim();
+  }
+
+  // Baut die Export-Legende für ein Sitzverteilungs-Diagramm aus denselben Daten, mit denen auch das
+  // Diagramm selbst gezeichnet wurde (nicht aus dem DOM abgeschrieben) – funktioniert dadurch gleicher-
+  // maßen für die große Karte mit eigener <ul> UND für die 16 kleinen Kacheln, die gar keine eigene
+  // Legende im DOM haben.
+  function seatLegendItems(data, partyName, govKeys) {
+    var items = [];
+    data.reihenfolge.forEach(function (k) {
+      var n = data.sitze[k] || 0;
+      if (!n) return;
+      var isGov = govKeys.indexOf(k) >= 0;
+      items.push({
+        color: partyColor(k), dim: !isGov,
+        text: partyName(k) + "   " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? "   · Regierung" : ""),
+      });
+    });
+    return items;
+  }
+
+  // Liest die Umfrageverlauf-Legende (Parteiname, aktueller Wert, Veränderung) direkt aus den sichtbaren
+  // .chip-Elementen ab, statt deren Berechnung (Trend- vs. Wahl-Modus, Gleitmittel vs. Momentwert) ein
+  // zweites Mal nachzubauen – template.html und laender.html haben dafür leicht unterschiedliche Logik,
+  // aber am Ende beide dieselbe .chip-Struktur (Farbpunkt, Name, Wert, Veränderung).
+  function chartLegendItems(legendBox) {
+    var items = [];
+    legendBox.querySelectorAll(".chip").forEach(function (chip) {
+      if (chip.hidden || chip.getAttribute("aria-pressed") === "false") return;
+      var pClass = null;
+      for (var i = 0; i < chip.classList.length; i++) { if (chip.classList[i].indexOf("p-") === 0) { pClass = chip.classList[i]; break; } }
+      var color = pClass ? partyColor(pClass.slice(2)) : getComputedStyle(chip.querySelector(".key")).backgroundColor;
+      var name = chip.children[1] ? chip.children[1].textContent : "";
+      var value = chip.children[2] ? chip.children[2].textContent : "";
+      var change = "";
+      if (chip.children[3]) {
+        var clone = chip.children[3].cloneNode(true);
+        clone.querySelectorAll(".sr").forEach(function (s) { s.remove(); }); // nur für Screenreader gedachter Zusatztext
+        change = clone.textContent;
+      }
+      items.push({ color: color, text: name + "   " + value + (change ? "   " + change : "") });
+    });
+    return items;
+  }
+
+  // Generischer Kern: klont das <svg> aus "container", löst CSS-Variablen zu festen Werten auf (ein
+  // eigenständiges SVG kennt var(--…) sonst nicht) und rendert es zusammen mit einem optionalen Titel und
+  // einer Legende (items: [{color, text, dim}], je ein Punkt + Text pro Zeile) als PNG. Ohne title/items
+  // wird nur das Diagramm selbst exportiert. dim (z. B. Oppositionsparteien) wird abgeblendet gezeichnet,
+  // wie im Diagramm selbst. Genutzt sowohl von den Halbkreisdiagrammen als auch vom Umfrageverlauf.
+  function exportSvgPNG(container, filename, title, items) {
     var live = container.querySelector("svg");
     if (!live) return;
     var clone = live.cloneNode(true);
@@ -590,19 +642,49 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       // kann (fällt sonst z. B. bei fill auf Schwarz zurück) – jetzt durch die Attribute oben ersetzt.
       ce.removeAttribute("style");
     }
-    var vb = clone.getAttribute("viewBox").split(" ").map(Number);
-    var bg = el("rect", { x: 0, y: 0, width: vb[2], height: vb[3], fill: getComputedStyle(document.documentElement).getPropertyValue("--surface").trim() || "#fff" });
-    clone.insertBefore(bg, clone.firstChild);
-    clone.setAttribute("font-family", "system-ui, -apple-system, 'Segoe UI', sans-serif");
+    var vb = clone.getAttribute("viewBox").split(" ").map(Number), vbW = vb[2], vbH = vb[3];
+    var font = getComputedStyle(document.body).fontFamily || "system-ui, -apple-system, 'Segoe UI', sans-serif";
+    clone.setAttribute("font-family", font);
     clone.removeAttribute("width"); clone.removeAttribute("height");
-    var scale = 3; // schärfer als die Bildschirmauflösung
+
+    var rootCs = getComputedStyle(document.documentElement);
+    var bg = rootCs.getPropertyValue("--surface").trim() || "#fff";
+    var ink = rootCs.getPropertyValue("--ink").trim() || "#000";
+    var ink2 = rootCs.getPropertyValue("--ink2").trim() || "#666";
+
+    items = items || [];
+    var scale = 3, pad = 16, titleH = title ? 28 : 0, rowH = 22;
+    var legendW = 0;
+    var measure = document.createElement("canvas").getContext("2d");
+    measure.font = "600 14px " + font;
+    items.forEach(function (it) { legendW = Math.max(legendW, 20 + measure.measureText(it.text).width); });
+    var legendH = items.length ? items.length * rowH + 10 : 0;
+    var W = Math.max(vbW, legendW) + 2 * pad, H = vbH + titleH + legendH + 2 * pad;
+    var chartX = pad + Math.max(0, (W - 2 * pad - vbW) / 2);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = W * scale; canvas.height = H * scale;
+    var ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
     var svgUrl = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" }));
     var img = new Image();
     img.onload = function () {
-      var canvas = document.createElement("canvas");
-      canvas.width = vb[2] * scale; canvas.height = vb[3] * scale;
-      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      if (title) { ctx.fillStyle = ink; ctx.font = "650 16px " + font; ctx.fillText(title, pad, pad + 16); }
+      ctx.drawImage(img, chartX, pad + titleH, vbW, vbH);
       URL.revokeObjectURL(svgUrl);
+      var y = pad + titleH + vbH + 18;
+      items.forEach(function (it) {
+        ctx.globalAlpha = it.dim ? 0.55 : 1;
+        ctx.fillStyle = it.color;
+        ctx.beginPath(); ctx.arc(pad + 6, y - 5, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = it.dim ? ink2 : ink;
+        ctx.font = "600 14px " + font;
+        ctx.fillText(it.text, pad + 20, y);
+        y += rowH;
+      });
       canvas.toBlob(function (blob) {
         var a = document.createElement("a"), url = URL.createObjectURL(blob);
         a.href = url; a.download = filename;
@@ -615,11 +697,12 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
   // Kleiner Pfeil-Button oben rechts über dem Diagramm, nur bei Hover/Fokus sichtbar (wie der PNG-Export
   // im finanzen-auswertung-Projekt) – ersetzt den bisherigen dauerhaft sichtbaren Text-Button und lässt
-  // sich dadurch pro Diagramm einsetzen, auch bei den 16 kleinen Kacheln. "container" ist das .hemicycle-
-  // Element; bei mehrfachem Aufruf (z. B. Länderwechsel auf derselben Seite) wird ein vorheriger Button
-  // entfernt statt sich zu duplizieren. stopPropagation/preventDefault, weil eine Kachel selbst ein Link
-  // zur Länderseite ist – ein Klick auf den Button soll nicht dorthin navigieren.
-  function addExportButton(container, filename) {
+  // sich dadurch pro Diagramm einsetzen (Halbkreise UND Liniendiagramm, auch die 16 kleinen Kacheln).
+  // "container" braucht position:relative und enthält das <svg>. Bei mehrfachem Aufruf (z. B. Länder-
+  // oder Zeitraumwechsel) wird ein vorheriger Button entfernt statt sich zu duplizieren. stopPropagation/
+  // preventDefault, weil eine Kachel selbst ein Link zur Länderseite ist – ein Klick auf den Button soll
+  // nicht dorthin navigieren.
+  function addExportButton(container, filename, title, items) {
     var old = container.querySelector(".dl-icon");
     if (old) old.remove();
     var btn = h("button", "dl-icon", container, "⤓");
@@ -629,7 +712,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     btn.addEventListener("click", function (ev) {
       ev.preventDefault();
       ev.stopPropagation();
-      downloadHemicyclePNG(container, filename);
+      exportSvgPNG(container, filename, title, items);
     });
   }
   var SITZE = {"stand":"2026-10-05","bund":{"quelle":"https://de.wikipedia.org/wiki/Deutscher_Bundestag","gesamt":630,"regierung":{"cab":"Kabinett Merz","sitze":328,"parteien":["cdu","spd"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":120,"gru":85,"cdu":208,"afd":150,"lin":64,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"laender":{"baden-wuerttemberg":{"quelle":"https://de.wikipedia.org/wiki/Landtag_von_Baden-W%C3%BCrttemberg","gesamt":157,"regierung":{"cab":"Kabinett Özdemir","sitze":112,"parteien":["gru","cdu"]},"reihenfolge":["spd","gru","cdu","afd"],"sitze":{"spd":10,"gru":56,"cdu":56,"afd":35},"parteien":{}},"bayern":{"quelle":"https://de.wikipedia.org/wiki/Bayerischer_Landtag","gesamt":203,"regierung":{"cab":"Kabinett Söder III","sitze":122,"parteien":["cdu","fw"]},"reihenfolge":["spd","gru","fw","cdu","afd"],"sitze":{"spd":17,"gru":32,"cdu":85,"fw":37,"afd":32},"parteien":{}},"berlin":{"quelle":"https://de.wikipedia.org/wiki/Abgeordnetenhaus_von_Berlin","gesamt":159,"regierung":{"cab":"Senat Wegner","sitze":88,"parteien":["cdu","spd"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"lin":20,"gru":33,"spd":36,"cdu":52,"afd":16,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"brandenburg":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Brandenburg","gesamt":88,"regierung":{"cab":"Kabinett Woidke V","sitze":46,"parteien":["spd","cdu"]},"reihenfolge":["bsw","spd","cdu","afd","x-unabh"],"sitze":{"bsw":8,"spd":34,"cdu":12,"afd":30,"x-unabh":4},"parteien":{"x-unabh":"Unabh."}},"bremen":{"quelle":"https://de.wikipedia.org/wiki/Bremische_B%C3%BCrgerschaft","gesamt":87,"regierung":{"cab":"Senat Bovenschulte II","sitze":48,"parteien":["spd","gru","lin"]},"reihenfolge":["lin","spd","gru","fdp","cdu","x-bbb","x-biw","x-sonst"],"sitze":{"lin":10,"spd":28,"gru":10,"fdp":5,"cdu":24,"x-bbb":3,"x-biw":6,"x-sonst":1},"parteien":{"x-bbb":"BBB","x-biw":"BIW","x-sonst":"Sonst."}},"hamburg":{"quelle":"https://de.wikipedia.org/wiki/Hamburgische_B%C3%BCrgerschaft","gesamt":121,"regierung":{"cab":"Senat Tschentscher III","sitze":70,"parteien":["spd","gru"]},"reihenfolge":["lin","spd","gru","cdu","afd","x-sonst"],"sitze":{"lin":15,"gru":25,"spd":45,"cdu":26,"afd":9,"x-sonst":1},"parteien":{"x-sonst":"Sonst."}},"hessen":{"quelle":"https://de.wikipedia.org/wiki/Hessischer_Landtag","gesamt":133,"regierung":{"cab":"Kabinett Rhein II","sitze":75,"parteien":["cdu","spd"]},"reihenfolge":["spd","gru","fdp","cdu","afd","x-sonst"],"sitze":{"spd":23,"gru":22,"fdp":8,"cdu":52,"afd":25,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"mecklenburg-vorpommern":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Mecklenburg-Vorpommern","gesamt":79,"regierung":{"cab":"Kabinett Schwesig II","sitze":43,"parteien":["spd","lin"]},"reihenfolge":["lin","spd","gru","cdu","fdp","afd","x-sonst"],"sitze":{"spd":34,"lin":9,"cdu":12,"afd":14,"gru":4,"fdp":3,"x-sonst":3},"parteien":{"x-sonst":"Sonst."}},"niedersachsen":{"quelle":"https://de.wikipedia.org/wiki/Nieders%C3%A4chsischer_Landtag","gesamt":146,"regierung":{"cab":"Kabinett Lies","sitze":81,"parteien":["spd","gru"]},"reihenfolge":["spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":57,"gru":24,"cdu":47,"afd":16,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"nrw":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Nordrhein-Westfalen","gesamt":195,"regierung":{"cab":"Kabinett Wüst II","sitze":115,"parteien":["cdu","gru"]},"reihenfolge":["spd","gru","fdp","cdu","afd"],"sitze":{"spd":56,"gru":39,"cdu":76,"fdp":12,"afd":12},"parteien":{}},"rheinland-pfalz":{"quelle":"https://de.wikipedia.org/wiki/Landtag_Rheinland-Pfalz","gesamt":105,"regierung":{"cab":"Kabinett Schnieder","sitze":71,"parteien":["cdu","spd"]},"reihenfolge":["spd","gru","cdu","afd","x-sonst"],"sitze":{"spd":32,"gru":10,"cdu":39,"afd":23,"x-sonst":1},"parteien":{"x-sonst":"Sonst."}},"saarland":{"quelle":"https://de.wikipedia.org/wiki/Landtag_des_Saarlandes","gesamt":51,"regierung":{"cab":"Kabinett Rehlinger","sitze":29,"parteien":["spd"]},"reihenfolge":["spd","cdu","afd"],"sitze":{"spd":29,"cdu":19,"afd":3},"parteien":{}},"sachsen":{"quelle":"https://de.wikipedia.org/wiki/S%C3%A4chsischer_Landtag","gesamt":120,"regierung":{"cab":"Kabinett Kretschmer III","sitze":51,"parteien":["cdu","spd"]},"reihenfolge":["lin","bsw","spd","gru","x-sonst","cdu","afd"],"sitze":{"lin":6,"bsw":14,"spd":10,"gru":7,"x-sonst":2,"cdu":41,"afd":40},"parteien":{"x-sonst":"Sonst."}},"sachsen-anhalt":{"quelle":"https://de.wikipedia.org/wiki/Landtag_von_Sachsen-Anhalt","gesamt":97,"regierung":{"cab":"Kabinett Schulze","sitze":56,"parteien":["cdu","spd","fdp"]},"reihenfolge":["lin","gru","spd","cdu","fdp","afd","x-sonst"],"sitze":{"lin":11,"gru":6,"spd":9,"cdu":40,"fdp":7,"afd":22,"x-sonst":2},"parteien":{"x-sonst":"Sonst."}},"schleswig-holstein":{"quelle":"https://de.wikipedia.org/wiki/Schleswig-Holsteinischer_Landtag","gesamt":69,"regierung":{"cab":"Kabinett Günther II","sitze":48,"parteien":["cdu","gru"]},"reihenfolge":["spd","gru","ssw","fdp","cdu"],"sitze":{"spd":12,"gru":14,"ssw":4,"fdp":5,"cdu":34},"parteien":{}},"thueringen":{"quelle":"https://de.wikipedia.org/wiki/Th%C3%BCringer_Landtag","gesamt":88,"regierung":{"cab":"Kabinett Voigt","sitze":39,"parteien":["cdu","spd","x-th-ringen-gerecht"]},"reihenfolge":["lin","spd","x-th-ringen-gerecht","x-unabh","cdu","afd"],"sitze":{"lin":12,"spd":6,"x-th-ringen-gerecht":10,"x-unabh":5,"cdu":23,"afd":32},"parteien":{"x-th-ringen-gerecht":"Thüringen.Gerecht","x-unabh":"Unabh."}}}};
@@ -643,7 +726,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 
   // ---------- Bundestag ----------
   var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };
-  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien, "sitzverteilung-bundestag-" + SITZE.stand + ".png");
+  renderSeats($("bund-chart"), $("bund-legend"), $("bund-info"), SITZE.bund, bundName, SITZE.bund.regierung.parteien, "sitzverteilung-bundestag-" + SITZE.stand + ".png", "Sitzverteilung im Bundestag");
 
   // ---------- Länder ----------
   var grid = $("laender-grid");
@@ -661,7 +744,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     chart.setAttribute("aria-label", "Sitzverteilung " + L.name + " als Halbkreisdiagramm. Details auf der Länderseite.");
     drawHemicycle(chart, data, name, data.regierung.parteien, true);
     tintByLeadingParty(a, data);
-    addExportButton(chart, "sitzverteilung-" + L.slug + "-" + SITZE.stand + ".png");
+    addExportButton(chart, "sitzverteilung-" + L.slug + "-" + SITZE.stand + ".png", L.name + " – Sitzverteilung", seatLegendItems(data, name, data.regierung.parteien));
     var info = h("p", "seat-tile-info", a, data.regierung.cab);
     var co = h("span", "cell-co", info);
     data.regierung.parteien.forEach(function (k) {

@@ -194,7 +194,7 @@ td.txt, th.txt { text-align: left; }
   color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 6px;
   cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s;
 }
-.hemicycle:hover .dl-icon, .dl-icon:focus-visible { opacity: 1; }
+.hemicycle:hover .dl-icon, .chart:hover .dl-icon, .dl-icon:focus-visible { opacity: 1; }
 .dl-icon:hover { background: var(--hover); color: var(--ink); }
 
 /* Raster kleiner Sitzverteilungen (Übersichtsseite) */
