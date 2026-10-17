@@ -1,5 +1,5 @@
 {
- "stand": "2026-10-05",
+ "stand": "2026-10-17",
  "bund": {
   "quelle": "https://de.wikipedia.org/wiki/Deutscher_Bundestag",
   "gesamt": 630,
@@ -285,25 +285,22 @@
   },
   "sachsen-anhalt": {
    "quelle": "https://de.wikipedia.org/wiki/Landtag_von_Sachsen-Anhalt",
-   "gesamt": 97,
+   "gesamt": 83,
    "regierung": {
     "cab": "Kabinett Schulze",
-    "sitze": 56,
+    "sitze": 23,
     "parteien": ["cdu", "spd", "fdp"]
    },
-   "reihenfolge": ["lin", "gru", "spd", "cdu", "fdp", "afd", "x-sonst"],
+   "reihenfolge": ["lin", "spd", "bsw", "afd", "cdu", "gru"],
    "sitze": {
-    "lin": 11,
-    "gru": 6,
-    "spd": 9,
-    "cdu": 40,
-    "fdp": 7,
-    "afd": 22,
-    "x-sonst": 2
+    "lin": 8,
+    "spd": 8,
+    "bsw": 5,
+    "afd": 39,
+    "cdu": 15,
+    "gru": 8
    },
-   "parteien": {
-    "x-sonst": "Sonst."
-   }
+   "parteien": {}
   },
   "schleswig-holstein": {
    "quelle": "https://de.wikipedia.org/wiki/Schleswig-Holsteinischer_Landtag",

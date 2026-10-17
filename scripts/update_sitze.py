@@ -122,9 +122,11 @@ def parse_one(title: str, text: str, canonical: str, gov_source: dict) -> dict:
     order, seats = parse_grafik(grafik, registry)
 
     gov_field = box.get("Sitzverteilung", "")
-    gm = re.search(r"\[\[([^\]|]+)\|Regierung\]\]\s*\((\d+)\)", gov_field)
+    # Linktext endet auf "Regierung", teils mit Zusatz davor (z. B. "Geschäftsführende Regierung" bei einer
+    # amtierenden, aber nicht mehr voll handlungsfähigen Regierung – so geschehen in Sachsen-Anhalt 2026).
+    gm = re.search(r"\[\[([^\]|]+)\|[^\]|]*Regierung\]\]\s*\((\d+)\)", gov_field)
     if not gm:
-        raise Mismatch("%s: keine Regierungsangabe ('[[…|Regierung]] (n)') im Feld 'Sitzverteilung'" % canonical)
+        raise Mismatch("%s: keine Regierungsangabe ('[[…|…Regierung]] (n)') im Feld 'Sitzverteilung'" % canonical)
     linked_cab, stated_total = gm.group(1).strip(), int(gm.group(2))
 
     cab_name, coalition = current_government(gov_source)
