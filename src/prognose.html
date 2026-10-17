@@ -17,7 +17,11 @@
 .prog .yes { color: var(--s-afd); font-weight: 650; }
 .prog .no { color: var(--ink2); }
 .prog tr.bereits td { background: color-mix(in srgb, var(--s-afd) 10%, var(--surface)); }
-.timeline { touch-action: pan-y; }
+/* Nur 16 Zeilen (alle Bundesländer), die alle auf einen Blick passen sollen – anders als bei Tabellen mit
+   potenziell hunderten Umfragen braucht es hier kein eigenes Scroll-Fenster (wie schon bei .govs). */
+.tablewrap { max-height: none; }
+.timeline { position: relative; touch-action: pan-y; }
+.timeline:hover .dl-icon { opacity: 1; }
 .timeline svg { display: block; width: 100%; height: auto; }
 .timeline svg text { font-family: inherit; }
 .timeline svg .row-hit { fill: transparent; }
@@ -239,6 +243,18 @@
         el("text", { x: X(maxTs) + 9, y: ry + 4, style: "fill:var(--s-afd);font-size:12px;font-weight:650" }, link, "›");
       }
     });
+
+    // Export-Button erst hier anhängen (nicht vor dem box.textContent = "" oben): sonst würde der eigene
+    // Neuaufbau der Grafik ihn gleich wieder mit entfernen. items als feste Farbwerte statt var(--…), weil
+    // das eigenständige Export-SVG Custom Properties nicht auflösen kann (wie bei den anderen Diagrammen).
+    var root = getComputedStyle(document.documentElement);
+    var ink2 = root.getPropertyValue("--ink2").trim(), afd = root.getPropertyValue("--s-afd").trim();
+    addExportButton(box, "afd-prognose-" + PROGNOSE.stand + ".png", "Prognose: AfD-Trend je Bundesland", [
+      { color: ink2, text: "heute" },
+      { color: ink2, text: "nächste Wahl" },
+      { color: afd, text: "AfD wird stärkste Kraft (volle Farbe: schon jetzt)" },
+      { color: afd, text: "AfD erreicht 45 %", dim: true },
+    ]);
   }
 
   if (window.ResizeObserver) {
