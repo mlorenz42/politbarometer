@@ -27,6 +27,7 @@
 .tl-legend .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); flex: none; }
 .tl-legend .dot.afd { background: var(--s-afd); }
 .tl-legend .dot.ring { background: var(--surface); border: 2px solid var(--s-afd); width: 7px; height: 7px; }
+.tl-legend .dot.small { width: 5px; height: 5px; }
 .tl-legend .tick { width: 2px; height: 12px; background: var(--ink2); flex: none; }
 </style>
 </head>
@@ -66,6 +67,7 @@
         <li><i class="tick"></i> nächste Wahl</li>
         <li><i class="dot afd"></i> AfD wird stärkste Kraft (volle Farbe: schon jetzt)</li>
         <li><i class="dot ring"></i> AfD erreicht 45 %</li>
+        <li><i class="dot small"></i> neues Land (seit 1990)</li>
       </ul>
     </div>
 
@@ -113,6 +115,9 @@
     var p = ym.split("-");
     return Date.UTC(+p[0], +p[1] - 1, 1);
   }
+  // Die fünf 1990 beigetretenen Länder. Berlin bleibt bewusst außen vor: historisch geteilt
+  // (West-/Ost-Berlin), keine eindeutige Zuordnung.
+  var NEUE_LAENDER = { "brandenburg": 1, "mecklenburg-vorpommern": 1, "sachsen": 1, "sachsen-anhalt": 1, "thueringen": 1 };
 
   $("stand-info").textContent = PROGNOSE.laender.length + " Bundesländer · Trendfenster " +
     Math.round(PROGNOSE.fenster_tage / 365) + " Jahre · Schwelle " + PROGNOSE.schwelle.toFixed(0).replace(".", ",") + " %";
@@ -159,13 +164,14 @@
     // oben gedeckelt, damit die Spalte auf sehr schmalen Bildschirmen nicht die ganze Zeitachse verdrängt
     // – zu lange Namen werden dann stattdessen gekürzt (voller Name steht ohnehin im Tooltip/Linktitel).
     var maxLabelW = narrow ? W * 0.34 : 190;
+    var labelPad = 18; // etwas mehr als nötig: lässt Platz für den Neue-Länder-Punkt (s. u.)
     var labelW = 14;
     rows.forEach(function (L) { labelW = Math.max(labelW, measure.measureText(L.name).width); });
-    labelW = Math.min(Math.ceil(labelW) + 10, maxLabelW);
+    labelW = Math.min(Math.ceil(labelW) + labelPad, maxLabelW);
     function fitLabel(name) {
-      if (measure.measureText(name).width <= labelW - 10) return name;
+      if (measure.measureText(name).width <= labelW - labelPad) return name;
       var s = name;
-      while (s.length > 1 && measure.measureText(s + "…").width > labelW - 10) s = s.slice(0, -1);
+      while (s.length > 1 && measure.measureText(s + "…").width > labelW - labelPad) s = s.slice(0, -1);
       return s + "…";
     }
     var rowH = 32, top = 26, bottom = 8;
@@ -194,12 +200,14 @@
         el("rect", { x: 0, y: ry - rowH / 2, width: W, height: rowH, style: "fill:color-mix(in srgb, var(--s-afd) 7%, transparent)" }, svg);
       }
       var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
-      el("title", {}, link, L.name + ": " + (L.bereits_fuehrend ? "AfD bereits stärkste Kraft" :
+      el("title", {}, link, L.name + (NEUE_LAENDER[L.slug] ? " (neues Land)" : "") + ": " +
+        (L.bereits_fuehrend ? "AfD bereits stärkste Kraft" :
         L.stark_datum ? "AfD wird ca. " + monthLabel(L.stark_datum) + " stärkste Kraft" : "kein Trend-Crossover absehbar") +
         (L.mehrheit_datum ? " · erreicht 45 % ca. " + monthLabel(L.mehrheit_datum) : "") +
         (L.naechste_wahl ? " · nächste Wahl: " + L.naechste_wahl : ""));
       el("rect", { class: "row-hit", x: 0, y: ry - rowH / 2, width: W, height: rowH }, link);
       el("text", { x: 0, y: ry + 4, style: "fill:var(--ink);font-size:" + fontPx + "px;font-weight:600" }, link, fitLabel(L.name));
+      if (NEUE_LAENDER[L.slug]) el("circle", { cx: labelW - 9, cy: ry - fontPx + 2, r: 2.5, style: "fill:var(--ink2)" }, link);
 
       var starkTs = L.bereits_fuehrend ? todayTs : monthTs(L.stark_datum);
       var mehrheitTs = monthTs(L.mehrheit_datum);
@@ -245,6 +253,7 @@
     var tr = h("tr", L.bereits_fuehrend ? "bereits" : "", tbody);
     var land = h("td", "lbl txt", tr);
     var a = h("a", "", land, L.name); a.href = "laender.html#land=" + L.slug;
+    if (NEUE_LAENDER[L.slug]) h("span", "pill nl", land, "neues Land").title = "1990 beigetretenes Land";
     h("td", "num", tr, fmt(ts(L.stand)));
     h("td", "txt", tr, L.fuehrend_label + " " + L.fuehrend_aktuell.toFixed(1).replace(".", ",") + " %");
     h("td", "num", tr, L.afd_aktuell.toFixed(1).replace(".", ",") + " %");
