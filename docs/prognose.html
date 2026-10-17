@@ -250,6 +250,16 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 .prog .yes { color: var(--s-afd); font-weight: 650; }
 .prog .no { color: var(--ink2); }
 .prog tr.bereits td { background: color-mix(in srgb, var(--s-afd) 10%, var(--surface)); }
+.timeline { touch-action: pan-y; }
+.timeline svg { display: block; width: 100%; height: auto; }
+.timeline svg text { font-family: inherit; }
+.timeline svg .row-hit { fill: transparent; }
+.timeline svg a:hover .row-hit, .timeline svg a:focus-visible .row-hit { fill: var(--hover); }
+.tl-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 12.5px; color: var(--ink2); }
+.tl-legend li { display: inline-flex; align-items: center; gap: 7px; }
+.tl-legend .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); flex: none; }
+.tl-legend .dot.afd { background: var(--s-afd); }
+.tl-legend .tick { width: 2px; height: 12px; background: var(--ink2); flex: none; }
 </style>
 </head>
 <body>
@@ -275,25 +285,40 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   </section>
 
   <section class="card" aria-labelledby="tbl-h">
-    <h2 id="tbl-h">Je Bundesland</h2>
+    <div class="bar">
+      <h2 id="tbl-h">Je Bundesland</h2>
+      <div class="seg" id="views"></div>
+    </div>
     <p class="rangeinfo" id="stand-info"></p>
-    <div class="tablewrap">
-      <table class="prog">
-        <thead>
-          <tr>
-            <th class="txt">Land</th>
-            <th>Letzte Umfrage</th>
-            <th class="txt">Aktuell führend</th>
-            <th>AfD aktuell</th>
-            <th>AfD-Trend</th>
-            <th class="txt">Wird stärkste Kraft</th>
-            <th class="txt">Erreicht 45 %</th>
-            <th class="txt">Nächste Wahl</th>
-            <th class="txt">Vor der Wahl?</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+
+    <div id="chartview">
+      <div class="timeline" id="chart" role="img" aria-label="Zeitstrahl je Bundesland: wann die AfD stärkste Kraft wird (oder es bereits ist), im Vergleich zum nächsten Wahltermin. Die genauen Werte stehen auch in der Tabellenansicht."></div>
+      <ul class="tl-legend">
+        <li><i class="dot"></i> heute</li>
+        <li><i class="tick"></i> nächste Wahl</li>
+        <li><i class="dot afd"></i> AfD wird stärkste Kraft (volle Farbe: schon jetzt)</li>
+      </ul>
+    </div>
+
+    <div id="tableview" hidden>
+      <div class="tablewrap">
+        <table class="prog">
+          <thead>
+            <tr>
+              <th class="txt">Land</th>
+              <th>Letzte Umfrage</th>
+              <th class="txt">Aktuell führend</th>
+              <th>AfD aktuell</th>
+              <th>AfD-Trend</th>
+              <th class="txt">Wird stärkste Kraft</th>
+              <th class="txt">Erreicht 45 %</th>
+              <th class="txt">Nächste Wahl</th>
+              <th class="txt">Vor der Wahl?</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -735,16 +760,132 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       exportSvgPNG(container, filename, title, items);
     });
   }
-  var PROGNOSE = {"stand":"2026-10-17","fenster_tage":730,"schwelle":45.0,"laender":[{"slug":"sachsen-anhalt","name":"Sachsen-Anhalt","stand":"2026-09-03","afd_aktuell":41.0,"afd_trend_jahr":6.58,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":41.8,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-01","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"thueringen","name":"Thüringen","stand":"2026-07-02","afd_aktuell":40.0,"afd_trend_jahr":3.76,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":38.6,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-10","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"brandenburg","name":"Brandenburg","stand":"2026-10-09","afd_aktuell":40.0,"afd_trend_jahr":5.25,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":36.0,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-12","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"mecklenburg-vorpommern","name":"Mecklenburg- Vorpommern","stand":"2026-09-17","afd_aktuell":36.0,"afd_trend_jahr":4.54,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":36.8,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2028-06","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"sachsen","name":"Sachsen","stand":"2026-05-21","afd_aktuell":42.0,"afd_trend_jahr":2.88,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":34.0,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2028-12","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"niedersachsen","name":"Niedersachsen","stand":"2026-09-11","afd_aktuell":21.0,"afd_trend_jahr":3.35,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":26.0,"bereits_fuehrend":false,"stark_datum":"2026-10","mehrheit_datum":"2033-08","naechste_wahl":"26. September 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":true},{"slug":"hessen","name":"Hessen","stand":"2026-04-29","afd_aktuell":22.0,"afd_trend_jahr":3.54,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":32.2,"bereits_fuehrend":false,"stark_datum":"2027-06","mehrheit_datum":"2032-12","naechste_wahl":"Herbst 2028","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"nrw","name":"Nordrhein-Westfalen","stand":"2026-09-23","afd_aktuell":22.0,"afd_trend_jahr":4.02,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":32.4,"bereits_fuehrend":false,"stark_datum":"2027-09","mehrheit_datum":"2033-01","naechste_wahl":"25. April 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false},{"slug":"rheinland-pfalz","name":"Rheinland-Pfalz","stand":"2026-08-20","afd_aktuell":24.0,"afd_trend_jahr":3.46,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":28.4,"bereits_fuehrend":false,"stark_datum":"2027-10","mehrheit_datum":"2033-05","naechste_wahl":"Frühjahr 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"bayern","name":"Bayern","stand":"2026-03-03","afd_aktuell":18.0,"afd_trend_jahr":0.46,"fuehrend":"cdu","fuehrend_label":"CSU","fuehrend_aktuell":39.2,"bereits_fuehrend":false,"stark_datum":"2032-02","mehrheit_datum":"2083-06","naechste_wahl":"Herbst 2028","naechste_wahl_exakt":false,"vor_naechster_wahl":false},{"slug":"hamburg","name":"Hamburg","stand":"2026-09-30","afd_aktuell":14.0,"afd_trend_jahr":1.96,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":31.0,"bereits_fuehrend":false,"stark_datum":"2032-07","mehrheit_datum":"2043-03","naechste_wahl":"Winter 2030","naechste_wahl_exakt":false,"vor_naechster_wahl":false},{"slug":"baden-wuerttemberg","name":"Baden-Württemberg","stand":"2026-10-15","afd_aktuell":23.0,"afd_trend_jahr":2.6,"fuehrend":"gru","fuehrend_label":"GRÜNE","fuehrend_aktuell":27.8,"bereits_fuehrend":false,"stark_datum":null,"mehrheit_datum":"2035-09","naechste_wahl":"Frühjahr 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":false},{"slug":"berlin","name":"Berlin","stand":"2026-10-08","afd_aktuell":17.0,"afd_trend_jahr":2.55,"fuehrend":"lin","fuehrend_label":"LINKE","fuehrend_aktuell":22.2,"bereits_fuehrend":false,"stark_datum":null,"mehrheit_datum":"2037-05","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":false},{"slug":"schleswig-holstein","name":"Schleswig-Holstein","stand":"2026-07-14","afd_aktuell":18.0,"afd_trend_jahr":2.24,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":35.4,"bereits_fuehrend":false,"stark_datum":"2039-07","mehrheit_datum":"2039-05","naechste_wahl":"18. April 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false},{"slug":"bremen","name":"Bremen","stand":"2026-08-19","afd_aktuell":17.0,"afd_trend_jahr":0.71,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":25.2,"bereits_fuehrend":false,"stark_datum":"2049-01","mehrheit_datum":"2070-12","naechste_wahl":"30. Mai 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false},{"slug":"saarland","name":"Saarland","stand":"2025-12-03","afd_aktuell":23.0,"afd_trend_jahr":1.04,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":33.0,"bereits_fuehrend":false,"stark_datum":"2052-11","mehrheit_datum":"2055-11","naechste_wahl":"18. April 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false}]};
+  var PROGNOSE = {"stand":"2026-10-17","fenster_tage":730,"schwelle":45.0,"laender":[{"slug":"sachsen-anhalt","name":"Sachsen-Anhalt","stand":"2026-09-03","afd_aktuell":41.0,"afd_trend_jahr":6.58,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":41.8,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-01","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"naechste_wahl_monat":"2031-10","vor_naechster_wahl":true},{"slug":"thueringen","name":"Thüringen","stand":"2026-07-02","afd_aktuell":40.0,"afd_trend_jahr":3.76,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":38.6,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-10","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"naechste_wahl_monat":"2029-10","vor_naechster_wahl":true},{"slug":"brandenburg","name":"Brandenburg","stand":"2026-10-09","afd_aktuell":40.0,"afd_trend_jahr":5.25,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":36.0,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-12","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"naechste_wahl_monat":"2029-10","vor_naechster_wahl":true},{"slug":"mecklenburg-vorpommern","name":"Mecklenburg- Vorpommern","stand":"2026-09-17","afd_aktuell":36.0,"afd_trend_jahr":4.54,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":36.8,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2028-06","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"naechste_wahl_monat":"2031-10","vor_naechster_wahl":true},{"slug":"sachsen","name":"Sachsen","stand":"2026-05-21","afd_aktuell":42.0,"afd_trend_jahr":2.88,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":34.0,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2028-12","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"naechste_wahl_monat":"2029-10","vor_naechster_wahl":true},{"slug":"niedersachsen","name":"Niedersachsen","stand":"2026-09-11","afd_aktuell":21.0,"afd_trend_jahr":3.35,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":26.0,"bereits_fuehrend":false,"stark_datum":"2026-10","mehrheit_datum":"2033-08","naechste_wahl":"26. September 2027","naechste_wahl_exakt":true,"naechste_wahl_monat":"2027-09","vor_naechster_wahl":true},{"slug":"hessen","name":"Hessen","stand":"2026-04-29","afd_aktuell":22.0,"afd_trend_jahr":3.54,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":32.2,"bereits_fuehrend":false,"stark_datum":"2027-06","mehrheit_datum":"2032-12","naechste_wahl":"Herbst 2028","naechste_wahl_exakt":false,"naechste_wahl_monat":"2028-10","vor_naechster_wahl":true},{"slug":"nrw","name":"Nordrhein-Westfalen","stand":"2026-09-23","afd_aktuell":22.0,"afd_trend_jahr":4.02,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":32.4,"bereits_fuehrend":false,"stark_datum":"2027-09","mehrheit_datum":"2033-01","naechste_wahl":"25. April 2027","naechste_wahl_exakt":true,"naechste_wahl_monat":"2027-04","vor_naechster_wahl":false},{"slug":"rheinland-pfalz","name":"Rheinland-Pfalz","stand":"2026-08-20","afd_aktuell":24.0,"afd_trend_jahr":3.46,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":28.4,"bereits_fuehrend":false,"stark_datum":"2027-10","mehrheit_datum":"2033-05","naechste_wahl":"Frühjahr 2031","naechste_wahl_exakt":false,"naechste_wahl_monat":"2031-04","vor_naechster_wahl":true},{"slug":"bayern","name":"Bayern","stand":"2026-03-03","afd_aktuell":18.0,"afd_trend_jahr":0.46,"fuehrend":"cdu","fuehrend_label":"CSU","fuehrend_aktuell":39.2,"bereits_fuehrend":false,"stark_datum":"2032-02","mehrheit_datum":"2083-06","naechste_wahl":"Herbst 2028","naechste_wahl_exakt":false,"naechste_wahl_monat":"2028-10","vor_naechster_wahl":false},{"slug":"hamburg","name":"Hamburg","stand":"2026-09-30","afd_aktuell":14.0,"afd_trend_jahr":1.96,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":31.0,"bereits_fuehrend":false,"stark_datum":"2032-07","mehrheit_datum":"2043-03","naechste_wahl":"Winter 2030","naechste_wahl_exakt":false,"naechste_wahl_monat":"2030-01","vor_naechster_wahl":false},{"slug":"baden-wuerttemberg","name":"Baden-Württemberg","stand":"2026-10-15","afd_aktuell":23.0,"afd_trend_jahr":2.6,"fuehrend":"gru","fuehrend_label":"GRÜNE","fuehrend_aktuell":27.8,"bereits_fuehrend":false,"stark_datum":null,"mehrheit_datum":"2035-09","naechste_wahl":"Frühjahr 2031","naechste_wahl_exakt":false,"naechste_wahl_monat":"2031-04","vor_naechster_wahl":false},{"slug":"berlin","name":"Berlin","stand":"2026-10-08","afd_aktuell":17.0,"afd_trend_jahr":2.55,"fuehrend":"lin","fuehrend_label":"LINKE","fuehrend_aktuell":22.2,"bereits_fuehrend":false,"stark_datum":null,"mehrheit_datum":"2037-05","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"naechste_wahl_monat":"2031-10","vor_naechster_wahl":false},{"slug":"schleswig-holstein","name":"Schleswig-Holstein","stand":"2026-07-14","afd_aktuell":18.0,"afd_trend_jahr":2.24,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":35.4,"bereits_fuehrend":false,"stark_datum":"2039-07","mehrheit_datum":"2039-05","naechste_wahl":"18. April 2027","naechste_wahl_exakt":true,"naechste_wahl_monat":"2027-04","vor_naechster_wahl":false},{"slug":"bremen","name":"Bremen","stand":"2026-08-19","afd_aktuell":17.0,"afd_trend_jahr":0.71,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":25.2,"bereits_fuehrend":false,"stark_datum":"2049-01","mehrheit_datum":"2070-12","naechste_wahl":"30. Mai 2027","naechste_wahl_exakt":true,"naechste_wahl_monat":"2027-05","vor_naechster_wahl":false},{"slug":"saarland","name":"Saarland","stand":"2025-12-03","afd_aktuell":23.0,"afd_trend_jahr":1.04,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":33.0,"bereits_fuehrend":false,"stark_datum":"2052-11","mehrheit_datum":"2055-11","naechste_wahl":"18. April 2027","naechste_wahl_exakt":true,"naechste_wahl_monat":"2027-04","vor_naechster_wahl":false}]};
 
   function monthLabel(ym) {
     if (!ym) return null;
     var parts = ym.split("-"), y = +parts[0], m = +parts[1];
     return MON[m - 1] + " " + y;
   }
+  function monthTs(ym) {
+    if (!ym) return null;
+    var p = ym.split("-");
+    return Date.UTC(+p[0], +p[1] - 1, 1);
+  }
 
   $("stand-info").textContent = PROGNOSE.laender.length + " Bundesländer · Trendfenster " +
     Math.round(PROGNOSE.fenster_tage / 365) + " Jahre · Schwelle " + PROGNOSE.schwelle.toFixed(0).replace(".", ",") + " %";
+
+  // ---------- Diagramm/Tabelle-Umschalter ----------
+  var state = { view: "chart" };
+  function seg(container, items, key) {
+    container.textContent = "";
+    items.forEach(function (it) {
+      var b = h("button", "", container, it.label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", state[key] === it.id ? "true" : "false");
+      b.addEventListener("click", function () {
+        state[key] = it.id;
+        seg(container, items, key);
+        update();
+      });
+    });
+  }
+  function update() {
+    var isChart = state.view === "chart";
+    $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
+    if (isChart) drawTimeline();
+  }
+
+  // ---------- Zeitstrahl ----------
+  // Je Zeile: grauer Punkt "heute", Strich "nächste Wahl", blauer Punkt "AfD wird stärkste Kraft" (oder
+  // schon bei "heute", wenn sie es bereits ist) – verbunden durch eine Linie, damit auf einen Blick klar
+  // ist, ob der AfD-Punkt vor oder nach dem Wahl-Strich liegt. Zeilen vor der nächsten Wahl dezent
+  // eingefärbt. Zeitachse auf 8 Jahre gedeckelt; weiter in der Zukunft liegende Werte (einige Länder
+  // liegen bei linearer Fortschreibung erst in Jahrzehnten über der Schwelle, s. Methodik) werden an den
+  // rechten Rand geklemmt und mit "›" markiert statt die Achse für alle anderen unlesbar zu stauchen.
+  function drawTimeline() {
+    var box = $("chart");
+    var rows = PROGNOSE.laender;
+    var W = Math.max(320, Math.round(box.clientWidth || 900));
+    var narrow = W < 560;
+    var fontPx = narrow ? 11 : 12;
+    var font = getComputedStyle(document.body).fontFamily;
+    var measure = document.createElement("canvas").getContext("2d");
+    measure.font = "600 " + fontPx + "px " + font;
+    // Feste Spaltenbreite geraten (vorher) ließ lange Namen wie "Baden-Württemberg" auf schmalen Bild-
+    // schirmen mit dem ersten Punkt überlappen. Stattdessen die tatsächlich benötigte Breite messen, nach
+    // oben gedeckelt, damit die Spalte auf sehr schmalen Bildschirmen nicht die ganze Zeitachse verdrängt
+    // – zu lange Namen werden dann stattdessen gekürzt (voller Name steht ohnehin im Tooltip/Linktitel).
+    var maxLabelW = narrow ? W * 0.34 : 190;
+    var labelW = 14;
+    rows.forEach(function (L) { labelW = Math.max(labelW, measure.measureText(L.name).width); });
+    labelW = Math.min(Math.ceil(labelW) + 10, maxLabelW);
+    function fitLabel(name) {
+      if (measure.measureText(name).width <= labelW - 10) return name;
+      var s = name;
+      while (s.length > 1 && measure.measureText(s + "…").width > labelW - 10) s = s.slice(0, -1);
+      return s + "…";
+    }
+    var rowH = 32, top = 26, bottom = 8;
+    var H = top + rows.length * rowH + bottom;
+    var todayTs = monthTs(PROGNOSE.stand.slice(0, 7));
+    var maxTs = Date.UTC(new Date(todayTs).getUTCFullYear() + 8, new Date(todayTs).getUTCMonth(), 1);
+    var x0 = labelW, x1 = W - 14;
+    var X = function (ts) { return x0 + Math.min(1, Math.max(0, (ts - todayTs) / (maxTs - todayTs))) * (x1 - x0); };
+
+    box.textContent = "";
+    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    box.appendChild(svg);
+
+    var startYear = new Date(todayTs).getUTCFullYear(), endYear = new Date(maxTs).getUTCFullYear();
+    for (var y = startYear; y <= endYear; y++) {
+      var ts = Date.UTC(y, 0, 1);
+      if (ts < todayTs) continue;
+      var x = X(ts);
+      el("line", { x1: x, x2: x, y1: top - 4, y2: H - bottom, style: "stroke:var(--grid);stroke-width:1" }, svg);
+      el("text", { x: x, y: top - 10, "text-anchor": "middle", style: "fill:var(--ink2);font-size:10.5px" }, svg, String(y));
+    }
+
+    rows.forEach(function (L, i) {
+      var ry = top + i * rowH + rowH / 2;
+      if (L.vor_naechster_wahl) {
+        el("rect", { x: 0, y: ry - rowH / 2, width: W, height: rowH, style: "fill:color-mix(in srgb, var(--s-afd) 7%, transparent)" }, svg);
+      }
+      var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
+      el("title", {}, link, L.name + ": " + (L.bereits_fuehrend ? "AfD bereits stärkste Kraft" :
+        L.stark_datum ? "AfD wird ca. " + monthLabel(L.stark_datum) + " stärkste Kraft" : "kein Trend-Crossover absehbar") +
+        (L.naechste_wahl ? " · nächste Wahl: " + L.naechste_wahl : ""));
+      el("rect", { class: "row-hit", x: 0, y: ry - rowH / 2, width: W, height: rowH }, link);
+      el("text", { x: 0, y: ry + 4, style: "fill:var(--ink);font-size:" + fontPx + "px;font-weight:600" }, link, fitLabel(L.name));
+
+      var starkTs = L.bereits_fuehrend ? todayTs : monthTs(L.stark_datum);
+      var wahlTs = monthTs(L.naechste_wahl_monat);
+      var ends = [todayTs];
+      if (starkTs != null) ends.push(Math.min(starkTs, maxTs));
+      if (wahlTs != null) ends.push(Math.min(wahlTs, maxTs));
+      var rightMost = Math.max.apply(null, ends);
+      el("line", { x1: X(todayTs), x2: X(rightMost), y1: ry, y2: ry, style: "stroke:var(--hair);stroke-width:2" }, link);
+      el("circle", { cx: X(todayTs), cy: ry, r: 3, style: "fill:var(--ink2)" }, link);
+
+      if (wahlTs != null) {
+        var wx = X(Math.min(wahlTs, maxTs));
+        el("line", { x1: wx, x2: wx, y1: ry - 7, y2: ry + 7, style: "stroke:var(--ink2);stroke-width:2" }, link);
+      }
+      if (starkTs != null) {
+        var sx = X(Math.min(starkTs, maxTs));
+        el("circle", { cx: sx, cy: ry, r: 6, style: "fill:var(--s-afd)" + (L.bereits_fuehrend ? "" : ";opacity:.85") }, link);
+        if (starkTs > maxTs) el("text", { x: sx + 10, y: ry + 4, style: "fill:var(--s-afd);font-size:12px;font-weight:650" }, link, "›");
+      }
+    });
+  }
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(function (en) {
+      var w = Math.round(en[0].contentRect.width);
+      if (w && state.view === "chart") drawTimeline();
+    }).observe($("chart"));
+  }
 
   var tbody = $("tbody");
   PROGNOSE.laender.forEach(function (L) {
@@ -767,6 +908,8 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   });
 
   $("f-stand").textContent = fmt(ts(PROGNOSE.stand));
+  seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
+  update();
 })();
 </script>
 </body>

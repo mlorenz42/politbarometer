@@ -256,6 +256,7 @@ def build_prognose() -> int:
             "bereits_fuehrend": leader == "afd",
             "stark_datum": stark_datum, "mehrheit_datum": mehrheit_datum,
             "naechste_wahl": next_text, "naechste_wahl_exakt": next_exact,
+            "naechste_wahl_monat": next_date.strftime("%Y-%m") if next_date else None,
             "vor_naechster_wahl": vor_naechster_wahl,
         })
 

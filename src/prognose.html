@@ -17,6 +17,16 @@
 .prog .yes { color: var(--s-afd); font-weight: 650; }
 .prog .no { color: var(--ink2); }
 .prog tr.bereits td { background: color-mix(in srgb, var(--s-afd) 10%, var(--surface)); }
+.timeline { touch-action: pan-y; }
+.timeline svg { display: block; width: 100%; height: auto; }
+.timeline svg text { font-family: inherit; }
+.timeline svg .row-hit { fill: transparent; }
+.timeline svg a:hover .row-hit, .timeline svg a:focus-visible .row-hit { fill: var(--hover); }
+.tl-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 10px 0 0; padding: 0; list-style: none; font-size: 12.5px; color: var(--ink2); }
+.tl-legend li { display: inline-flex; align-items: center; gap: 7px; }
+.tl-legend .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); flex: none; }
+.tl-legend .dot.afd { background: var(--s-afd); }
+.tl-legend .tick { width: 2px; height: 12px; background: var(--ink2); flex: none; }
 </style>
 </head>
 <body>
@@ -42,25 +52,40 @@
   </section>
 
   <section class="card" aria-labelledby="tbl-h">
-    <h2 id="tbl-h">Je Bundesland</h2>
+    <div class="bar">
+      <h2 id="tbl-h">Je Bundesland</h2>
+      <div class="seg" id="views"></div>
+    </div>
     <p class="rangeinfo" id="stand-info"></p>
-    <div class="tablewrap">
-      <table class="prog">
-        <thead>
-          <tr>
-            <th class="txt">Land</th>
-            <th>Letzte Umfrage</th>
-            <th class="txt">Aktuell führend</th>
-            <th>AfD aktuell</th>
-            <th>AfD-Trend</th>
-            <th class="txt">Wird stärkste Kraft</th>
-            <th class="txt">Erreicht 45 %</th>
-            <th class="txt">Nächste Wahl</th>
-            <th class="txt">Vor der Wahl?</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
+
+    <div id="chartview">
+      <div class="timeline" id="chart" role="img" aria-label="Zeitstrahl je Bundesland: wann die AfD stärkste Kraft wird (oder es bereits ist), im Vergleich zum nächsten Wahltermin. Die genauen Werte stehen auch in der Tabellenansicht."></div>
+      <ul class="tl-legend">
+        <li><i class="dot"></i> heute</li>
+        <li><i class="tick"></i> nächste Wahl</li>
+        <li><i class="dot afd"></i> AfD wird stärkste Kraft (volle Farbe: schon jetzt)</li>
+      </ul>
+    </div>
+
+    <div id="tableview" hidden>
+      <div class="tablewrap">
+        <table class="prog">
+          <thead>
+            <tr>
+              <th class="txt">Land</th>
+              <th>Letzte Umfrage</th>
+              <th class="txt">Aktuell führend</th>
+              <th>AfD aktuell</th>
+              <th>AfD-Trend</th>
+              <th class="txt">Wird stärkste Kraft</th>
+              <th class="txt">Erreicht 45 %</th>
+              <th class="txt">Nächste Wahl</th>
+              <th class="txt">Vor der Wahl?</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -81,9 +106,125 @@
     var parts = ym.split("-"), y = +parts[0], m = +parts[1];
     return MON[m - 1] + " " + y;
   }
+  function monthTs(ym) {
+    if (!ym) return null;
+    var p = ym.split("-");
+    return Date.UTC(+p[0], +p[1] - 1, 1);
+  }
 
   $("stand-info").textContent = PROGNOSE.laender.length + " Bundesländer · Trendfenster " +
     Math.round(PROGNOSE.fenster_tage / 365) + " Jahre · Schwelle " + PROGNOSE.schwelle.toFixed(0).replace(".", ",") + " %";
+
+  // ---------- Diagramm/Tabelle-Umschalter ----------
+  var state = { view: "chart" };
+  function seg(container, items, key) {
+    container.textContent = "";
+    items.forEach(function (it) {
+      var b = h("button", "", container, it.label);
+      b.type = "button";
+      b.setAttribute("aria-pressed", state[key] === it.id ? "true" : "false");
+      b.addEventListener("click", function () {
+        state[key] = it.id;
+        seg(container, items, key);
+        update();
+      });
+    });
+  }
+  function update() {
+    var isChart = state.view === "chart";
+    $("chartview").hidden = !isChart; $("tableview").hidden = isChart;
+    if (isChart) drawTimeline();
+  }
+
+  // ---------- Zeitstrahl ----------
+  // Je Zeile: grauer Punkt "heute", Strich "nächste Wahl", blauer Punkt "AfD wird stärkste Kraft" (oder
+  // schon bei "heute", wenn sie es bereits ist) – verbunden durch eine Linie, damit auf einen Blick klar
+  // ist, ob der AfD-Punkt vor oder nach dem Wahl-Strich liegt. Zeilen vor der nächsten Wahl dezent
+  // eingefärbt. Zeitachse auf 8 Jahre gedeckelt; weiter in der Zukunft liegende Werte (einige Länder
+  // liegen bei linearer Fortschreibung erst in Jahrzehnten über der Schwelle, s. Methodik) werden an den
+  // rechten Rand geklemmt und mit "›" markiert statt die Achse für alle anderen unlesbar zu stauchen.
+  function drawTimeline() {
+    var box = $("chart");
+    var rows = PROGNOSE.laender;
+    var W = Math.max(320, Math.round(box.clientWidth || 900));
+    var narrow = W < 560;
+    var fontPx = narrow ? 11 : 12;
+    var font = getComputedStyle(document.body).fontFamily;
+    var measure = document.createElement("canvas").getContext("2d");
+    measure.font = "600 " + fontPx + "px " + font;
+    // Feste Spaltenbreite geraten (vorher) ließ lange Namen wie "Baden-Württemberg" auf schmalen Bild-
+    // schirmen mit dem ersten Punkt überlappen. Stattdessen die tatsächlich benötigte Breite messen, nach
+    // oben gedeckelt, damit die Spalte auf sehr schmalen Bildschirmen nicht die ganze Zeitachse verdrängt
+    // – zu lange Namen werden dann stattdessen gekürzt (voller Name steht ohnehin im Tooltip/Linktitel).
+    var maxLabelW = narrow ? W * 0.34 : 190;
+    var labelW = 14;
+    rows.forEach(function (L) { labelW = Math.max(labelW, measure.measureText(L.name).width); });
+    labelW = Math.min(Math.ceil(labelW) + 10, maxLabelW);
+    function fitLabel(name) {
+      if (measure.measureText(name).width <= labelW - 10) return name;
+      var s = name;
+      while (s.length > 1 && measure.measureText(s + "…").width > labelW - 10) s = s.slice(0, -1);
+      return s + "…";
+    }
+    var rowH = 32, top = 26, bottom = 8;
+    var H = top + rows.length * rowH + bottom;
+    var todayTs = monthTs(PROGNOSE.stand.slice(0, 7));
+    var maxTs = Date.UTC(new Date(todayTs).getUTCFullYear() + 8, new Date(todayTs).getUTCMonth(), 1);
+    var x0 = labelW, x1 = W - 14;
+    var X = function (ts) { return x0 + Math.min(1, Math.max(0, (ts - todayTs) / (maxTs - todayTs))) * (x1 - x0); };
+
+    box.textContent = "";
+    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: W, height: H, "aria-hidden": "true" });
+    box.appendChild(svg);
+
+    var startYear = new Date(todayTs).getUTCFullYear(), endYear = new Date(maxTs).getUTCFullYear();
+    for (var y = startYear; y <= endYear; y++) {
+      var ts = Date.UTC(y, 0, 1);
+      if (ts < todayTs) continue;
+      var x = X(ts);
+      el("line", { x1: x, x2: x, y1: top - 4, y2: H - bottom, style: "stroke:var(--grid);stroke-width:1" }, svg);
+      el("text", { x: x, y: top - 10, "text-anchor": "middle", style: "fill:var(--ink2);font-size:10.5px" }, svg, String(y));
+    }
+
+    rows.forEach(function (L, i) {
+      var ry = top + i * rowH + rowH / 2;
+      if (L.vor_naechster_wahl) {
+        el("rect", { x: 0, y: ry - rowH / 2, width: W, height: rowH, style: "fill:color-mix(in srgb, var(--s-afd) 7%, transparent)" }, svg);
+      }
+      var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
+      el("title", {}, link, L.name + ": " + (L.bereits_fuehrend ? "AfD bereits stärkste Kraft" :
+        L.stark_datum ? "AfD wird ca. " + monthLabel(L.stark_datum) + " stärkste Kraft" : "kein Trend-Crossover absehbar") +
+        (L.naechste_wahl ? " · nächste Wahl: " + L.naechste_wahl : ""));
+      el("rect", { class: "row-hit", x: 0, y: ry - rowH / 2, width: W, height: rowH }, link);
+      el("text", { x: 0, y: ry + 4, style: "fill:var(--ink);font-size:" + fontPx + "px;font-weight:600" }, link, fitLabel(L.name));
+
+      var starkTs = L.bereits_fuehrend ? todayTs : monthTs(L.stark_datum);
+      var wahlTs = monthTs(L.naechste_wahl_monat);
+      var ends = [todayTs];
+      if (starkTs != null) ends.push(Math.min(starkTs, maxTs));
+      if (wahlTs != null) ends.push(Math.min(wahlTs, maxTs));
+      var rightMost = Math.max.apply(null, ends);
+      el("line", { x1: X(todayTs), x2: X(rightMost), y1: ry, y2: ry, style: "stroke:var(--hair);stroke-width:2" }, link);
+      el("circle", { cx: X(todayTs), cy: ry, r: 3, style: "fill:var(--ink2)" }, link);
+
+      if (wahlTs != null) {
+        var wx = X(Math.min(wahlTs, maxTs));
+        el("line", { x1: wx, x2: wx, y1: ry - 7, y2: ry + 7, style: "stroke:var(--ink2);stroke-width:2" }, link);
+      }
+      if (starkTs != null) {
+        var sx = X(Math.min(starkTs, maxTs));
+        el("circle", { cx: sx, cy: ry, r: 6, style: "fill:var(--s-afd)" + (L.bereits_fuehrend ? "" : ";opacity:.85") }, link);
+        if (starkTs > maxTs) el("text", { x: sx + 10, y: ry + 4, style: "fill:var(--s-afd);font-size:12px;font-weight:650" }, link, "›");
+      }
+    });
+  }
+
+  if (window.ResizeObserver) {
+    new ResizeObserver(function (en) {
+      var w = Math.round(en[0].contentRect.width);
+      if (w && state.view === "chart") drawTimeline();
+    }).observe($("chart"));
+  }
 
   var tbody = $("tbody");
   PROGNOSE.laender.forEach(function (L) {
@@ -106,6 +247,8 @@
   });
 
   $("f-stand").textContent = fmt(ts(PROGNOSE.stand));
+  seg($("views"), [{ id: "chart", label: "Diagramm" }, { id: "table", label: "Tabelle" }], "view");
+  update();
 })();
 </script>
 </body>
