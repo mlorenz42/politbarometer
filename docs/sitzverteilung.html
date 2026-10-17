@@ -115,7 +115,10 @@ a { color: inherit; text-underline-offset: 2px; }
 .small { color: var(--ink2); font-size: 12.5px; }
 
 /* Diagramm-Karte */
-.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 14px; }
+/* min-width: 0 ist nötig, weil .wrap ein Flex-Container ist: ohne das würde ein breiter Inhalt (z. B. eine
+   Tabelle mit vielen Spalten) die Karte über ihre eigentliche Breite hinaus aufziehen, statt – wie von
+   .tablewrap vorgesehen – nur innerhalb der Karte horizontal zu scrollen (klassische Flexbox-Falle). */
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
 .bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; }
 .ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; }
 .seg { display: inline-flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
@@ -159,7 +162,9 @@ a { color: inherit; text-underline-offset: 2px; }
 .tip .tg { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hair); color: var(--ink2); font-size: 12px; }
 .tip .tg strong { color: var(--ink); font-weight: 600; }
 
-.tablewrap { max-height: 460px; overflow: auto; border: 1px solid var(--hair); border-radius: 8px; }
+/* Wie bei .card: .tablewrap selbst ist auch ein Flex-Kind (.card ist ebenfalls display:flex), braucht also
+   dieselbe min-width:0-Korrektur, damit sein eigenes overflow:auto greift statt die Karte aufzuziehen. */
+.tablewrap { min-width: 0; max-height: 460px; overflow: auto; border: 1px solid var(--hair); border-radius: 8px; }
 table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th, td { padding: 7px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--hair); }
 th:first-child, td:first-child { text-align: left; }
@@ -253,6 +258,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       <a href="index.html">Bundestag</a>
       <a href="laender.html">Bundesländer</a>
       <a href="sitzverteilung.html" aria-current="page">Sitzverteilung</a>
+      <a href="prognose.html">Prognose</a>
     </nav>
     <h1>Sitzverteilung</h1>
     <p class="sub">Bundestag und alle 16 Landtage auf einen Blick. Regierungsparteien sind voll eingefärbt und mit „Regierung“ markiert, die Opposition blasser.</p>

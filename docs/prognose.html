@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Lineare Trendfortschreibung der AfD-Umfragewerte je Bundesland: wann stärkste Kraft, wann 45 %, im Vergleich zum nächsten Wahltermin.">
+<title>Prognose</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --hair: rgba(11, 11, 11, 0.10);
+  --hover: rgba(11, 11, 11, 0.05);
+  --band-a: #efeee9;
+  --band-b: #e6e5de;
+  --s-cdu: #4b4b4b;
+  --s-spd: #e34948;
+  --s-gru: #008300;
+  --s-fdp: #eda100;
+  --s-lin: #e87ba4;
+  --s-afd: #2a78d6;
+  --s-bsw: #4a3aa7;
+  --s-fw: #eb6834;
+  --s-pir: #1baf7a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --hair: rgba(255, 255, 255, 0.10);
+    --hover: rgba(255, 255, 255, 0.07);
+    --band-a: #262624;
+    --band-b: #302f2d;
+    --s-cdu: #949494;
+    --s-spd: #e66767;
+    --s-gru: #008300;
+    --s-fdp: #c98500;
+    --s-lin: #d55181;
+    --s-afd: #3987e5;
+    --s-bsw: #9085e9;
+    --s-fw: #d95926;
+    --s-pir: #199e70;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #ffffff;
+  --ink2: #c3c2b7;
+  --muted: #898781;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --hair: rgba(255, 255, 255, 0.10);
+  --hover: rgba(255, 255, 255, 0.07);
+  --band-a: #262624;
+  --band-b: #302f2d;
+  --s-cdu: #949494;
+  --s-spd: #e66767;
+  --s-gru: #008300;
+  --s-fdp: #c98500;
+  --s-lin: #d55181;
+  --s-afd: #3987e5;
+  --s-bsw: #9085e9;
+  --s-fw: #d95926;
+  --s-pir: #199e70;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  padding-inline: 16px;
+  padding-block: 32px 56px;
+}
+.wrap { max-width: 1040px; margin-inline: auto; display: flex; flex-direction: column; gap: 32px; }
+h1, h2, p, dl, dd { margin: 0; }
+h1 { font-size: clamp(26px, 4.4vw, 36px); line-height: 1.1; font-weight: 650; letter-spacing: -0.015em; text-wrap: balance; }
+h2 { font-size: 16px; line-height: 1.3; font-weight: 650; }
+.sub { color: var(--ink2); max-width: 64ch; margin-top: 8px; text-wrap: pretty; }
+a { color: inherit; text-underline-offset: 2px; }
+:focus-visible { outline: 2px solid var(--s-afd); outline-offset: 2px; border-radius: 4px; }
+
+.p-cdu { --c: var(--s-cdu); } .p-spd { --c: var(--s-spd); } .p-gru { --c: var(--s-gru); }
+.p-fdp { --c: var(--s-fdp); } .p-lin { --c: var(--s-lin); } .p-afd { --c: var(--s-afd); } .p-bsw { --c: var(--s-bsw); }
+.p-fw { --c: var(--s-fw); } .p-pir { --c: var(--s-pir); } [class*="p-x-"] { --c: var(--ink2); } /* Parteien ohne eigene Farbe */
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); flex: none; }
+
+/* Regierung heute */
+.gov { border-block: 1px solid var(--hair); padding-block: 22px; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 20px 40px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink2); margin-bottom: 8px; }
+.gov h2 { font-size: clamp(28px, 5vw, 44px); line-height: 1.05; font-weight: 700; letter-spacing: -0.02em; }
+.coal { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; color: var(--ink2); }
+.coal .pp { display: inline-flex; align-items: center; gap: 6px; color: var(--ink); }
+.facts { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 20px; align-content: center; }
+.facts dt { color: var(--ink2); }
+.facts dd { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.facts dd strong { font-weight: 650; font-size: 15px; }
+.facts .who { display: inline-flex; align-items: center; gap: 6px; }
+.small { color: var(--ink2); font-size: 12.5px; }
+
+/* Diagramm-Karte */
+/* min-width: 0 ist nötig, weil .wrap ein Flex-Container ist: ohne das würde ein breiter Inhalt (z. B. eine
+   Tabelle mit vielen Spalten) die Karte über ihre eigentliche Breite hinaus aufziehen, statt – wie von
+   .tablewrap vorgesehen – nur innerhalb der Karte horizontal zu scrollen (klassische Flexbox-Falle). */
+.card { background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 18px 18px 14px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.bar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 16px; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px 12px; }
+.seg { display: inline-flex; border: 1px solid var(--hair); border-radius: 8px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; color: var(--ink2); background: transparent; border: 0; padding: 6px 12px; min-height: 32px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--hair); }
+.seg button:hover { background: var(--hover); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); font-weight: 600; }
+.rangeinfo { color: var(--ink2); font-size: 12.5px; margin-top: 3px; text-wrap: pretty; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sel { display: inline-block; max-width: 100%; min-width: 0; }
+.sel select { max-width: 100%; font: inherit; font-size: 13px; color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 6px 10px; min-height: 34px; max-width: 100%; cursor: pointer; text-overflow: ellipsis; }
+.sel select:hover { background: var(--hover); }
+.sel select.on { color: var(--ink); font-weight: 600; border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.legend .lbl { flex: 0 0 100%; font-size: 12px; color: var(--ink2); }
+.chip .d { font-size: 12.5px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.chip .d .g { font-size: 10px; margin-right: 2px; }
+.chip { display: inline-flex; align-items: center; gap: 8px; padding: 5px 11px; min-height: 32px; border: 1px solid var(--hair); border-radius: 999px; background: transparent; color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.chip:hover { background: var(--hover); }
+.chip .key { width: 14px; height: 3px; border-radius: 2px; background: var(--c); }
+.chip b { font-weight: 650; font-variant-numeric: tabular-nums; }
+.chip[aria-pressed="false"] { color: var(--ink2); }
+.chip[aria-pressed="false"] .key { opacity: 0.3; }
+.chip[aria-pressed="false"] b { opacity: 0.55; }
+.legend .ring { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink2); margin-left: 6px; }
+.legend .ring i { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); box-shadow: 0 0 0 2px var(--surface); }
+.legend .ring i.hu { width: 16px; height: 1px; border-radius: 0; box-shadow: none; opacity: 0.6; }
+
+.chart { position: relative; touch-action: pan-y; border-radius: 6px; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: inherit; }
+.tip { position: absolute; top: 0; left: 0; pointer-events: none; z-index: 2; min-width: 190px; max-width: 280px; background: var(--surface); border: 1px solid var(--hair); border-radius: 8px; padding: 10px 12px; box-shadow: 0 6px 22px rgba(0, 0, 0, 0.14); font-size: 12.5px; }
+.tip[hidden] { display: none; }
+.tip .th { font-weight: 650; font-size: 13px; }
+.tip .ts { color: var(--ink2); font-size: 12px; margin-top: 1px; }
+.tip ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 3px; }
+.tip li { display: grid; grid-template-columns: 14px 44px minmax(0, 1fr); align-items: center; gap: 6px; }
+.tip li .k { height: 3px; border-radius: 2px; background: var(--c); }
+.tip li .v { font-weight: 700; font-size: 13.5px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.tip li .n { color: var(--ink2); }
+.tip .tg { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hair); color: var(--ink2); font-size: 12px; }
+.tip .tg strong { color: var(--ink); font-weight: 600; }
+
+/* Wie bei .card: .tablewrap selbst ist auch ein Flex-Kind (.card ist ebenfalls display:flex), braucht also
+   dieselbe min-width:0-Korrektur, damit sein eigenes overflow:auto greift statt die Karte aufzuziehen. */
+.tablewrap { min-width: 0; max-height: 460px; overflow: auto; border: 1px solid var(--hair); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 7px 12px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--hair); }
+th:first-child, td:first-child { text-align: left; }
+thead th { position: sticky; top: 0; background: var(--surface); font-weight: 650; color: var(--ink2); z-index: 1; }
+thead th .dot { margin-right: 6px; }
+td.num { font-variant-numeric: tabular-nums; }
+tr.elec td { font-weight: 650; background: var(--hover); }
+td.txt, th.txt { text-align: left; }
+.note { font-size: 12px; color: var(--ink2); max-width: 90ch; text-wrap: pretty; }
+
+/* Regierungen */
+.govs h2 { margin-bottom: 4px; }
+.govs .lead { color: var(--ink2); margin-bottom: 12px; }
+.govs .tablewrap { max-height: none; }
+.govs td, .govs th { text-align: left; white-space: normal; }
+.govs tr.now td { background: var(--hover); }
+.pill { display: inline-block; font-size: 11px; font-weight: 650; letter-spacing: 0.04em; text-transform: uppercase; padding: 1px 7px; border: 1px solid var(--ink2); border-radius: 999px; margin-left: 8px; vertical-align: 1px; }
+.cell-co { display: flex; flex-wrap: wrap; gap: 2px 12px; }
+.cell-co span { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+
+/* Sitzverteilung */
+.seats-wrap { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 32px; align-items: center; }
+/* max-width proportional zur breiteren Zeichenfläche (500 statt 380 SVG-Einheiten breit, s. common.js) –
+   sonst würden Punkte und Schrift beim Skalieren auf dieselbe Kartenbreite kleiner wirken als zuvor. */
+.hemicycle { position: relative; flex: 1 1 320px; min-width: 220px; max-width: 550px; }
+.hemicycle svg { display: block; width: 100%; height: auto; }
+.hemicycle svg circle { stroke: var(--surface); stroke-width: 0.6; }
+.seats-legend { flex: 0 1 240px; min-width: 200px; max-width: 240px; list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; align-content: center; }
+.seats-legend li { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.seats-legend .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.seats-legend .name { color: var(--ink); }
+.seats-legend .n { margin-left: auto; font-weight: 650; font-variant-numeric: tabular-nums; color: var(--ink2); white-space: nowrap; }
+.seats-legend li.opp .dot { opacity: .42; }
+.seats-legend li.opp .name { color: var(--ink2); }
+.seats-legend .pill { margin-left: 10px; }
+/* Export-Pfeil: nur bei Hover/Fokus sichtbar, statt eines dauerhaften Text-Buttons (wie im
+   finanzen-auswertung-Projekt) – dadurch pro Diagramm einsetzbar, auch auf den kleinen Kacheln. */
+.dl-icon {
+  position: absolute; top: -4px; right: 0; padding: 3px 8px; font: inherit; font-size: 1rem; line-height: 1;
+  color: var(--ink2); background: var(--surface); border: 1px solid var(--hair); border-radius: 6px;
+  cursor: pointer; opacity: 0; transition: opacity .15s, background .15s, color .15s;
+}
+.hemicycle:hover .dl-icon, .chart:hover .dl-icon, .dl-icon:focus-visible { opacity: 1; }
+.dl-icon:hover { background: var(--hover); color: var(--ink); }
+
+/* Raster kleiner Sitzverteilungen (Übersichtsseite) */
+.seat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+.seat-tile { display: block; background: var(--surface); border: 1px solid var(--hair); border-radius: 10px; padding: 14px 14px 12px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.seat-tile:hover { border-color: var(--ink2); }
+.seat-tile-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+.seat-tile-name { font-weight: 650; font-size: 14px; color: var(--ink); }
+.seat-tile-n { font-size: 12px; color: var(--ink2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.seat-tile .hemicycle { max-width: none; }
+.seat-tile-info { margin: 6px 0 0; font-size: 12px; color: var(--ink2); display: flex; flex-wrap: wrap; align-items: center; gap: 3px 7px; }
+.seat-tile-info .cell-co { gap: 2px 8px; }
+.seat-tile-info .cell-co i { width: 7px; height: 7px; }
+footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
+
+@media (max-width: 720px) {
+  .gov { grid-template-columns: minmax(0, 1fr); }
+  .card { padding: 14px 12px 12px; }
+  th, td { padding: 7px 9px; }
+}
+
+/* Navigation zwischen den Seiten */
+.nav { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.nav a { font-size: 13px; padding: 5px 12px; border: 1px solid var(--hair); border-radius: 999px; color: var(--ink2); text-decoration: none; }
+.nav a:hover { background: var(--hover); }
+.nav a[aria-current="page"] { background: var(--ink); color: var(--surface); border-color: var(--ink); font-weight: 600; }
+
+@media (max-width: 720px) {
+  .ctrls { width: 100%; }
+  .ctrls .sel { flex: 1 1 100%; }
+  .ctrls .sel select { width: 100%; }
+}
+.lead { color: var(--ink2); margin: 0 0 14px; }
+/* Breiter als die Standardseiten, damit alle Tabellenspalten ohne horizontales Scrollen passen. */
+.wrap { max-width: 1360px; }
+.meth { font-size: 13.5px; color: var(--ink2); max-width: 86ch; }
+.meth p { margin: 0 0 10px; }
+.meth p:last-child { margin-bottom: 0; }
+.prog td.lbl { white-space: normal; }
+.prog .yes { color: var(--s-afd); font-weight: 650; }
+.prog .no { color: var(--ink2); }
+.prog tr.bereits td { background: color-mix(in srgb, var(--s-afd) 10%, var(--surface)); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="nav" aria-label="Seiten">
+      <a href="index.html">Bundestag</a>
+      <a href="laender.html">Bundesländer</a>
+      <a href="sitzverteilung.html">Sitzverteilung</a>
+      <a href="prognose.html" aria-current="page">Prognose</a>
+    </nav>
+    <h1>Prognose: AfD-Trend je Bundesland</h1>
+    <p class="sub">Lineare Fortschreibung der Umfragewerte der letzten zwei Jahre – wann wird die AfD stärkste Kraft, wann überschreitet sie 45 %, und liegt das vor oder nach der nächsten Landtagswahl?</p>
+  </header>
+
+  <section class="card" aria-labelledby="meth-h">
+    <h2 id="meth-h">Methodik – bitte vor dem Lesen der Tabelle</h2>
+    <div class="meth">
+      <p>Für jedes Bundesland wird eine gewöhnliche lineare Regression durch die AfD-Umfragewerte der letzten zwei Jahre gelegt (bei zu wenigen Umfragen im Zeitraum: die letzten 20). Die Gerade wird in die Zukunft verlängert, bis sie entweder die ebenso fortgeschriebene Gerade der aktuell führenden Partei schneidet, oder die 45-%-Marke erreicht – diese statt der tatsächlichen Mehrheitsschwelle, weil die nicht unmittelbar vom Stimmanteil einer einzelnen Partei abhängt, sondern auch davon, wie viele Stimmen bei Parteien unter der 5-%-Hürde landen.</p>
+      <p><strong>Das ist keine Prognose im eigentlichen Sinn, sondern eine mechanische Fortschreibung „wenn es exakt linear so weiterginge“.</strong> Umfragewerte verlaufen in Wirklichkeit nicht linear, Wahlen setzen die Dynamik zurück, einzelne Ereignisse können alles verändern, und je weiter der projizierte Zeitpunkt in der Zukunft liegt, desto unzuverlässiger ist die Zahl. Die Datengrundlage ist außerdem pro Land unterschiedlich aktuell – manche Länder werden seit Monaten nicht mehr umfragt, das steht jeweils bei „Letzte Umfrage“.</p>
+      <p>Der Termin der nächsten Wahl kommt automatisch von wahlrecht.de und ist teils exakt, teils nur als Jahreszeit angegeben („Herbst 2028“, dann auf Monatsmitte gelegt). Nur gegen <em>diesen einen</em> Termin wird verglichen – reicht die Fortschreibung weiter in die Zukunft, zeigt die Tabelle das als „danach“, ohne einen übernächsten Wahltermin zu schätzen (den kennt die Quelle nicht).</p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="tbl-h">
+    <h2 id="tbl-h">Je Bundesland</h2>
+    <p class="rangeinfo" id="stand-info"></p>
+    <div class="tablewrap">
+      <table class="prog">
+        <thead>
+          <tr>
+            <th class="txt">Land</th>
+            <th>Letzte Umfrage</th>
+            <th class="txt">Aktuell führend</th>
+            <th>AfD aktuell</th>
+            <th>AfD-Trend</th>
+            <th class="txt">Wird stärkste Kraft</th>
+            <th class="txt">Erreicht 45 %</th>
+            <th class="txt">Nächste Wahl</th>
+            <th class="txt">Vor der Wahl?</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>Umfragen: <a href="https://www.wahlrecht.de/umfragen/landtage/" target="_blank" rel="noopener">wahlrecht.de</a>, zuletzt abgeglichen am <span id="f-stand"></span>. Berechnung: dieses Projekt, siehe Methodik oben.</p>
+    <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+    var ts = function (s) { var a = s.split("-"); return Date.UTC(+a[0], +a[1] - 1, +a[2]); };
+  var MON = ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"];
+  var p2 = function (n) { return (n < 10 ? "0" : "") + n; };
+  var fmt = function (t) { var d = new Date(t); return p2(d.getUTCDate()) + "." + p2(d.getUTCMonth() + 1) + "." + d.getUTCFullYear(); };
+  var pct = function (v) { return v == null ? "–" : String(v).replace(".", ",") + " %"; };
+  var fnum = function (n) { return n == null ? "" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, "."); };
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = "http://www.w3.org/2000/svg";
+  function el(tag, attrs, parent, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function h(tag, cls, parent, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function tickList(tmin, tmax, x0, x1) {
+    var span = (tmax - tmin) / 31557600000, ticks = [], y, m;
+    var yearPx = (x1 - x0) / span;
+    var d0 = new Date(tmin), d1 = new Date(tmax);
+    if (span < 4) {
+      for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) for (m = 0; m < 12; m += 3) {
+        var t = Date.UTC(y, m, 1);
+        if (t >= tmin && t <= tmax) ticks.push({ t: t, label: m === 0 ? String(y) : MON[m], major: m === 0 });
+      }
+      if (yearPx < 130) ticks = ticks.filter(function (k) { return k.major || (new Date(k.t).getUTCMonth() === 6); });
+      return ticks;
+    }
+    var steps = [1, 2, 4, 5, 10], step = 10;
+    for (var s = 0; s < steps.length; s++) { if (steps[s] * yearPx >= 54) { step = steps[s]; break; } }
+    for (y = d0.getUTCFullYear(); y <= d1.getUTCFullYear(); y++) {
+      var tt = Date.UTC(y, 0, 1);
+      if (tt >= tmin && tt <= tmax && y % step === 0) ticks.push({ t: tt, label: String(y), major: true });
+    }
+    return ticks;
+  }
+
+  var LONGMON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  function longDate(t) { var d = new Date(t); return d.getUTCDate() + ". " + LONGMON[d.getUTCMonth()] + " " + d.getUTCFullYear(); }
+
+  // ---------- Sitzverteilung (Halbkreisdiagramm) ----------
+  // Konzentrische Reihen im Abstand von zwei Sitzradien (Reihen berühren sich), Sitze innerhalb
+  // einer Reihe im selben Abstand entlang des Bogens (Sitze berühren sich) – der übliche Aufbau
+  // solcher Diagramme. Der Sitzradius wird per Bisektion so gesucht, dass die Kapazität knapp
+  // über n liegt; überzählige Plätze fallen von innen nach außen weg, damit die äußeren Reihen
+  // (wo bei den bekannten Vorbildern traditionell die Regierungsbank sitzt) voll bleiben.
+  // Reihenfolge der Punkte: links (180°) nach rechts (0°), damit Parteien in der übergebenen
+  // Reihenfolge zusammenhängende Blöcke bilden.
+  function hemicycleCapacity(seatR, rInner, rOuter) {
+    var rows = [], r = rInner;
+    while (r <= rOuter + 1e-9) { rows.push(r); r += seatR * 2; }
+    var counts = rows.map(function (rr) { return Math.max(1, Math.floor((Math.PI * rr) / (seatR * 2)) + 1); });
+    return { rows: rows, counts: counts, total: counts.reduce(function (a, b) { return a + b; }, 0) };
+  }
+  function hemicycleSeats(n) {
+    var rInner = 0.30, rOuter = 1, lo = 0.008, hi = 0.28;
+    for (var iter = 0; iter < 30; iter++) {
+      var mid = (lo + hi) / 2;
+      if (hemicycleCapacity(mid, rInner, rOuter).total >= n) lo = mid; else hi = mid;
+    }
+    var cap = hemicycleCapacity(lo, rInner, rOuter), counts = cap.counts.slice();
+    var over = cap.total - n, ri = 0, guard = 0;
+    while (over > 0 && guard++ < 100000) { if (counts[ri] > 1) { counts[ri]--; over--; } ri = (ri + 1) % counts.length; }
+    var pts = [];
+    for (var i = 0; i < cap.rows.length; i++) {
+      var cnt = counts[i], r = cap.rows[i];
+      for (var s = 0; s < cnt; s++) {
+        var t = cnt > 1 ? s / (cnt - 1) : 0.5, a = Math.PI - t * Math.PI;
+        pts.push({ x: Math.cos(a) * r, y: -Math.sin(a) * r, a: a });
+      }
+    }
+    pts.sort(function (p, q) { return q.a - p.a; }); // a = π (links) … 0 (rechts)
+    return { pts: pts, seatR: lo };
+  }
+
+  // data: { gesamt, regierung:{cab,sitze}, reihenfolge:[Kürzel …], sitze:{Kürzel: Zahl} }
+  // partyName(k) benennt ein Kürzel; govKeys sind die Kürzel der aktuellen Regierungsparteien.
+  // labels: Sitzzahl und Anteil dauerhaft über jeder Fraktion einblenden (nicht nur beim Hover).
+  function drawHemicycle(container, data, partyName, govKeys, labels) {
+    container.textContent = "";
+    // H hat gegenüber dem reinen Halbkreis (Radius bis 184, Fußpunkt bei H-12) bewusst Luft nach oben:
+    // dort sitzt die Beschriftung, wie bei den Wikipedia-Diagrammen üblich, außerhalb des Punktrings statt
+    // mitten in der Punktwolke – das braucht Platz oberhalb des höchsten Sitzes, den es sonst nicht gäbe.
+    // W hat aus demselben Grund gegenüber dem reinen Halbkreis (Durchmesser bis 368) Luft links und rechts:
+    // ohne die fiele die Beschriftung der äußersten Fraktionen (nahe 0°/180°) in den Punktring zurück, weil
+    // dort für sie schlicht kein Platz mehr zwischen Punktrand und Zeichenflächenrand übrig wäre.
+    var W = 500, H = 250, cx = W / 2, cy = H - 12;
+    var layout = hemicycleSeats(data.gesamt), pts = layout.pts;
+    // Bei wenigen Sitzen sind die Punkte (normiert layout.seatR) größer; ohne Gegenrechnung würde ihr
+    // Rand über die Zeichenfläche hinausragen. R so wählen, dass Mittelpunkt-Radius + Punktradius nie
+    // über den verfügbaren Platz hinausgeht (kleiner werdender Radius bei größer werdenden Punkten).
+    var dotScale = 0.88;
+    var R = Math.min(184, (cx - 6) / (1 + dotScale * layout.seatR));
+    var dotR = Math.max(1.8, layout.seatR * R * dotScale); // etwas Luft zwischen den Punkten lassen
+    var labelR = R + dotR + 16; // fester Ring außerhalb aller Punkte, unabhängig vom Winkel
+    var svg = el("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", height: "auto", "aria-hidden": "true" });
+    container.appendChild(svg); // früh anhängen, damit getBBox() weiter unten zuverlässig funktioniert
+    // Dieselbe Zeichenfläche (W×H in SVG-Einheiten) wird ganz unterschiedlich groß dargestellt – auf der
+    // großen Bund-/Land-Karte mehrere hundert Pixel breit, auf einer der 16 kleinen Übersichtskacheln nur
+    // rund 300px. Ein fester SVG-Font-Size-Wert würde auf den Kacheln entsprechend winzig ankommen (bei
+    // einer Umfrage nachgemessen: ~9px statt ~18px auf der großen Karte). fontScale gleicht das aus, damit
+    // die Beschriftung auf dem Bildschirm überall etwa gleich groß und lesbar ist, unabhängig vom Kontext.
+    var containerPx = container.getBoundingClientRect().width || W;
+    var fontScale = W / containerPx;
+    var i = 0, cum = 0, labelData = [];
+    data.reihenfolge.forEach(function (k) {
+      var n = data.sitze[k] || 0;
+      if (!n) return;
+      var isGov = govKeys.indexOf(k) >= 0;
+      var g = el("g", { style: "fill:var(--s-" + k + ",var(--ink2))" + (isGov ? "" : ";opacity:.42") }, svg);
+      el("title", {}, g, partyName(k) + ": " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? " · Regierung" : ""));
+      for (var s = 0; s < n; s++, i++) {
+        var p = pts[i]; if (!p) continue;
+        var px = cx + p.x * R, py = cy + p.y * R;
+        el("circle", { cx: px.toFixed(1), cy: py.toFixed(1), r: dotR.toFixed(2) }, g);
+      }
+      // Winkel wie bei einem unsichtbaren Wikipedia-Farbkeil: rein proportional zum Sitzanteil (Mitte des
+      // Abschnitts [cum, cum+n] von insgesamt data.gesamt Sitzen auf dem Halbkreis), NICHT der Mittelwert
+      // der tatsächlichen Punktwinkel. Die echten Punkte liegen zeilenweise (verschiedene Zeilen fassen
+      // unterschiedlich viele Sitze), wodurch ihr Mittelwinkel je nach Zufälligkeit der Zeilenaufteilung
+      // leicht daneben liegen und wackeln kann – der Keil-Winkel ist dagegen exakt und deckungsgleich mit
+      // der Fraktionsreihenfolge, unabhängig vom Packungsdetail der Punkte.
+      labelData.push({ n: n, theta: Math.PI * (1 - (cum + n / 2) / data.gesamt) });
+      cum += n;
+    });
+    // Beschriftung wie bei Wikipedias Halbkreisdiagrammen: auf dem Keilwinkel der eigenen Fraktion, aber
+    // auf einem Radius außerhalb des gesamten Punktrings (labelR), statt mittendrin. Dadurch gibt es nie
+    // eine Kollision mit Punkten – auch nicht mit denen fremder Fraktionen, WEIL der Winkel selbst nie
+    // verändert wird (er bleibt exakt der Keilwinkel der eigenen Fraktion). Nur der Radius wird bei Bedarf
+    // verkleinert, damit das Label nicht über den linken/rechten Rand der Zeichenfläche hinausragt – ein
+    // Verkleinern des Winkels stattdessen (frühere Version) hätte das Label Richtung Bildmitte verschoben
+    // und dabei über den Keil der Nachbarfraktion gelegt (genau der gemeldete Fehler bei kleinen
+    // Randfraktionen). Bei ganz am Rand (nahe 0°/180°) sitzenden Mini-Fraktionen bleibt der vertikale
+    // Abstand zur eigenen untersten Punktreihe entsprechend klein – wie auch bei Wikipedias Vorbildern,
+    // wo Eck-Beschriftungen knapp neben der Spitze des eigenen Keils stehen statt hoch angehoben zu sein.
+    // Alle Labels werden erst gezeichnet, nachdem alle Punkte aller Fraktionen stehen (eigener Durchlauf,
+    // nicht verschachtelt mit den Punkt-Gruppen oben): sonst könnte die Punktgruppe einer später gezeich-
+    // neten Nachbarfraktion – in der SVG-Zeichenreihenfolge über allem Vorherigen – das Label einer früher
+    // gezeichneten Fraktion optisch verdecken, obwohl es außerhalb von deren eigenen Punkten liegt.
+    if (labels) {
+      // Erst an der ungeklemmten Position zeichnen und die tatsächliche Textbreite per getBBox() messen
+      // (statt eines geschätzten Rand-Werts): die Schriftgröße variiert ja mit fontScale, ein fester
+      // Rand-Wert wäre für eine große Karte zu großzügig und für eine kleine Kachel zu knapp.
+      var placed = labelData.map(function (d) {
+        var theta = d.theta;
+        var lx0 = cx + Math.cos(theta) * labelR, ly0 = cy - Math.sin(theta) * labelR;
+        var share = d.n / data.gesamt * 100, pctTxt = (share < 0.5 ? "<1" : String(Math.round(share))) + " %";
+        var t = el("text", {
+          x: lx0.toFixed(1), y: ly0.toFixed(1), "text-anchor": "middle",
+          style: "font-variant-numeric:tabular-nums;paint-order:stroke;stroke:var(--surface);" +
+            "stroke-width:" + (4 * fontScale).toFixed(2) + "px;stroke-linejoin:round",
+        }, svg);
+        var tsNum = el("tspan", { x: lx0.toFixed(1), dy: "0", style: "font-size:" + (15 * fontScale).toFixed(2) + "px;font-weight:650;fill:var(--ink)" }, t, String(d.n));
+        var tsPct = el("tspan", { x: lx0.toFixed(1), dy: (14 * fontScale).toFixed(2), style: "font-size:" + (13 * fontScale).toFixed(2) + "px;fill:var(--ink2)" }, t, pctTxt);
+        var bbox = t.getBBox(), halfW = bbox.width / 2 + 2 * fontScale, rMax = labelR;
+        // y ist die Grundlinie der ERSTEN Zeile, nicht die Mitte des Textblocks: der Block reicht nach oben
+        // nur um die Versalhöhe, nach unten aber über Zeilenabstand + zweite Zeile deutlich weiter. topOff/
+        // botOff halten den tatsächlichen (asymmetrischen) Abstand von y zu Ober-/Unterkante fest, statt
+        // ihn wie eine halbe Höhe zu behandeln – sonst ließe die Rand-/Stapel-Klemmung unten systematisch
+        // zu wenig Puffer (genau der Fehler, durch den ein Label unbemerkt über den unteren Rand ragte).
+        var topOff = ly0 - bbox.y, botOff = (bbox.y + bbox.height) - ly0;
+        if (Math.cos(theta) > 1e-6) rMax = Math.min(rMax, (W - halfW - cx) / Math.cos(theta));
+        else if (Math.cos(theta) < -1e-6) rMax = Math.min(rMax, (halfW - cx) / Math.cos(theta));
+        return { theta: theta, r: rMax, rMax: rMax, halfW: halfW, topOff: topOff, botOff: botOff, t: t, tsNum: tsNum, tsPct: tsPct };
+      });
+      // Bei mehreren sehr kleinen Fraktionen dicht an einer Ecke (z. B. zwei 3-Sitze-Parteien nebeneinander)
+      // reicht der Winkelabstand für die (gegenüber den SVG-Einheiten der Punkte unabhängig skalierte)
+      // Schrift manchmal nicht: die Labels würden sich sonst gegenseitig überlappen. Deshalb hier noch ein
+      // Kollisions-Check zwischen jeweils benachbarten Labels (Winkelreihenfolge = Bildreihenfolge): statt
+      // den Winkel zu ändern (das würde wie bei der Rand-Klemmung oben ins Gebiet der Nachbarfraktion
+      // führen), wird bei Bedarf nur der Radius des zweiten Labels schrittweise vergrößert, bis kein
+      // Überlappen mehr besteht oder der zeichenflächen-sichere Radius erreicht ist.
+      // Gegen ALLE bereits platzierten Labels prüfen, nicht nur das direkt vorherige: bei drei oder mehr
+      // Mini-Fraktionen in derselben Ecke (z. B. drei 1-6-Sitze-Parteien nebeneinander) kann ein Label mit
+      // seinem zweiten Nachbarn kollidieren, nachdem der erste Nachbar schon woanders hingeschoben wurde –
+      // ein reiner Vorgänger-Vergleich hätte das übersehen und das Label unbemerkt über den Rand geschoben.
+      function pos(p) { return p.lx != null ? p : { lx: cx + Math.cos(p.theta) * p.r, ly: cy - Math.sin(p.theta) * p.r }; }
+      for (var pi = 1; pi < placed.length; pi++) {
+        var cur = placed[pi], guard = 0, moved = true;
+        while (moved && guard++ < 60) {
+          moved = false;
+          var cp = pos(cur);
+          for (var pj = 0; pj < pi; pj++) {
+            var other = placed[pj], op = pos(other);
+            var dx = cp.lx - op.lx;
+            var curTop = cp.ly - cur.topOff, curBot = cp.ly + cur.botOff;
+            var otherTop = op.ly - other.topOff, otherBot = op.ly + other.botOff;
+            var vertOverlap = curTop < otherBot - 2 && curBot > otherTop + 2; // 2 SVG-Einheiten Toleranz
+            if (Math.abs(dx) < (other.halfW + cur.halfW) * 0.9 && vertOverlap) {
+              var next = Math.min(cur.r + 3, cur.rMax);
+              if (next === cur.r) {
+                // Zeichenflächen-sicheres Maximum erreicht (typisch: beide Labels an derselben Kante nahe
+                // 0°/180° geklemmt, radiales Verschieben bringt dort kaum noch y-Abstand). Dann direkt
+                // unter/über das kollidierende Label stapeln statt weiter auf dem eigenen Keilwinkel zu
+                // bestehen – bei so dicht gedrängten Mini-Fraktionen ist "lesbar" wichtiger als "exakt auf
+                // dem eigenen Winkel". Bevorzugt in die Richtung, in der cur ohnehin schon liegt; nur wenn
+                // das über den Zeichenflächenrand hinausginge, die andere Richtung nehmen, und als letztes
+                // Sicherheitsnetz danach nochmal hart auf den gültigen Bereich klemmen.
+                var gap = 2;
+                var belowLy = otherBot + gap + cur.topOff, aboveLy = otherTop - gap - cur.botOff;
+                var stackedLy = cp.ly >= op.ly ? belowLy : aboveLy;
+                if (stackedLy + cur.botOff > H - 4) stackedLy = aboveLy;
+                else if (stackedLy - cur.topOff < 4) stackedLy = belowLy;
+                stackedLy = Math.max(4 + cur.topOff, Math.min(H - 4 - cur.botOff, stackedLy));
+                cur.lx = op.lx;
+                cur.ly = stackedLy;
+              } else {
+                cur.r = next;
+              }
+              moved = true; // nach jeder Korrektur von vorne gegen alle prüfen, falls neue Kollision entsteht
+              break;
+            }
+          }
+        }
+      }
+      // Letzte, von der Kollisionsprüfung unabhängige Sicherung: bei einer Fraktion knapp neben 0°/180° mit
+      // sehr kleinem Radius kann die eigene (mit niemandem kollidierende) Position so nah am unteren Rand
+      // liegen, dass allein die Texthöhe über die Zeichenfläche hinausragt – ganz ohne dass ein anderes
+      // Label beteiligt ist. Das oben durchlaufene Kollisions-Pärchen-System greift dann gar nicht erst.
+      placed.forEach(function (p) {
+        var fp = pos(p), ly = fp.ly;
+        if (ly + p.botOff > H - 4) ly = H - 4 - p.botOff;
+        else if (ly - p.topOff < 4) ly = 4 + p.topOff;
+        if (ly !== fp.ly) { p.lx = fp.lx; p.ly = ly; }
+      });
+      placed.forEach(function (p) {
+        var fp = pos(p), lx = fp.lx.toFixed(1), ly = fp.ly.toFixed(1);
+        p.t.setAttribute("x", lx); p.t.setAttribute("y", ly);
+        p.tsNum.setAttribute("x", lx); p.tsPct.setAttribute("x", lx);
+      });
+    }
+  }
+
+  function drawSeatLegend(container, data, partyName, govKeys) {
+    container.textContent = "";
+    data.reihenfolge.forEach(function (k) {
+      var n = data.sitze[k] || 0;
+      if (!n) return;
+      var isGov = govKeys.indexOf(k) >= 0;
+      var li = h("li", isGov ? "" : "opp", container);
+      h("span", "dot", li).style.background = "var(--s-" + k + ",var(--ink2))";
+      h("span", "name", li, partyName(k));
+      h("span", "n", li, n + " Sitz" + (n === 1 ? "" : "e"));
+      if (isGov) h("span", "pill", li, "Regierung");
+    });
+  }
+
+  // Kürzel der stärksten Fraktion (meiste Sitze).
+  function leadingParty(data) {
+    var best = null, max = -1;
+    data.reihenfolge.forEach(function (k) { var n = data.sitze[k] || 0; if (n > max) { max = n; best = k; } });
+    return best;
+  }
+  // Färbt "elem" dezent in der Farbe der stärksten Fraktion ein (color-mix mit der Kartenfläche).
+  function tintByLeadingParty(elem, data) {
+    if (!elem) return;
+    var k = leadingParty(data);
+    elem.style.background = k ? "color-mix(in srgb, var(--s-" + k + ", var(--ink2)) 13%, var(--surface))" : "";
+  }
+
+  // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional. filename
+  // gesetzt → Export-Pfeil-Button wird mit angelegt (bei jedem Aufruf neu, s. addExportButton); title ist
+  // dessen Bildüberschrift (muss den Namen des Parlaments/Bundeslands enthalten – im Dateinamen allein
+  // sieht man ihn beim Betrachten des Bildes ja nicht).
+  function renderSeats(hemiEl, legendEl, infoEl, data, partyName, govKeys, filename, title) {
+    if (infoEl) {
+      var majority = Math.floor(data.gesamt / 2) + 1;
+      infoEl.textContent = data.regierung.cab + ": " + data.regierung.sitze + " von " + data.gesamt +
+        " Sitzen · Mehrheit ab " + majority + " · Stand " + fmt(ts(SITZE.stand));
+    }
+    if (hemiEl) {
+      drawHemicycle(hemiEl, data, partyName, govKeys, true);
+      tintByLeadingParty(hemiEl.closest(".card"), data);
+      if (filename) addExportButton(hemiEl, filename, title, seatLegendItems(data, partyName, govKeys));
+    }
+    if (legendEl) drawSeatLegend(legendEl, data, partyName, govKeys);
+  }
+
+  // Farbe einer Partei als aufgelöster Wert (Hex/RGB), nicht die CSS-Variable selbst – ein eigenständiges
+  // Canvas kennt var(--s-xxx) nicht. Gleicher Fallback wie bei den Live-Diagrammen (var(--s-KEY,var(--ink2))).
+  function partyColor(k) {
+    var root = getComputedStyle(document.documentElement);
+    return root.getPropertyValue("--s-" + k).trim() || root.getPropertyValue("--ink2").trim();
+  }
+
+  // Baut die Export-Legende für ein Sitzverteilungs-Diagramm aus denselben Daten, mit denen auch das
+  // Diagramm selbst gezeichnet wurde (nicht aus dem DOM abgeschrieben) – funktioniert dadurch gleicher-
+  // maßen für die große Karte mit eigener <ul> UND für die 16 kleinen Kacheln, die gar keine eigene
+  // Legende im DOM haben.
+  function seatLegendItems(data, partyName, govKeys) {
+    var items = [];
+    data.reihenfolge.forEach(function (k) {
+      var n = data.sitze[k] || 0;
+      if (!n) return;
+      var isGov = govKeys.indexOf(k) >= 0;
+      items.push({
+        color: partyColor(k), dim: !isGov,
+        text: partyName(k) + "   " + n + " Sitz" + (n === 1 ? "" : "e") + (isGov ? "   · Regierung" : ""),
+      });
+    });
+    return items;
+  }
+
+  // Liest die Umfrageverlauf-Legende (Parteiname, aktueller Wert, Veränderung) direkt aus den sichtbaren
+  // .chip-Elementen ab, statt deren Berechnung (Trend- vs. Wahl-Modus, Gleitmittel vs. Momentwert) ein
+  // zweites Mal nachzubauen – template.html und laender.html haben dafür leicht unterschiedliche Logik,
+  // aber am Ende beide dieselbe .chip-Struktur (Farbpunkt, Name, Wert, Veränderung).
+  function chartLegendItems(legendBox) {
+    var items = [];
+    legendBox.querySelectorAll(".chip").forEach(function (chip) {
+      if (chip.hidden || chip.getAttribute("aria-pressed") === "false") return;
+      var pClass = null;
+      for (var i = 0; i < chip.classList.length; i++) { if (chip.classList[i].indexOf("p-") === 0) { pClass = chip.classList[i]; break; } }
+      var color = pClass ? partyColor(pClass.slice(2)) : getComputedStyle(chip.querySelector(".key")).backgroundColor;
+      var name = chip.children[1] ? chip.children[1].textContent : "";
+      var value = chip.children[2] ? chip.children[2].textContent : "";
+      var change = "";
+      if (chip.children[3]) {
+        var clone = chip.children[3].cloneNode(true);
+        clone.querySelectorAll(".sr").forEach(function (s) { s.remove(); }); // nur für Screenreader gedachter Zusatztext
+        change = clone.textContent;
+      }
+      items.push({ color: color, text: name + "   " + value + (change ? "   " + change : "") });
+    });
+    return items;
+  }
+
+  // Generischer Kern: klont das <svg> aus "container", löst CSS-Variablen zu festen Werten auf (ein
+  // eigenständiges SVG kennt var(--…) sonst nicht) und rendert es zusammen mit einem optionalen Titel und
+  // einer Legende (items: [{color, text, dim}], je ein Punkt + Text pro Zeile) als PNG. Ohne title/items
+  // wird nur das Diagramm selbst exportiert. dim (z. B. Oppositionsparteien) wird abgeblendet gezeichnet,
+  // wie im Diagramm selbst. Genutzt sowohl von den Halbkreisdiagrammen als auch vom Umfrageverlauf.
+  function exportSvgPNG(container, filename, title, items) {
+    var live = container.querySelector("svg");
+    if (!live) return;
+    var clone = live.cloneNode(true);
+    var liveAll = live.querySelectorAll("*"), cloneAll = clone.querySelectorAll("*");
+    for (var i = 0; i < liveAll.length; i++) {
+      var cs = getComputedStyle(liveAll[i]), ce = cloneAll[i];
+      if (cs.fill && cs.fill !== "none") ce.setAttribute("fill", cs.fill);
+      if (cs.opacity && cs.opacity !== "1") ce.setAttribute("opacity", cs.opacity);
+      if (cs.stroke && cs.stroke !== "none") {
+        ce.setAttribute("stroke", cs.stroke); ce.setAttribute("stroke-width", cs.strokeWidth);
+        ce.setAttribute("stroke-linejoin", cs.strokeLinejoin); ce.setAttribute("paint-order", cs.paintOrder);
+      }
+      if (ce.tagName === "text" || ce.tagName === "tspan") { ce.setAttribute("font-size", cs.fontSize); ce.setAttribute("font-weight", cs.fontWeight); }
+      // Das style-Attribut enthält noch var(--…)-Referenzen, die ein eigenständiges SVG nicht auflösen
+      // kann (fällt sonst z. B. bei fill auf Schwarz zurück) – jetzt durch die Attribute oben ersetzt.
+      ce.removeAttribute("style");
+    }
+    var vb = clone.getAttribute("viewBox").split(" ").map(Number), vbW = vb[2], vbH = vb[3];
+    var font = getComputedStyle(document.body).fontFamily || "system-ui, -apple-system, 'Segoe UI', sans-serif";
+    clone.setAttribute("font-family", font);
+    clone.removeAttribute("width"); clone.removeAttribute("height");
+
+    var rootCs = getComputedStyle(document.documentElement);
+    var bg = rootCs.getPropertyValue("--surface").trim() || "#fff";
+    var ink = rootCs.getPropertyValue("--ink").trim() || "#000";
+    var ink2 = rootCs.getPropertyValue("--ink2").trim() || "#666";
+
+    items = items || [];
+    var scale = 3, pad = 16, titleH = title ? 28 : 0, rowH = 22;
+    var legendW = 0;
+    var measure = document.createElement("canvas").getContext("2d");
+    measure.font = "600 14px " + font;
+    items.forEach(function (it) { legendW = Math.max(legendW, 20 + measure.measureText(it.text).width); });
+    var legendH = items.length ? items.length * rowH + 10 : 0;
+    var W = Math.max(vbW, legendW) + 2 * pad, H = vbH + titleH + legendH + 2 * pad;
+    var chartX = pad + Math.max(0, (W - 2 * pad - vbW) / 2);
+
+    var canvas = document.createElement("canvas");
+    canvas.width = W * scale; canvas.height = H * scale;
+    var ctx = canvas.getContext("2d");
+    ctx.scale(scale, scale);
+    ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+    var svgUrl = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(clone)], { type: "image/svg+xml;charset=utf-8" }));
+    var img = new Image();
+    img.onload = function () {
+      if (title) { ctx.fillStyle = ink; ctx.font = "650 16px " + font; ctx.fillText(title, pad, pad + 16); }
+      ctx.drawImage(img, chartX, pad + titleH, vbW, vbH);
+      URL.revokeObjectURL(svgUrl);
+      var y = pad + titleH + vbH + 18;
+      items.forEach(function (it) {
+        ctx.globalAlpha = it.dim ? 0.55 : 1;
+        ctx.fillStyle = it.color;
+        ctx.beginPath(); ctx.arc(pad + 6, y - 5, 6, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = it.dim ? ink2 : ink;
+        ctx.font = "600 14px " + font;
+        ctx.fillText(it.text, pad + 20, y);
+        y += rowH;
+      });
+      canvas.toBlob(function (blob) {
+        var a = document.createElement("a"), url = URL.createObjectURL(blob);
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+      });
+    };
+    img.src = svgUrl;
+  }
+
+  // Kleiner Pfeil-Button oben rechts über dem Diagramm, nur bei Hover/Fokus sichtbar (wie der PNG-Export
+  // im finanzen-auswertung-Projekt) – ersetzt den bisherigen dauerhaft sichtbaren Text-Button und lässt
+  // sich dadurch pro Diagramm einsetzen (Halbkreise UND Liniendiagramm, auch die 16 kleinen Kacheln).
+  // "container" braucht position:relative und enthält das <svg>. Bei mehrfachem Aufruf (z. B. Länder-
+  // oder Zeitraumwechsel) wird ein vorheriger Button entfernt statt sich zu duplizieren. stopPropagation/
+  // preventDefault, weil eine Kachel selbst ein Link zur Länderseite ist – ein Klick auf den Button soll
+  // nicht dorthin navigieren.
+  function addExportButton(container, filename, title, items) {
+    var old = container.querySelector(".dl-icon");
+    if (old) old.remove();
+    var btn = h("button", "dl-icon", container, "⤓");
+    btn.type = "button";
+    btn.title = "Diagramm als Bild (PNG) speichern";
+    btn.setAttribute("aria-label", "Diagramm als Bild speichern");
+    btn.addEventListener("click", function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      exportSvgPNG(container, filename, title, items);
+    });
+  }
+  var PROGNOSE = {"stand":"2026-10-17","fenster_tage":730,"schwelle":45.0,"laender":[{"slug":"sachsen-anhalt","name":"Sachsen-Anhalt","stand":"2026-09-03","afd_aktuell":41.0,"afd_trend_jahr":6.58,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":41.8,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-01","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"thueringen","name":"Thüringen","stand":"2026-07-02","afd_aktuell":40.0,"afd_trend_jahr":3.76,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":38.6,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-10","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"brandenburg","name":"Brandenburg","stand":"2026-10-09","afd_aktuell":40.0,"afd_trend_jahr":5.25,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":36.0,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2027-12","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"mecklenburg-vorpommern","name":"Mecklenburg- Vorpommern","stand":"2026-09-17","afd_aktuell":36.0,"afd_trend_jahr":4.54,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":36.8,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2028-06","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"sachsen","name":"Sachsen","stand":"2026-05-21","afd_aktuell":42.0,"afd_trend_jahr":2.88,"fuehrend":"afd","fuehrend_label":"AfD","fuehrend_aktuell":34.0,"bereits_fuehrend":true,"stark_datum":null,"mehrheit_datum":"2028-12","naechste_wahl":"Herbst 2029","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"niedersachsen","name":"Niedersachsen","stand":"2026-09-11","afd_aktuell":21.0,"afd_trend_jahr":3.35,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":26.0,"bereits_fuehrend":false,"stark_datum":"2026-10","mehrheit_datum":"2033-08","naechste_wahl":"26. September 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":true},{"slug":"baden-wuerttemberg","name":"Baden-Württemberg","stand":"2026-04-10","afd_aktuell":22.0,"afd_trend_jahr":2.26,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":27.2,"bereits_fuehrend":false,"stark_datum":"2027-05","mehrheit_datum":"2037-03","naechste_wahl":"Frühjahr 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"hessen","name":"Hessen","stand":"2026-04-29","afd_aktuell":22.0,"afd_trend_jahr":3.54,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":32.2,"bereits_fuehrend":false,"stark_datum":"2027-06","mehrheit_datum":"2032-12","naechste_wahl":"Herbst 2028","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"rheinland-pfalz","name":"Rheinland-Pfalz","stand":"2026-08-20","afd_aktuell":24.0,"afd_trend_jahr":3.46,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":28.4,"bereits_fuehrend":false,"stark_datum":"2027-10","mehrheit_datum":"2033-05","naechste_wahl":"Frühjahr 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":true},{"slug":"nrw","name":"Nordrhein-Westfalen","stand":"2026-06-28","afd_aktuell":17.0,"afd_trend_jahr":3.04,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":33.8,"bereits_fuehrend":false,"stark_datum":"2028-02","mehrheit_datum":"2035-05","naechste_wahl":"25. April 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false},{"slug":"bayern","name":"Bayern","stand":"2026-03-03","afd_aktuell":18.0,"afd_trend_jahr":0.46,"fuehrend":"cdu","fuehrend_label":"CSU","fuehrend_aktuell":39.2,"bereits_fuehrend":false,"stark_datum":"2032-02","mehrheit_datum":"2083-06","naechste_wahl":"Herbst 2028","naechste_wahl_exakt":false,"vor_naechster_wahl":false},{"slug":"hamburg","name":"Hamburg","stand":"2026-09-30","afd_aktuell":14.0,"afd_trend_jahr":1.96,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":31.0,"bereits_fuehrend":false,"stark_datum":"2032-07","mehrheit_datum":"2043-03","naechste_wahl":"Winter 2030","naechste_wahl_exakt":false,"vor_naechster_wahl":false},{"slug":"berlin","name":"Berlin","stand":"2026-10-08","afd_aktuell":17.0,"afd_trend_jahr":2.55,"fuehrend":"lin","fuehrend_label":"LINKE","fuehrend_aktuell":22.2,"bereits_fuehrend":false,"stark_datum":null,"mehrheit_datum":"2037-05","naechste_wahl":"Herbst 2031","naechste_wahl_exakt":false,"vor_naechster_wahl":false},{"slug":"schleswig-holstein","name":"Schleswig-Holstein","stand":"2026-07-14","afd_aktuell":18.0,"afd_trend_jahr":2.24,"fuehrend":"cdu","fuehrend_label":"CDU/CSU","fuehrend_aktuell":35.4,"bereits_fuehrend":false,"stark_datum":"2039-07","mehrheit_datum":"2039-05","naechste_wahl":"18. April 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false},{"slug":"bremen","name":"Bremen","stand":"2026-08-19","afd_aktuell":17.0,"afd_trend_jahr":0.71,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":25.2,"bereits_fuehrend":false,"stark_datum":"2049-01","mehrheit_datum":"2070-12","naechste_wahl":"30. Mai 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false},{"slug":"saarland","name":"Saarland","stand":"2025-12-03","afd_aktuell":23.0,"afd_trend_jahr":1.04,"fuehrend":"spd","fuehrend_label":"SPD","fuehrend_aktuell":33.0,"bereits_fuehrend":false,"stark_datum":"2052-11","mehrheit_datum":"2055-11","naechste_wahl":"18. April 2027","naechste_wahl_exakt":true,"vor_naechster_wahl":false}]};
+
+  function monthLabel(ym) {
+    if (!ym) return null;
+    var parts = ym.split("-"), y = +parts[0], m = +parts[1];
+    return MON[m - 1] + " " + y;
+  }
+
+  $("stand-info").textContent = PROGNOSE.laender.length + " Bundesländer · Trendfenster " +
+    Math.round(PROGNOSE.fenster_tage / 365) + " Jahre · Schwelle " + PROGNOSE.schwelle.toFixed(0).replace(".", ",") + " %";
+
+  var tbody = $("tbody");
+  PROGNOSE.laender.forEach(function (L) {
+    var tr = h("tr", L.bereits_fuehrend ? "bereits" : "", tbody);
+    var land = h("td", "lbl txt", tr);
+    var a = h("a", "", land, L.name); a.href = "laender.html#land=" + L.slug;
+    h("td", "num", tr, fmt(ts(L.stand)));
+    h("td", "txt", tr, L.fuehrend_label + " " + L.fuehrend_aktuell.toFixed(1).replace(".", ",") + " %");
+    h("td", "num", tr, L.afd_aktuell.toFixed(1).replace(".", ",") + " %");
+    h("td", "num", tr, L.afd_trend_jahr == null ? "–" :
+      (L.afd_trend_jahr > 0 ? "+" : "−") + Math.abs(L.afd_trend_jahr).toFixed(1).replace(".", ",") + " Pkt/J");
+    h("td", "txt", tr, L.bereits_fuehrend ? "bereits" : (monthLabel(L.stark_datum) || "–"));
+    h("td", "txt", tr, monthLabel(L.mehrheit_datum) || "–");
+    h("td", "txt", tr, L.naechste_wahl + (L.naechste_wahl_exakt ? "" : " (geschätzt)"));
+    var einordnung = h("td", "txt", tr);
+    if (L.bereits_fuehrend) { einordnung.textContent = "bereits jetzt"; einordnung.className += " yes"; }
+    else if (L.vor_naechster_wahl === true) { einordnung.textContent = "ja"; einordnung.className += " yes"; }
+    else if (L.vor_naechster_wahl === false) { einordnung.textContent = "nein, erst danach"; einordnung.className += " no"; }
+    else { einordnung.textContent = "–"; einordnung.className += " no"; }
+  });
+
+  $("f-stand").textContent = fmt(ts(PROGNOSE.stand));
+})();
+</script>
+</body>
+</html>

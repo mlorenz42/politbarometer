@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Lineare Trendfortschreibung der AfD-Umfragewerte je Bundesland: wann stärkste Kraft, wann 45 %, im Vergleich zum nächsten Wahltermin.">
+<title>Prognose</title>
+<style>
+/*COMMON_CSS*/
+.lead { color: var(--ink2); margin: 0 0 14px; }
+/* Breiter als die Standardseiten, damit alle Tabellenspalten ohne horizontales Scrollen passen. */
+.wrap { max-width: 1360px; }
+.meth { font-size: 13.5px; color: var(--ink2); max-width: 86ch; }
+.meth p { margin: 0 0 10px; }
+.meth p:last-child { margin-bottom: 0; }
+.prog td.lbl { white-space: normal; }
+.prog .yes { color: var(--s-afd); font-weight: 650; }
+.prog .no { color: var(--ink2); }
+.prog tr.bereits td { background: color-mix(in srgb, var(--s-afd) 10%, var(--surface)); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <nav class="nav" aria-label="Seiten">
+      <a href="index.html">Bundestag</a>
+      <a href="laender.html">Bundesländer</a>
+      <a href="sitzverteilung.html">Sitzverteilung</a>
+      <a href="prognose.html" aria-current="page">Prognose</a>
+    </nav>
+    <h1>Prognose: AfD-Trend je Bundesland</h1>
+    <p class="sub">Lineare Fortschreibung der Umfragewerte der letzten zwei Jahre – wann wird die AfD stärkste Kraft, wann überschreitet sie 45 %, und liegt das vor oder nach der nächsten Landtagswahl?</p>
+  </header>
+
+  <section class="card" aria-labelledby="meth-h">
+    <h2 id="meth-h">Methodik – bitte vor dem Lesen der Tabelle</h2>
+    <div class="meth">
+      <p>Für jedes Bundesland wird eine gewöhnliche lineare Regression durch die AfD-Umfragewerte der letzten zwei Jahre gelegt (bei zu wenigen Umfragen im Zeitraum: die letzten 20). Die Gerade wird in die Zukunft verlängert, bis sie entweder die ebenso fortgeschriebene Gerade der aktuell führenden Partei schneidet, oder die 45-%-Marke erreicht – diese statt der tatsächlichen Mehrheitsschwelle, weil die nicht unmittelbar vom Stimmanteil einer einzelnen Partei abhängt, sondern auch davon, wie viele Stimmen bei Parteien unter der 5-%-Hürde landen.</p>
+      <p><strong>Das ist keine Prognose im eigentlichen Sinn, sondern eine mechanische Fortschreibung „wenn es exakt linear so weiterginge“.</strong> Umfragewerte verlaufen in Wirklichkeit nicht linear, Wahlen setzen die Dynamik zurück, einzelne Ereignisse können alles verändern, und je weiter der projizierte Zeitpunkt in der Zukunft liegt, desto unzuverlässiger ist die Zahl. Die Datengrundlage ist außerdem pro Land unterschiedlich aktuell – manche Länder werden seit Monaten nicht mehr umfragt, das steht jeweils bei „Letzte Umfrage“.</p>
+      <p>Der Termin der nächsten Wahl kommt automatisch von wahlrecht.de und ist teils exakt, teils nur als Jahreszeit angegeben („Herbst 2028“, dann auf Monatsmitte gelegt). Nur gegen <em>diesen einen</em> Termin wird verglichen – reicht die Fortschreibung weiter in die Zukunft, zeigt die Tabelle das als „danach“, ohne einen übernächsten Wahltermin zu schätzen (den kennt die Quelle nicht).</p>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="tbl-h">
+    <h2 id="tbl-h">Je Bundesland</h2>
+    <p class="rangeinfo" id="stand-info"></p>
+    <div class="tablewrap">
+      <table class="prog">
+        <thead>
+          <tr>
+            <th class="txt">Land</th>
+            <th>Letzte Umfrage</th>
+            <th class="txt">Aktuell führend</th>
+            <th>AfD aktuell</th>
+            <th>AfD-Trend</th>
+            <th class="txt">Wird stärkste Kraft</th>
+            <th class="txt">Erreicht 45 %</th>
+            <th class="txt">Nächste Wahl</th>
+            <th class="txt">Vor der Wahl?</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>Umfragen: <a href="https://www.wahlrecht.de/umfragen/landtage/" target="_blank" rel="noopener">wahlrecht.de</a>, zuletzt abgeglichen am <span id="f-stand"></span>. Berechnung: dieses Projekt, siehe Methodik oben.</p>
+    <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  /*COMMON_JS*/
+  var PROGNOSE = /*PROGNOSE*/{};
+
+  function monthLabel(ym) {
+    if (!ym) return null;
+    var parts = ym.split("-"), y = +parts[0], m = +parts[1];
+    return MON[m - 1] + " " + y;
+  }
+
+  $("stand-info").textContent = PROGNOSE.laender.length + " Bundesländer · Trendfenster " +
+    Math.round(PROGNOSE.fenster_tage / 365) + " Jahre · Schwelle " + PROGNOSE.schwelle.toFixed(0).replace(".", ",") + " %";
+
+  var tbody = $("tbody");
+  PROGNOSE.laender.forEach(function (L) {
+    var tr = h("tr", L.bereits_fuehrend ? "bereits" : "", tbody);
+    var land = h("td", "lbl txt", tr);
+    var a = h("a", "", land, L.name); a.href = "laender.html#land=" + L.slug;
+    h("td", "num", tr, fmt(ts(L.stand)));
+    h("td", "txt", tr, L.fuehrend_label + " " + L.fuehrend_aktuell.toFixed(1).replace(".", ",") + " %");
+    h("td", "num", tr, L.afd_aktuell.toFixed(1).replace(".", ",") + " %");
+    h("td", "num", tr, L.afd_trend_jahr == null ? "–" :
+      (L.afd_trend_jahr > 0 ? "+" : "−") + Math.abs(L.afd_trend_jahr).toFixed(1).replace(".", ",") + " Pkt/J");
+    h("td", "txt", tr, L.bereits_fuehrend ? "bereits" : (monthLabel(L.stark_datum) || "–"));
+    h("td", "txt", tr, monthLabel(L.mehrheit_datum) || "–");
+    h("td", "txt", tr, L.naechste_wahl + (L.naechste_wahl_exakt ? "" : " (geschätzt)"));
+    var einordnung = h("td", "txt", tr);
+    if (L.bereits_fuehrend) { einordnung.textContent = "bereits jetzt"; einordnung.className += " yes"; }
+    else if (L.vor_naechster_wahl === true) { einordnung.textContent = "ja"; einordnung.className += " yes"; }
+    else if (L.vor_naechster_wahl === false) { einordnung.textContent = "nein, erst danach"; einordnung.className += " no"; }
+    else { einordnung.textContent = "–"; einordnung.className += " no"; }
+  });
+
+  $("f-stand").textContent = fmt(ts(PROGNOSE.stand));
+})();
+</script>
+</body>
+</html>
