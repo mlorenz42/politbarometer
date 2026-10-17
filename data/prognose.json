@@ -100,22 +100,6 @@
       "vor_naechster_wahl": true
     },
     {
-      "slug": "baden-wuerttemberg",
-      "name": "Baden-Württemberg",
-      "stand": "2026-04-10",
-      "afd_aktuell": 22.0,
-      "afd_trend_jahr": 2.26,
-      "fuehrend": "cdu",
-      "fuehrend_label": "CDU/CSU",
-      "fuehrend_aktuell": 27.2,
-      "bereits_fuehrend": false,
-      "stark_datum": "2027-05",
-      "mehrheit_datum": "2037-03",
-      "naechste_wahl": "Frühjahr 2031",
-      "naechste_wahl_exakt": false,
-      "vor_naechster_wahl": true
-    },
-    {
       "slug": "hessen",
       "name": "Hessen",
       "stand": "2026-04-29",
@@ -132,6 +116,22 @@
       "vor_naechster_wahl": true
     },
     {
+      "slug": "nrw",
+      "name": "Nordrhein-Westfalen",
+      "stand": "2026-09-23",
+      "afd_aktuell": 22.0,
+      "afd_trend_jahr": 4.02,
+      "fuehrend": "cdu",
+      "fuehrend_label": "CDU/CSU",
+      "fuehrend_aktuell": 32.4,
+      "bereits_fuehrend": false,
+      "stark_datum": "2027-09",
+      "mehrheit_datum": "2033-01",
+      "naechste_wahl": "25. April 2027",
+      "naechste_wahl_exakt": true,
+      "vor_naechster_wahl": false
+    },
+    {
       "slug": "rheinland-pfalz",
       "name": "Rheinland-Pfalz",
       "stand": "2026-08-20",
@@ -146,22 +146,6 @@
       "naechste_wahl": "Frühjahr 2031",
       "naechste_wahl_exakt": false,
       "vor_naechster_wahl": true
-    },
-    {
-      "slug": "nrw",
-      "name": "Nordrhein-Westfalen",
-      "stand": "2026-06-28",
-      "afd_aktuell": 17.0,
-      "afd_trend_jahr": 3.04,
-      "fuehrend": "cdu",
-      "fuehrend_label": "CDU/CSU",
-      "fuehrend_aktuell": 33.8,
-      "bereits_fuehrend": false,
-      "stark_datum": "2028-02",
-      "mehrheit_datum": "2035-05",
-      "naechste_wahl": "25. April 2027",
-      "naechste_wahl_exakt": true,
-      "vor_naechster_wahl": false
     },
     {
       "slug": "bayern",
@@ -192,6 +176,22 @@
       "stark_datum": "2032-07",
       "mehrheit_datum": "2043-03",
       "naechste_wahl": "Winter 2030",
+      "naechste_wahl_exakt": false,
+      "vor_naechster_wahl": false
+    },
+    {
+      "slug": "baden-wuerttemberg",
+      "name": "Baden-Württemberg",
+      "stand": "2026-10-15",
+      "afd_aktuell": 23.0,
+      "afd_trend_jahr": 2.6,
+      "fuehrend": "gru",
+      "fuehrend_label": "GRÜNE",
+      "fuehrend_aktuell": 27.8,
+      "bereits_fuehrend": false,
+      "stark_datum": null,
+      "mehrheit_datum": "2035-09",
+      "naechste_wahl": "Frühjahr 2031",
       "naechste_wahl_exakt": false,
       "vor_naechster_wahl": false
     },
