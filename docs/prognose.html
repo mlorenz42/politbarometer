@@ -259,6 +259,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 .tl-legend li { display: inline-flex; align-items: center; gap: 7px; }
 .tl-legend .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink2); flex: none; }
 .tl-legend .dot.afd { background: var(--s-afd); }
+.tl-legend .dot.ring { background: var(--surface); border: 2px solid var(--s-afd); width: 7px; height: 7px; }
 .tl-legend .tick { width: 2px; height: 12px; background: var(--ink2); flex: none; }
 </style>
 </head>
@@ -297,6 +298,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
         <li><i class="dot"></i> heute</li>
         <li><i class="tick"></i> nächste Wahl</li>
         <li><i class="dot afd"></i> AfD wird stärkste Kraft (volle Farbe: schon jetzt)</li>
+        <li><i class="dot ring"></i> AfD erreicht 45 %</li>
       </ul>
     </div>
 
@@ -855,14 +857,17 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
       el("title", {}, link, L.name + ": " + (L.bereits_fuehrend ? "AfD bereits stärkste Kraft" :
         L.stark_datum ? "AfD wird ca. " + monthLabel(L.stark_datum) + " stärkste Kraft" : "kein Trend-Crossover absehbar") +
+        (L.mehrheit_datum ? " · erreicht 45 % ca. " + monthLabel(L.mehrheit_datum) : "") +
         (L.naechste_wahl ? " · nächste Wahl: " + L.naechste_wahl : ""));
       el("rect", { class: "row-hit", x: 0, y: ry - rowH / 2, width: W, height: rowH }, link);
       el("text", { x: 0, y: ry + 4, style: "fill:var(--ink);font-size:" + fontPx + "px;font-weight:600" }, link, fitLabel(L.name));
 
       var starkTs = L.bereits_fuehrend ? todayTs : monthTs(L.stark_datum);
+      var mehrheitTs = monthTs(L.mehrheit_datum);
       var wahlTs = monthTs(L.naechste_wahl_monat);
       var ends = [todayTs];
       if (starkTs != null) ends.push(Math.min(starkTs, maxTs));
+      if (mehrheitTs != null) ends.push(Math.min(mehrheitTs, maxTs));
       if (wahlTs != null) ends.push(Math.min(wahlTs, maxTs));
       var rightMost = Math.max.apply(null, ends);
       el("line", { x1: X(todayTs), x2: X(rightMost), y1: ry, y2: ry, style: "stroke:var(--hair);stroke-width:2" }, link);
@@ -872,10 +877,19 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
         var wx = X(Math.min(wahlTs, maxTs));
         el("line", { x1: wx, x2: wx, y1: ry - 7, y2: ry + 7, style: "stroke:var(--ink2);stroke-width:2" }, link);
       }
+      // 45-%-Marke zuerst (kleiner, hohler Ring), "wird stärkste Kraft" danach obendrauf (voller Punkt,
+      // größer) – bei bereits führenden Ländern fallen beide Marker ohnehin meist weit auseinander
+      // (die 45-%-Marke liegt dort immer später als "heute"), Überlappung ist also selten ein Thema.
+      if (mehrheitTs != null) {
+        var mx = X(Math.min(mehrheitTs, maxTs));
+        el("circle", { cx: mx, cy: ry, r: 4.5, style: "fill:var(--surface);stroke:var(--s-afd);stroke-width:2" }, link);
+      }
       if (starkTs != null) {
         var sx = X(Math.min(starkTs, maxTs));
         el("circle", { cx: sx, cy: ry, r: 6, style: "fill:var(--s-afd)" + (L.bereits_fuehrend ? "" : ";opacity:.85") }, link);
-        if (starkTs > maxTs) el("text", { x: sx + 10, y: ry + 4, style: "fill:var(--s-afd);font-size:12px;font-weight:650" }, link, "›");
+      }
+      if ((starkTs != null && starkTs > maxTs) || (mehrheitTs != null && mehrheitTs > maxTs)) {
+        el("text", { x: X(maxTs) + 9, y: ry + 4, style: "fill:var(--s-afd);font-size:12px;font-weight:650" }, link, "›");
       }
     });
   }
