@@ -16,6 +16,16 @@
 @media (max-width: 760px) { .seat-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); } }
 /* Der Bundestag bleibt bewusst deutlich größer als die Länderkacheln darunter. */
 #bund-chart { flex: 1 1 520px; max-width: 600px; }
+
+/* Deutschlandkarte: stärkste Kraft je Bundesland */
+.map-wrap { display: flex; flex-wrap: wrap; gap: 16px 36px; align-items: center; }
+.gmap-box { position: relative; flex: 1 1 320px; max-width: 420px; min-width: 220px; }
+.gmap-box svg { display: block; width: 100%; height: auto; }
+.gmap-box path { stroke: var(--surface); stroke-width: 1.5; cursor: pointer; transition: filter .15s, stroke .15s; }
+.gmap-box a:hover path, .gmap-box a:focus-visible path { filter: brightness(1.18); stroke: var(--ink); stroke-width: 2.5; }
+.map-legend { flex: 0 1 260px; min-width: 180px; list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.map-legend li { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--ink); }
+.map-legend .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
 </style>
 </head>
 <body>
@@ -44,6 +54,15 @@
     </div>
   </section>
 
+  <section class="card" aria-labelledby="map-h">
+    <h2 id="map-h">Stärkste Kraft je Bundesland</h2>
+    <p class="rangeinfo" id="map-info"></p>
+    <div class="map-wrap">
+      <div class="gmap-box" id="map" role="img" aria-label="Deutschlandkarte, eingefärbt nach der im jeweiligen Landtag stärksten Fraktion. Dieselben Angaben stehen auch in den Kacheln darunter."></div>
+      <ul class="map-legend" id="map-legend"></ul>
+    </div>
+  </section>
+
   <section aria-labelledby="laender-h">
     <h2 id="laender-h">Sitzverteilung in den Ländern</h2>
     <p class="lead">Anklicken führt zum jeweiligen Land mit Umfrageverlauf und Details.</p>
@@ -52,6 +71,7 @@
 
   <footer>
     <p>Sitzverteilung: <a href="https://de.wikipedia.org/wiki/Deutscher_Bundestag" target="_blank" rel="noopener">Wikipedia – Deutscher Bundestag</a> und die Artikel der 16 Landtage, zuletzt abgeglichen am <span id="f-stand"></span>.</p>
+    <p>Kartenumrisse: <a href="https://commons.wikimedia.org/wiki/File:Karte_Deutsche_Bundesl%C3%A4nder_(Bezeichner).svg" target="_blank" rel="noopener">David Liuzzo, Elya, Martin Kraft</a>, <a href="https://creativecommons.org/licenses/by-sa/2.0/de/" target="_blank" rel="noopener">CC BY-SA 2.0 DE</a>.</p>
     <p>Quellcode und Daten: <a href="https://github.com/mlorenz42/politbarometer" target="_blank" rel="noopener">github.com/mlorenz42/politbarometer</a></p>
   </footer>
 </div>
@@ -62,12 +82,43 @@
   /*COMMON_JS*/
   var SITZE = /*SITZE*/{};
   var LAENDER = /*LAENDER*/[]; // [{slug, name, union}], nur die für diese Seite nötigen Angaben
+  var GERMANY = /*GERMANY*/{}; // { viewBox, laender:{slug: "<path d>"} }, Umrisse s. Fußzeile für Quelle/Lizenz
   var LABEL = { cdu: "CDU", spd: "SPD", gru: "GRÜNE", fdp: "FDP", lin: "LINKE", afd: "AfD", bsw: "BSW", fw: "FW", pir: "PIRATEN", ssw: "SSW" };
 
   function partyName(data, k, union) {
     if (k === "cdu") return union;
     return LABEL[k] || (data.parteien && data.parteien[k]) || k;
   }
+
+  // ---------- Deutschlandkarte: stärkste Kraft je Bundesland ----------
+  // "Stärkste Kraft" statt "Mehrheitspartei": in den Landtagen hat so gut wie nie eine einzelne Partei die
+  // absolute Mehrheit, gemeint ist die Partei mit den meisten Sitzen (dieselbe Größe, die schon den
+  // Karten-Hintergrund der Kacheln einfärbt, s. tintByLeadingParty in common.js).
+  function drawGermanyMap() {
+    var box = $("map"), legendEl = $("map-legend");
+    box.textContent = ""; legendEl.textContent = "";
+    var svg = el("svg", { viewBox: GERMANY.viewBox, width: "100%", height: "auto", "aria-hidden": "true" });
+    box.appendChild(svg);
+    var seen = {}, legendItems = [];
+    LAENDER.slice().sort(function (a, b) { return a.name < b.name ? -1 : 1; }).forEach(function (L) {
+      var d = GERMANY.laender[L.slug], data = SITZE.laender[L.slug];
+      if (!d || !data) return;
+      var key = leadingParty(data), label = partyName(data, key, L.union);
+      var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
+      el("path", { d: d, style: "fill:var(--s-" + key + ",var(--ink2))" }, link);
+      el("title", {}, link, L.name + ": " + label + " (" + (data.sitze[key] || 0) + " von " + data.gesamt + " Sitzen)");
+      if (!seen[key]) { seen[key] = true; legendItems.push({ color: partyColor(key), text: label }); }
+    });
+    legendItems.forEach(function (it) {
+      var li = h("li", "", legendEl);
+      h("span", "dot", li).style.background = it.color;
+      h("span", "", li, it.text);
+    });
+    var majorityInfo = Object.keys(seen).length + " unterschiedliche stärkste Kräfte unter den 16 Ländern · Stand " + fmt(ts(SITZE.stand));
+    $("map-info").textContent = majorityInfo;
+    addExportButton(box, "staerkste-kraft-laender-" + SITZE.stand + ".png", "Stärkste Kraft je Bundesland", legendItems);
+  }
+  drawGermanyMap();
 
   // ---------- Bundestag ----------
   var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };

@@ -54,14 +54,20 @@ def load_land_meta() -> list:
     return [{"slug": l["slug"], "name": l["name"], "union": "CSU" if l["slug"] == "bayern" else "CDU"} for l in meta]
 
 
+def load_germany_paths() -> dict:
+    return json.loads((ROOT / "data" / "germany-paths.json").read_text(encoding="utf-8"))
+
+
 def build_sitzverteilung(sitze: dict) -> int:
     laender_meta = load_land_meta()
+    germany = load_germany_paths()
     template = (ROOT / "src" / "sitzverteilung.html").read_text(encoding="utf-8")
-    for marker in ("/*SITZE*/{}", "/*LAENDER*/[]", "/*COMMON_CSS*/", "/*COMMON_JS*/"):
+    for marker in ("/*SITZE*/{}", "/*LAENDER*/[]", "/*GERMANY*/{}", "/*COMMON_CSS*/", "/*COMMON_JS*/"):
         if template.count(marker) != 1:
             print("Platzhalter %s im Sitzverteilung-Template nicht genau einmal vorhanden." % marker, file=sys.stderr)
             return 1
     out = template.replace("/*SITZE*/{}", embed(sitze)).replace("/*LAENDER*/[]", embed(laender_meta))
+    out = out.replace("/*GERMANY*/{}", embed(germany))
     out = out.replace("/*COMMON_CSS*/", (ROOT / "src" / "common.css").read_text(encoding="utf-8").rstrip("\n"))
     out = out.replace("/*COMMON_JS*/", (ROOT / "src" / "common.js").read_text(encoding="utf-8").rstrip("\n"))
     (ROOT / "docs" / "sitzverteilung.html").write_text(out, encoding="utf-8")
