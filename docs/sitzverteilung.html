@@ -264,6 +264,9 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
 .map-legend { flex: 1 1 180px; min-width: 160px; list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; align-content: center; }
 .map-legend li { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--ink); }
 .map-legend .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.map-legend .coal-dots { display: flex; flex: none; }
+.map-legend .coal-dots span { width: 12px; height: 12px; border-radius: 50%; margin-left: -4px; border: 1.5px solid var(--surface); }
+.map-legend .coal-dots span:first-child { margin-left: 0; }
 </style>
 </head>
 <body>
@@ -304,10 +307,10 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
         </div>
       </div>
       <div class="map-col" aria-labelledby="map-h2">
-        <h3 id="map-h2">Regierungschef je Bundesland</h3>
+        <h3 id="map-h2">Regierungskoalition je Bundesland</h3>
         <p class="rangeinfo" id="map2-info"></p>
         <div class="map-wrap">
-          <div class="gmap-box" id="map2" role="img" aria-label="Deutschlandkarte, eingefärbt nach der Partei des amtierenden Ministerpräsidenten bzw. Regierenden/Ersten Bürgermeisters."></div>
+          <div class="gmap-box" id="map2" role="img" aria-label="Deutschlandkarte, diagonal gestreift nach den Parteien der jeweiligen Landesregierung (Regierungschef zuerst)."></div>
           <ul class="map-legend" id="map2-legend"></ul>
         </div>
       </div>
@@ -624,6 +627,15 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     return root.getPropertyValue("--s-" + k).trim() || root.getPropertyValue("--ink2").trim();
   }
 
+  // Legt in "defs" ein diagonal gestreiftes <pattern> an (ein gleich breiter Streifen je Farbe, dann um
+  // 45° gedreht) – für Koalitionskarten, auf denen eine Fläche zu mehreren Parteien gleichzeitig gehört
+  // und eine einzelne Füllfarbe das nicht mehr zeigen kann.
+  function stripePattern(defs, id, colors) {
+    var sw = 9, tile = sw * colors.length;
+    var pat = el("pattern", { id: id, patternUnits: "userSpaceOnUse", width: tile, height: sw, patternTransform: "rotate(45)" }, defs);
+    colors.forEach(function (c, i) { el("rect", { x: i * sw, y: 0, width: sw, height: sw, fill: c }, pat); });
+  }
+
   // Baut die Export-Legende für ein Sitzverteilungs-Diagramm aus denselben Daten, mit denen auch das
   // Diagramm selbst gezeichnet wurde (nicht aus dem DOM abgeschrieben) – funktioniert dadurch gleicher-
   // maßen für die große Karte mit eigener <ul> UND für die 16 kleinen Kacheln, die gar keine eigene
@@ -671,6 +683,10 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
   // einer Legende (items: [{color, text, dim}], je ein Punkt + Text pro Zeile) als PNG. Ohne title/items
   // wird nur das Diagramm selbst exportiert. dim (z. B. Oppositionsparteien) wird abgeblendet gezeichnet,
   // wie im Diagramm selbst. Genutzt sowohl von den Halbkreisdiagrammen als auch vom Umfrageverlauf.
+  // Platz, den ein Legendeneintrag für seine Punkte braucht, bevor der Text beginnt – ein einzelner
+  // (it.color) oder mehrere nebeneinander (it.colors, für Koalitionen mit mehreren Parteien).
+  function legendDotsW(it) { return it.colors ? 9 + it.colors.length * 11 : 20; }
+
   function exportSvgPNG(container, filename, title, items) {
     var live = container.querySelector("svg");
     if (!live) return;
@@ -678,7 +694,15 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var liveAll = live.querySelectorAll("*"), cloneAll = clone.querySelectorAll("*");
     for (var i = 0; i < liveAll.length; i++) {
       var cs = getComputedStyle(liveAll[i]), ce = cloneAll[i];
-      if (cs.fill && cs.fill !== "none") ce.setAttribute("fill", cs.fill);
+      if (cs.fill && cs.fill.indexOf("url(") === 0) {
+        // Gestreifte Koalitionsflächen: computed style löst "fill:url(#id)" zu einer absoluten URL
+        // (inkl. Seiten-Pfad) auf, die im eigenständigen Blob-SVG ins Leere zeigt – auf die reine
+        // Fragment-ID zurückschneiden, das referenzierte <pattern> wird ja mitgeklont.
+        var fragId = cs.fill.slice(cs.fill.indexOf("#") + 1).replace(/[)"']+$/, "");
+        ce.setAttribute("fill", "url(#" + fragId + ")");
+      } else if (cs.fill && cs.fill !== "none") {
+        ce.setAttribute("fill", cs.fill);
+      }
       if (cs.opacity && cs.opacity !== "1") ce.setAttribute("opacity", cs.opacity);
       if (cs.stroke && cs.stroke !== "none") {
         ce.setAttribute("stroke", cs.stroke); ce.setAttribute("stroke-width", cs.strokeWidth);
@@ -704,7 +728,7 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     var legendW = 0;
     var measure = document.createElement("canvas").getContext("2d");
     measure.font = "600 14px " + font;
-    items.forEach(function (it) { legendW = Math.max(legendW, 20 + measure.measureText(it.text).width); });
+    items.forEach(function (it) { legendW = Math.max(legendW, legendDotsW(it) + measure.measureText(it.text).width); });
     var legendH = items.length ? items.length * rowH + 10 : 0;
     var W = Math.max(vbW, legendW) + 2 * pad, H = vbH + titleH + legendH + 2 * pad;
     var chartX = pad + Math.max(0, (W - 2 * pad - vbW) / 2);
@@ -724,12 +748,14 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
       var y = pad + titleH + vbH + 18;
       items.forEach(function (it) {
         ctx.globalAlpha = it.dim ? 0.55 : 1;
-        ctx.fillStyle = it.color;
-        ctx.beginPath(); ctx.arc(pad + 6, y - 5, 6, 0, Math.PI * 2); ctx.fill();
+        (it.colors || [it.color]).forEach(function (c, idx) {
+          ctx.fillStyle = c;
+          ctx.beginPath(); ctx.arc(pad + 6 + idx * 11, y - 5, 5, 0, Math.PI * 2); ctx.fill();
+        });
         ctx.globalAlpha = 1;
         ctx.fillStyle = it.dim ? ink2 : ink;
         ctx.font = "600 14px " + font;
-        ctx.fillText(it.text, pad + 20, y);
+        ctx.fillText(it.text, pad + legendDotsW(it), y);
         y += rowH;
       });
       canvas.toBlob(function (blob) {
@@ -811,11 +837,51 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     "unterschiedliche stärkste Kräfte",
     "staerkste-kraft-laender-" + SITZE.stand + ".png", "Stärkste Kraft je Bundesland");
 
-  drawMap("map2", "map2-legend", "map2-info",
-    function (L) { var r = REGCHEF[L.slug]; return r && r.party; },
-    function (L, data, label) { var r = REGCHEF[L.slug]; return r.who + " (" + label + "), " + r.title; },
-    "unterschiedliche Regierungsparteien",
-    "regierungschef-laender-" + SITZE.stand + ".png", "Regierungschef je Bundesland");
+  // Regierungskoalitionen bestehen fast überall aus 2–3 Parteien (16 Länder, nur das Saarland hat
+  // aktuell eine Alleinregierung) – eine einzelne Füllfarbe wie bei der "Stärkste Kraft"-Karte würde die
+  // Koalitionspartner einfach verschlucken. Stattdessen diagonal gestreift (stripePattern in common.js),
+  // ein Streifen je Partei in data.regierung.parteien; das Array ist serverseitig verlässlich mit dem
+  // Regierungschef an erster Stelle sortiert (geprüft: "wp" aus REGCHEF entspricht überall parteien[0]).
+  function drawCoalitionMap() {
+    var box = $("map2"), legendEl = $("map2-legend");
+    box.textContent = ""; legendEl.textContent = "";
+    var svg = el("svg", { viewBox: GERMANY.viewBox, width: "100%", height: "auto", "aria-hidden": "true" });
+    var defs = el("defs", {}, svg);
+    box.appendChild(svg);
+    var patIds = {}, seenSig = {}, legendItems = [], n = 0;
+    LAENDER.slice().sort(function (a, b) { return a.name < b.name ? -1 : 1; }).forEach(function (L) {
+      var d = GERMANY.laender[L.slug], data = SITZE.laender[L.slug], chef = REGCHEF[L.slug];
+      if (!d || !data || !chef) return;
+      // In politischer Spektrum-Reihenfolge statt der Regierung.parteien-Reihenfolge (die den Regierungschef
+      // voranstellt) – sonst würden z. B. Berlin ("cdu","spd") und Brandenburg ("spd","cdu") trotz derselben
+      // Koalition als zwei verschiedene Streifenmuster/Legendeneinträge auftauchen.
+      var partiesSet = {};
+      data.regierung.parteien.forEach(function (k) { partiesSet[k] = true; });
+      var parties = data.reihenfolge.filter(function (k) { return partiesSet[k]; });
+      var sig = parties.join("+");
+      var labelText = parties.map(function (k) { return partyName(data, k, L.union); }).join(" + ");
+      var fill;
+      if (parties.length === 1) {
+        fill = "var(--s-" + parties[0] + ",var(--ink2))";
+      } else {
+        if (!patIds[sig]) { patIds[sig] = "coal-" + (n++); stripePattern(defs, patIds[sig], parties.map(partyColor)); }
+        fill = "url(#" + patIds[sig] + ")";
+      }
+      var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
+      el("path", { d: d, style: "fill:" + fill }, link);
+      el("title", {}, link, L.name + ": " + labelText + " – " + chef.who + ", " + chef.title);
+      if (!seenSig[sig]) { seenSig[sig] = true; legendItems.push({ colors: parties.map(partyColor), text: labelText }); }
+    });
+    legendItems.forEach(function (it) {
+      var li = h("li", "", legendEl);
+      var dots = h("span", "coal-dots", li);
+      it.colors.forEach(function (c) { h("span", "", dots).style.background = c; });
+      h("span", "", li, it.text);
+    });
+    $("map2-info").textContent = legendItems.length + " unterschiedliche Regierungskoalitionen unter den 16 Ländern · Stand " + fmt(ts(SITZE.stand));
+    addExportButton(box, "regierungskoalition-laender-" + SITZE.stand + ".png", "Regierungskoalition je Bundesland", legendItems);
+  }
+  drawCoalitionMap();
 
   // ---------- Bundestag ----------
   var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };

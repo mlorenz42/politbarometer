@@ -31,6 +31,9 @@
 .map-legend { flex: 1 1 180px; min-width: 160px; list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; align-content: center; }
 .map-legend li { display: flex; align-items: center; gap: 9px; font-size: 13.5px; color: var(--ink); }
 .map-legend .dot { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.map-legend .coal-dots { display: flex; flex: none; }
+.map-legend .coal-dots span { width: 12px; height: 12px; border-radius: 50%; margin-left: -4px; border: 1.5px solid var(--surface); }
+.map-legend .coal-dots span:first-child { margin-left: 0; }
 </style>
 </head>
 <body>
@@ -71,10 +74,10 @@
         </div>
       </div>
       <div class="map-col" aria-labelledby="map-h2">
-        <h3 id="map-h2">Regierungschef je Bundesland</h3>
+        <h3 id="map-h2">Regierungskoalition je Bundesland</h3>
         <p class="rangeinfo" id="map2-info"></p>
         <div class="map-wrap">
-          <div class="gmap-box" id="map2" role="img" aria-label="Deutschlandkarte, eingefärbt nach der Partei des amtierenden Ministerpräsidenten bzw. Regierenden/Ersten Bürgermeisters."></div>
+          <div class="gmap-box" id="map2" role="img" aria-label="Deutschlandkarte, diagonal gestreift nach den Parteien der jeweiligen Landesregierung (Regierungschef zuerst)."></div>
           <ul class="map-legend" id="map2-legend"></ul>
         </div>
       </div>
@@ -147,11 +150,51 @@
     "unterschiedliche stärkste Kräfte",
     "staerkste-kraft-laender-" + SITZE.stand + ".png", "Stärkste Kraft je Bundesland");
 
-  drawMap("map2", "map2-legend", "map2-info",
-    function (L) { var r = REGCHEF[L.slug]; return r && r.party; },
-    function (L, data, label) { var r = REGCHEF[L.slug]; return r.who + " (" + label + "), " + r.title; },
-    "unterschiedliche Regierungsparteien",
-    "regierungschef-laender-" + SITZE.stand + ".png", "Regierungschef je Bundesland");
+  // Regierungskoalitionen bestehen fast überall aus 2–3 Parteien (16 Länder, nur das Saarland hat
+  // aktuell eine Alleinregierung) – eine einzelne Füllfarbe wie bei der "Stärkste Kraft"-Karte würde die
+  // Koalitionspartner einfach verschlucken. Stattdessen diagonal gestreift (stripePattern in common.js),
+  // ein Streifen je Partei in data.regierung.parteien; das Array ist serverseitig verlässlich mit dem
+  // Regierungschef an erster Stelle sortiert (geprüft: "wp" aus REGCHEF entspricht überall parteien[0]).
+  function drawCoalitionMap() {
+    var box = $("map2"), legendEl = $("map2-legend");
+    box.textContent = ""; legendEl.textContent = "";
+    var svg = el("svg", { viewBox: GERMANY.viewBox, width: "100%", height: "auto", "aria-hidden": "true" });
+    var defs = el("defs", {}, svg);
+    box.appendChild(svg);
+    var patIds = {}, seenSig = {}, legendItems = [], n = 0;
+    LAENDER.slice().sort(function (a, b) { return a.name < b.name ? -1 : 1; }).forEach(function (L) {
+      var d = GERMANY.laender[L.slug], data = SITZE.laender[L.slug], chef = REGCHEF[L.slug];
+      if (!d || !data || !chef) return;
+      // In politischer Spektrum-Reihenfolge statt der Regierung.parteien-Reihenfolge (die den Regierungschef
+      // voranstellt) – sonst würden z. B. Berlin ("cdu","spd") und Brandenburg ("spd","cdu") trotz derselben
+      // Koalition als zwei verschiedene Streifenmuster/Legendeneinträge auftauchen.
+      var partiesSet = {};
+      data.regierung.parteien.forEach(function (k) { partiesSet[k] = true; });
+      var parties = data.reihenfolge.filter(function (k) { return partiesSet[k]; });
+      var sig = parties.join("+");
+      var labelText = parties.map(function (k) { return partyName(data, k, L.union); }).join(" + ");
+      var fill;
+      if (parties.length === 1) {
+        fill = "var(--s-" + parties[0] + ",var(--ink2))";
+      } else {
+        if (!patIds[sig]) { patIds[sig] = "coal-" + (n++); stripePattern(defs, patIds[sig], parties.map(partyColor)); }
+        fill = "url(#" + patIds[sig] + ")";
+      }
+      var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
+      el("path", { d: d, style: "fill:" + fill }, link);
+      el("title", {}, link, L.name + ": " + labelText + " – " + chef.who + ", " + chef.title);
+      if (!seenSig[sig]) { seenSig[sig] = true; legendItems.push({ colors: parties.map(partyColor), text: labelText }); }
+    });
+    legendItems.forEach(function (it) {
+      var li = h("li", "", legendEl);
+      var dots = h("span", "coal-dots", li);
+      it.colors.forEach(function (c) { h("span", "", dots).style.background = c; });
+      h("span", "", li, it.text);
+    });
+    $("map2-info").textContent = legendItems.length + " unterschiedliche Regierungskoalitionen unter den 16 Ländern · Stand " + fmt(ts(SITZE.stand));
+    addExportButton(box, "regierungskoalition-laender-" + SITZE.stand + ".png", "Regierungskoalition je Bundesland", legendItems);
+  }
+  drawCoalitionMap();
 
   // ---------- Bundestag ----------
   var bundName = function (k) { return partyName(SITZE.bund, k, "CDU/CSU"); };
