@@ -573,11 +573,14 @@ footer { color: var(--ink2); font-size: 12.5px; display: grid; gap: 4px; }
     data.reihenfolge.forEach(function (k) { var n = data.sitze[k] || 0; if (n > max) { max = n; best = k; } });
     return best;
   }
-  // Färbt "elem" dezent in der Farbe der stärksten Fraktion ein (color-mix mit der Kartenfläche).
-  function tintByLeadingParty(elem, data) {
+  // Färbt "elem" in der Farbe der stärksten Fraktion ein (color-mix mit der Kartenfläche). pct steuert die
+  // Intensität (Default 13, dezent für die großen Karten mit viel Text darauf); einzelne Aufrufer wie die
+  // kleinen Kacheln auf der Sitzverteilungs-Übersicht übergeben einen höheren Wert, weil die Farbe dort
+  // sonst neben der viel kräftigeren Deutschlandkarte kaum noch als "stärkste Kraft" erkennbar ist.
+  function tintByLeadingParty(elem, data, pct) {
     if (!elem) return;
     var k = leadingParty(data);
-    elem.style.background = k ? "color-mix(in srgb, var(--s-" + k + ", var(--ink2)) 13%, var(--surface))" : "";
+    elem.style.background = k ? "color-mix(in srgb, var(--s-" + k + ", var(--ink2)) " + (pct || 13) + "%, var(--surface))" : "";
   }
 
   // Zeichnet Diagramm, Legende und die Infozeile in einem Aufwasch; alle drei Elemente optional. filename
