@@ -1,13 +1,20 @@
 name: Seiten veröffentlichen
 
-# Reines Deployment auf GitHub Pages, ausgelöst durch jede Änderung an docs/** auf main – egal ob der
-# Push von einem lokal fertig gebauten Commit kommt oder vom "Änderungen committen"-Schritt in update.yml.
+# Reines Deployment auf GitHub Pages. Zwei Auslöser:
+# - push auf docs/** für lokal fertig gebaute und gepushte Commits (z. B. nach manuellen Änderungen).
+# - workflow_run für den "Änderungen committen"-Schritt in update.yml: der pusht mit dem automatischen
+#   GITHUB_TOKEN, und solche Pushes lösen laut GitHub bewusst KEINE weiteren Workflows aus (Schutz vor
+#   Endlosschleifen) – ohne diesen zweiten Trigger wäre der wöchentliche/freitägliche Datenabruf also nie
+#   tatsächlich veröffentlicht worden, nur committet.
 # Ruft dafür keine externen Quellen ab und braucht deshalb nur einen Bruchteil von dessen Laufzeit.
 on:
   push:
     branches: [main]
     paths:
       - "docs/**"
+  workflow_run:
+    workflows: ["Daten aktualisieren"]
+    types: [completed]
   workflow_dispatch:
 
 permissions:
@@ -21,6 +28,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
