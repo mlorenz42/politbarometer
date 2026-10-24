@@ -112,6 +112,13 @@
     return LABEL[k] || (data.parteien && data.parteien[k]) || k;
   }
 
+  // Für Legenden, die mehrere Länder gleichzeitig zusammenfassen: "cdu" würde über partyName() je nach
+  // Land als "CDU" oder "CSU" (Bayern) beschriftet – in einer gemeinsamen Legende mit nur einem Eintrag
+  // pro Partei-Schlüssel braucht es stattdessen die überall gültige, generische Bezeichnung.
+  function legendPartyName(data, k, union) {
+    return k === "cdu" ? "CDU/CSU" : partyName(data, k, union);
+  }
+
   // ---------- Deutschlandkarten ----------
   // Generalisiert für zwei Karten mit derselben Umriss-Geometrie, aber unterschiedlicher Einfärbung:
   // "Stärkste Kraft" (meiste Sitze, s. tintByLeadingParty in common.js) und "Regierungschef" (Partei des
@@ -131,7 +138,7 @@
       var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
       el("path", { d: d, style: "fill:var(--s-" + key + ",var(--ink2))" }, link);
       el("title", {}, link, L.name + ": " + titleFn(L, data, label));
-      if (!seen[key]) { seen[key] = true; legendItems.push({ color: partyColor(key), text: label }); }
+      if (!seen[key]) { seen[key] = true; legendItems.push({ color: partyColor(key), text: legendPartyName(data, key, L.union) }); }
     });
     legendItems.forEach(function (it) {
       var li = h("li", "", legendEl);
@@ -183,7 +190,11 @@
       var link = el("a", { href: "laender.html#land=" + L.slug }, svg);
       el("path", { d: d, style: "fill:" + fill }, link);
       el("title", {}, link, L.name + ": " + labelText + " – " + chef.who + ", " + chef.title);
-      if (!seenSig[sig]) { seenSig[sig] = true; legendItems.push({ colors: parties.map(partyColor), text: labelText }); }
+      if (!seenSig[sig]) {
+        seenSig[sig] = true;
+        var legendText = parties.map(function (k) { return legendPartyName(data, k, L.union); }).join(" + ");
+        legendItems.push({ colors: parties.map(partyColor), text: legendText });
+      }
     });
     legendItems.forEach(function (it) {
       var li = h("li", "", legendEl);

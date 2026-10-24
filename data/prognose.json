@@ -1,5 +1,5 @@
 {
-  "stand": "2026-10-19",
+  "stand": "2026-10-24",
   "fenster_tage": 730,
   "schwelle": 45.0,
   "laender": [
@@ -89,23 +89,6 @@
       "vor_naechster_wahl": true
     },
     {
-      "slug": "niedersachsen",
-      "name": "Niedersachsen",
-      "stand": "2026-09-11",
-      "afd_aktuell": 21.0,
-      "afd_trend_jahr": 3.35,
-      "fuehrend": "cdu",
-      "fuehrend_label": "CDU/CSU",
-      "fuehrend_aktuell": 26.0,
-      "bereits_fuehrend": false,
-      "stark_datum": "2026-10",
-      "mehrheit_datum": "2033-08",
-      "naechste_wahl": "26. September 2027",
-      "naechste_wahl_exakt": true,
-      "naechste_wahl_monat": "2027-09",
-      "vor_naechster_wahl": true
-    },
-    {
       "slug": "hessen",
       "name": "Hessen",
       "stand": "2026-04-29",
@@ -161,13 +144,13 @@
       "name": "Bayern",
       "stand": "2026-10-19",
       "afd_aktuell": 22.0,
-      "afd_trend_jahr": 1.61,
+      "afd_trend_jahr": 2.63,
       "fuehrend": "cdu",
       "fuehrend_label": "CSU",
       "fuehrend_aktuell": 38.8,
       "bereits_fuehrend": false,
-      "stark_datum": "2030-08",
-      "mehrheit_datum": "2041-12",
+      "stark_datum": "2031-03",
+      "mehrheit_datum": "2035-11",
       "naechste_wahl": "Herbst 2028",
       "naechste_wahl_exakt": false,
       "naechste_wahl_monat": "2028-10",
@@ -188,6 +171,23 @@
       "naechste_wahl": "Winter 2030",
       "naechste_wahl_exakt": false,
       "naechste_wahl_monat": "2030-01",
+      "vor_naechster_wahl": false
+    },
+    {
+      "slug": "niedersachsen",
+      "name": "Niedersachsen",
+      "stand": "2026-09-11",
+      "afd_aktuell": 21.0,
+      "afd_trend_jahr": 3.35,
+      "fuehrend": "cdu",
+      "fuehrend_label": "CDU/CSU",
+      "fuehrend_aktuell": 26.0,
+      "bereits_fuehrend": false,
+      "stark_datum": null,
+      "mehrheit_datum": "2033-08",
+      "naechste_wahl": "26. September 2027",
+      "naechste_wahl_exakt": true,
+      "naechste_wahl_monat": "2027-09",
       "vor_naechster_wahl": false
     },
     {
