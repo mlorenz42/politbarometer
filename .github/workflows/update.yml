@@ -5,7 +5,7 @@ name: Daten aktualisieren
 # Rohdaten schon lokal gebaut mitgeschickt werden, keinen unnötigen Neuabruf aller Quellen aus.
 on:
   schedule:
-    - cron: "23 5 * * 1" # jeden Montag, 05:23 UTC
+    - cron: "23 5 * * 1,5" # jeden Montag und Freitag, 05:23 UTC
   workflow_dispatch: # manuell startbar (Actions-Tab > "Run workflow")
   push:
     branches: [main]
