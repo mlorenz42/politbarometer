@@ -1,5 +1,5 @@
 {
- "stand": "2026-10-19",
+ "stand": "2026-10-24",
  "bund": {
   "quelle": "https://de.wikipedia.org/wiki/Deutscher_Bundestag",
   "gesamt": 630,
@@ -167,25 +167,20 @@
   },
   "mecklenburg-vorpommern": {
    "quelle": "https://de.wikipedia.org/wiki/Landtag_Mecklenburg-Vorpommern",
-   "gesamt": 79,
+   "gesamt": 71,
    "regierung": {
     "cab": "Kabinett Schwesig II",
-    "sitze": 43,
+    "sitze": 34,
     "parteien": ["spd", "lin"]
    },
-   "reihenfolge": ["lin", "spd", "gru", "cdu", "fdp", "afd", "x-sonst"],
+   "reihenfolge": ["lin", "spd", "gru", "afd"],
    "sitze": {
-    "spd": 34,
-    "lin": 9,
-    "cdu": 12,
-    "afd": 14,
-    "gru": 4,
-    "fdp": 3,
-    "x-sonst": 3
+    "spd": 29,
+    "lin": 5,
+    "gru": 5,
+    "afd": 32
    },
-   "parteien": {
-    "x-sonst": "Sonst."
-   }
+   "parteien": {}
   },
   "niedersachsen": {
    "quelle": "https://de.wikipedia.org/wiki/Nieders%C3%A4chsischer_Landtag",
