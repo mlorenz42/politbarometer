@@ -1,5 +1,5 @@
 {
- "stand": "2026-10-26",
+ "stand": "2026-10-30",
  "bund": {
   "quelle": "https://de.wikipedia.org/wiki/Deutscher_Bundestag",
   "gesamt": 630,
@@ -59,20 +59,20 @@
   },
   "berlin": {
    "quelle": "https://de.wikipedia.org/wiki/Abgeordnetenhaus_von_Berlin",
-   "gesamt": 159,
+   "gesamt": 153,
    "regierung": {
     "cab": "Senat Wegner",
-    "sitze": 88,
+    "sitze": 54,
     "parteien": ["cdu", "spd"]
    },
-   "reihenfolge": ["lin", "spd", "gru", "cdu", "afd", "x-sonst"],
+   "reihenfolge": ["lin", "x-sonst", "spd", "gru", "cdu", "afd"],
    "sitze": {
-    "lin": 20,
-    "gru": 33,
-    "spd": 36,
-    "cdu": 52,
-    "afd": 16,
-    "x-sonst": 2
+    "lin": 44,
+    "x-sonst": 1,
+    "gru": 25,
+    "spd": 21,
+    "cdu": 33,
+    "afd": 29
    },
    "parteien": {
     "x-sonst": "Sonst."
