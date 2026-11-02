@@ -1,5 +1,5 @@
 {
-  "stand": "2026-10-30",
+  "stand": "2026-11-02",
   "fenster_tage": 730,
   "schwelle": 45.0,
   "laender": [
@@ -161,13 +161,13 @@
       "name": "Hamburg",
       "stand": "2026-09-30",
       "afd_aktuell": 14.0,
-      "afd_trend_jahr": 1.96,
+      "afd_trend_jahr": 1.83,
       "fuehrend": "spd",
       "fuehrend_label": "SPD",
       "fuehrend_aktuell": 31.0,
       "bereits_fuehrend": false,
-      "stark_datum": "2032-07",
-      "mehrheit_datum": "2043-03",
+      "stark_datum": "2032-04",
+      "mehrheit_datum": "2044-05",
       "naechste_wahl": "Winter 2030",
       "naechste_wahl_exakt": false,
       "naechste_wahl_monat": "2030-01",
