@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-13",
+  "stand": "2026-11-16",
   "fenster_tage": 730,
   "schwelle": 45.0,
   "laender": [
@@ -108,15 +108,15 @@
     {
       "slug": "nrw",
       "name": "Nordrhein-Westfalen",
-      "stand": "2026-09-23",
-      "afd_aktuell": 22.0,
-      "afd_trend_jahr": 4.02,
+      "stand": "2026-10-16",
+      "afd_aktuell": 21.0,
+      "afd_trend_jahr": 4.25,
       "fuehrend": "cdu",
       "fuehrend_label": "CDU/CSU",
-      "fuehrend_aktuell": 32.4,
+      "fuehrend_aktuell": 30.6,
       "bereits_fuehrend": false,
-      "stark_datum": "2027-09",
-      "mehrheit_datum": "2033-01",
+      "stark_datum": "2027-07",
+      "mehrheit_datum": "2032-08",
       "naechste_wahl": "25. April 2027",
       "naechste_wahl_exakt": true,
       "naechste_wahl_monat": "2027-04",

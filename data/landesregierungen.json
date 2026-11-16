@@ -1,5 +1,5 @@
 {
- "stand": "2026-11-13",
+ "stand": "2026-11-16",
  "quelle": "https://de.wikipedia.org/wiki/Liste_der_Ministerpr%C3%A4sidenten_der_deutschen_L%C3%A4nder",
  "parteien": {
   "x-pro": "PRO",
@@ -1420,8 +1420,8 @@
    "name": "Mecklenburg-Vorpommern",
    "wahl": "Landtagswahl",
    "aktuell": {
-    "koalitionsname": "Rot-rote Koalition",
-    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 26. September 2021"
+    "koalitionsname": "Rot-rot-grüne Koalition",
+    "seit_zusatz": "Regierungsbildung nach der Landtagswahl vom 20. September 2026"
    },
    "kabinette": [
     {
@@ -1591,12 +1591,28 @@
      "who": "Manuela Schwesig",
      "wp": "spd",
      "from": "2021-11-15",
-     "to": null,
+     "to": "2026-11-16",
      "ph": [
       {
        "from": "2021-11-15",
-       "to": null,
+       "to": "2026-11-16",
        "co": ["spd", "lin"]
+      }
+     ]
+    },
+    {
+     "name": "Schwesig III",
+     "cab": "Kabinett Schwesig III",
+     "title": "Ministerpräsidentin",
+     "who": "Manuela Schwesig",
+     "wp": "spd",
+     "from": "2026-11-16",
+     "to": null,
+     "ph": [
+      {
+       "from": "2026-11-16",
+       "to": null,
+       "co": ["spd", "lin", "gru"]
       }
      ]
     }
