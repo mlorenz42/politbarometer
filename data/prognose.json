@@ -1,5 +1,5 @@
 {
-  "stand": "2026-11-16",
+  "stand": "2026-11-20",
   "fenster_tage": 730,
   "schwelle": 45.0,
   "laender": [
@@ -140,6 +140,23 @@
       "vor_naechster_wahl": true
     },
     {
+      "slug": "niedersachsen",
+      "name": "Niedersachsen",
+      "stand": "2026-11-19",
+      "afd_aktuell": 21.0,
+      "afd_trend_jahr": 2.88,
+      "fuehrend": "spd",
+      "fuehrend_label": "SPD",
+      "fuehrend_aktuell": 26.0,
+      "bereits_fuehrend": false,
+      "stark_datum": "2028-06",
+      "mehrheit_datum": "2034-12",
+      "naechste_wahl": "26. September 2027",
+      "naechste_wahl_exakt": true,
+      "naechste_wahl_monat": "2027-09",
+      "vor_naechster_wahl": false
+    },
+    {
       "slug": "bayern",
       "name": "Bayern",
       "stand": "2026-10-20",
@@ -171,23 +188,6 @@
       "naechste_wahl": "Winter 2030",
       "naechste_wahl_exakt": false,
       "naechste_wahl_monat": "2030-01",
-      "vor_naechster_wahl": false
-    },
-    {
-      "slug": "niedersachsen",
-      "name": "Niedersachsen",
-      "stand": "2026-09-11",
-      "afd_aktuell": 21.0,
-      "afd_trend_jahr": 3.24,
-      "fuehrend": "cdu",
-      "fuehrend_label": "CDU/CSU",
-      "fuehrend_aktuell": 26.0,
-      "bereits_fuehrend": false,
-      "stark_datum": null,
-      "mehrheit_datum": "2033-11",
-      "naechste_wahl": "26. September 2027",
-      "naechste_wahl_exakt": true,
-      "naechste_wahl_monat": "2027-09",
       "vor_naechster_wahl": false
     },
     {

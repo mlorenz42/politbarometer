@@ -1,5 +1,5 @@
 {
- "stand": "2026-11-16",
+ "stand": "2026-11-20",
  "bund": {
   "quelle": "https://de.wikipedia.org/wiki/Deutscher_Bundestag",
   "gesamt": 630,
@@ -108,9 +108,9 @@
    },
    "reihenfolge": ["lin", "spd", "gru", "fdp", "cdu", "x-bbb", "x-biw", "x-sonst"],
    "sitze": {
-    "lin": 10,
+    "lin": 9,
     "spd": 28,
-    "gru": 10,
+    "gru": 11,
     "fdp": 5,
     "cdu": 24,
     "x-bbb": 3,
